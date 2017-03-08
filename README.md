@@ -1,6 +1,6 @@
-# Project Name
+# Multivariate-Time Series Object Package (M-TOP)
 
-TODO: Write a project description
+A CUDA GPU/CPU implementation for the analysis of Multivariate Time Series Object.
 
 ## Installation
 
