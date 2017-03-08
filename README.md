@@ -27,7 +27,7 @@ The package is purely written in CUDA using C language as support. In order to u
 
 The package can be used as a **Standard Command Line Options style** with a list of options that are explained as following. 
 
-###### Compiling
+### Compiling
 
 Once you are in the main folder, you must compile the files **MD_DTW.cu** and **module.cu** as illustred below:
 
@@ -37,7 +37,7 @@ where `-D option` is necessary to define a `static variable` which is used to st
 
 **NOTE:** The implementation presented here assume that any comparison among two MTS has the same length.
 
-###### Running
+### Running
 
 As we said before, **M-TSOP** allow you to perform two task:
 
@@ -49,35 +49,63 @@ Each of the two tasks can be perfomed on **GPU** as well as on **CPU**.
 
 The program can run with the following flag options:
 
-- **-t** It's used to decide what tasks you want to perform (i.e. CLASSIFICATION,SUBSEQ_SEARCH) 
-- **-i** It represents the input parameters, where:
+- **-t**: It's used to decide what tasks you want to perform (i.e. CLASSIFICATION,SUBSEQ_SEARCH) 
+- **-i**: It represents the input parameters, where:
   1. The first parameter represents which version you want to use: *CPU* or *GPU*;
   2. The second parameter represents the number of dimension of the MTS;
-  3. The third/fourth parameter (depending on the first parameter) represents the #thread for each block (GPU) and/or the *read mode*.  
-- **-f** It's used to specify the file path of the data (refer to Data Format section for more information).
-- **-k**(optional) In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation* specifying then the number of folds. 
-- **-o** Depending on the *task* and *read mode*, it represents the MTS option parameters:
+  3. The third/fourth parameter (depending on the first parameter) represents the #thread for each block (GPU) and/or the *read mode*.
+  
+  **NOTE:** For more information about the read mode, please refer to the section *Data Format*.
+- **-f**: It's used to specify the file path of the data (refer to Data Format section for more information).
+- **-k**:(optional) In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation* specifying then the number of folds. 
+- **-o**: Depending on the *task* and *read mode*, it represents the MTS option parameters:
   1. **CLASSIFICATION (read-mode=0 oppure 1):**
     * The first parameter represents the number of MTS samples;
     * The second parameter represents the length of each MTS sample (same size for each dimension);
+    
     **NOTE:** For this combination it's need the *-k flag*,
   2. **CLASSIFICATION (read-mode=2):**
     * The first parameter represents the number of MTS in the TRAINING SET;
     * The second parameter represents the number of MTS in the TESTING SET;
     * The third parameter represents the MTS length (same size for each dimension).
-  3. **SUBSEQ_SEARCH (read-mode=0,1,2):**
+  3. **SUBSEQ_SEARCH (read-mode=0 oppure 1):**
     * The first parameter represents the MTS length (same size for each dimension);
     * The second parameter represents the MTS query length to search
-- **-m** It's used to specify the type of DTW to use:
+- **-m**: It's used to specify the type of DTW to use:
   * 0: D-MDTW
   * 1: I-MDTW
   * 2: R-MDTW (It suites only for theCLASSIFICATION task)
-- **-d** It's specify ID of the GPU you would like to use (e.g. 0: GeForce GTX TITAN X)
-- **--help** It's show how to use M-TSOP package
-- **--version** It's show the info version about the package
+- **-d**: It's specify ID of the GPU you would like to use (e.g. 0: GeForce GTX TITAN X)
+- **--help**: It's show how to use M-TSOP package
+- **--version**: It's show the info version about the package
+
+Some examples follow:
+
+**CLASSIFICATION**
+
+`nvcc MD_DTW_Classification.cu fun.cu -D WS=152 -o mdtwObj`
+
+`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 -m 2 -d 0`
+
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f DATA LABEL -k 10 -o 1000 152 -m 0 -d 0`
+
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 -m 0 -d 0`
+
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f TRAINING_SET TESTING_SET -o 500 1500 152 -m 0 -d 0`
+
+**SUBSEQ_SEARCH**
+
+`nvcc -D WS=421 MD_DTW.cu module.cu -o mdtwObj`
+
+`./mdtwObj -t SUBSEQ_SEARCH -i CPU 3 0 -f ECGseries ECGquery -o 3907 421 -m 1`
+
+`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f ECGseries ECGquery -o 3907 421 -m 0 -d 1`
+
+`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 1 -f ECGseries ECGquery -o 3907 421 -m 1 -d 1`
 
 
-###### Data format
+
+### Data format
 
 M-TSOP library works only with `txt` file format.
 
