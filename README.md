@@ -16,7 +16,7 @@ For more information, please refer to [1-2].
 
 ## Installation
 
-The package is purely written in CUDA using C language as support. In order to use this package you must have:
+The package is purely written in CUDA using C language as support. In order to use this package you must have installed:
 
 1. A working gcc compiler. 
 
