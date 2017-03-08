@@ -1,12 +1,12 @@
-# Multivariate-Time Series Object Software (M-TSOP)
+# Multivariate Time Series Software (MTSS)
 
 A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multivariate Time Series Object (MTSO).
 
-## What M-TSOP is?
+## What MTSS is?
 
-M-TSOP is a GPU/CPU library for the **Classification** and the **Subsequence Similarity Search** of MTSO. Originally inspired by [1], M-TSOP aims to improve the *Time Perfomance* and *Accuracy* for classyfing and sub-searching any kind of MTS by using the well known similarity measure: **Dynamic Time Warping (DTW)**. 
+MTSS is a GPU/CPU software designed for the **Classification** and the **Subsequence Similarity Search** of MTSO. Originally inspired by [1], MTSS aims to improve the *Time Perfomance* and *Accuracy* for classyfing and sub-searching any kind of MTS by using the well known similarity measure: **Dynamic Time Warping (DTW)**. 
 
-In order to improve the *Time Performace* of these two tasks (which may be considered highly time consuming), M-TSOP present a **GPGPU** implementation which allows to achieve almost three order of magnitude speedup, while to get better *Accuracy* results, it uses different type of DTW, namely:
+In order to improve the *Time Performace* of these two tasks (which may be considered highly time consuming), MTSS present a **GPGPU** implementation which allows to achieve almost three order of magnitude speedup, while to get better *Accuracy* results, it uses different type of DTW, namely:
 
 1. **D-MDTW:** Dependent-Multivariate Dynamic Time Warping
 2. **I-MDTW:** Independent-Multivariate Dynamic Time Warping
@@ -39,7 +39,7 @@ where `-D option` is necessary to define a `static variable` which is used to st
 
 ### Running
 
-As we said before, **M-TSOP** allow you to perform two task:
+As we said before, **MTSS** allow you to perform two task:
 
 1. **Classification**
 
@@ -76,7 +76,7 @@ The program can run with the following flag options:
   * **1**: I-MDTW
   * **2**: R-MDTW (It suites only for the CLASSIFICATION task)
 - **-d**: It's specify ID of the GPU you would like to use (e.g. 0: GeForce GTX TITAN X).
-- **--help**: It quickly explain how to use M-TSOP software.
+- **--help**: It quickly explain how to use MTSS software.
 - **--version**: It's show the info version about the sofware.
 
 Some examples follow:
@@ -106,7 +106,7 @@ Some examples follow:
 
 ### Data format
 
-M-TSOP library works only with `txt` file format.
+MTSS works only with `txt` file format.
 
 Depending on the chosen task, the input files must be adequately formatted. 
 
