@@ -1,24 +1,21 @@
-# Multivariate-Time Series Object Package (M-TOP)
+# Multivariate-Time Series Object Package (M-TSOP)
 
-A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multivariate Time Series Object. M-TOP is a GPU/CPU library for the `classification` and `subsequence search` of MTS  an inspired by [ref].
+A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multivariate Time Series Object (MTSO).
 
-## What does it do?
+## What M-TSOP is?
 
-The aim of this package is to perform 2 kind of task:
+M-TSOP is a GPU/CPU library for the `classification` and the `subsequence similarity search` of MTSO. Originally inspired by [ref], M-TSOP aims to improve the `time perfomance` and `accuracy` for classyfing and sub-searching any kind of MTS by using the well known similarity measure: `Dynamic Time Warping`. 
 
-1. MTS Classification
+In order to `speed-up` these two tasks (which may be considered highly time consuming), M-TSOP present a `GPGPU` version which allow to achieve almost three order of magnitude speedup, while to get better `accuracy` results it uses two types of DTW, namely:
 
-2. MTS Subsequence search
+1. D-DTW: Dependent-Dynamic Time Warping
+2. I-DTW: Independent-Dynamic Time Warping
 
-`MTS Classification` task is about to classify a set 
 
-Time series classification is to build a classification model based on labelled time series and then use the model to predict the label of unlabelled time series. The way for time series classification with R is to extract and build features from time series data first, and then apply existing classification techniques, such as SVM, k-NN, neural networks, regression and decision trees, to the feature set.
-
-Discrete Wavelet Transform (DWT) provides a multi-resolution representation using wavelets and is used in the example below. Another popular feature extraction technique is Discrete Fourier Transform (DFT).
 
 ## Installation
 
-The package is purely written in CUDA using C language as support. In order to use this package you will need:
+The package is purely written in CUDA using C language as support. In order to use this package you must have:
 
 1. A working gcc compiler. 
 
