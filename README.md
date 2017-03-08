@@ -4,9 +4,9 @@ A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multi
 
 ## What M-TSOP is?
 
-M-TSOP is a GPU/CPU library for the `classification` and the `subsequence similarity search` of MTSO. Originally inspired by [1], M-TSOP aims to improve the `time perfomance` and `accuracy` for classyfing and sub-searching any kind of MTS by using the well known similarity measure: `Dynamic Time Warping`. 
+M-TSOP is a GPU/CPU library for the **Classification** and the **Subsequence Similarity Search** of MTSO. Originally inspired by [1], M-TSOP aims to improve the *Time Perfomance* and *Accuracy* for classyfing and sub-searching any kind of MTS by using the well known similarity measure: **Dynamic Time Warping (DTW)**. 
 
-In order to improve the `time performace` of these two tasks (which may be considered highly time consuming), M-TSOP present a `GPGPU` implementation which allows to achieve almost three order of magnitude speedup, while to get better `accuracy` results, it uses different type of DTW, namely:
+In order to improve the *Time Performace* of these two tasks (which may be considered highly time consuming), M-TSOP present a **GPGPU** implementation which allows to achieve almost three order of magnitude speedup, while to get better *Accuracy* results, it uses different type of DTW, namely:
 
 1. **D-MDTW:** Dependent-Multivariate Dynamic Time Warping
 2. **I-MDTW:** Independent-Multivariate Dynamic Time Warping
@@ -41,9 +41,9 @@ where `-D option` is necessary to define a `static variable` which is used to st
 
 As we said before, **M-TSOP** allow you to perform two task:
 
-1. Classification
+1. **Classification**
 
-2. Similarity subseq-search
+2. **Similarity subseq-search**
 
 Each of the two tasks can be perfomed on **GPU** as well as on **CPU**.
 
@@ -59,7 +59,7 @@ The program can run with the following flag options:
 - **-f**: It's used to specify the file path of the data (refer to Data Format section for more information).
 - **-k**:(optional) In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation* specifying then the number of folds. 
 - **-o**: Depending on the *task* and *read mode*, it represents the MTS option parameters:
-  1. **CLASSIFICATION (read-mode=0 oppure 1):**
+  1. +**CLASSIFICATION (read-mode=0 oppure 1):**
     * The first parameter represents the number of MTS samples;
     * The second parameter represents the length of each MTS sample (same size for each dimension);
     
