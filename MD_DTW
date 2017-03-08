@@ -272,9 +272,7 @@ int main( int argc, char** argv)
             //  printf("Something went wrong! The size of the data is larger than the features space.");
             //  exit(2);
             // }
-            
-            // printf("window_size: %d\n",window_size);
-            
+                        
             
             flag_opt=0;
         }
