@@ -1,4 +1,4 @@
-# Multivariate-Time Series Object Package (M-TSOP)
+# Multivariate-Time Series Object Software (M-TSOP)
 
 A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multivariate Time Series Object (MTSO).
 
@@ -16,7 +16,7 @@ For more information, please refer to [1-2].
 
 ## Installation
 
-The package is purely written in CUDA using C language as support. In order to use this package you must have installed:
+The software is purely written in CUDA using C language as support. In order to use it you must have installed:
 
 1. A working gcc compiler. 
 
@@ -25,7 +25,7 @@ The package is purely written in CUDA using C language as support. In order to u
 
 ## Usage
 
-The package can be used as a **Standard Command Line Options style** with a list of options that are explained as following. 
+The software can be used as a **Standard Command Line Options style** with a list of options that are explained as following. 
 
 ### Compiling
 
@@ -76,7 +76,7 @@ The program can run with the following flag options:
   * **1**: I-MDTW
   * **2**: R-MDTW (It suites only for the CLASSIFICATION task)
 - **-d**: It's specify ID of the GPU you would like to use (e.g. 0: GeForce GTX TITAN X).
-- **--help**: It quickly explain how to use M-TSOP package.
+- **--help**: It quickly explain how to use M-TSOP software.
 - **--version**: It's show the info version about the sofware.
 
 Some examples follow:
