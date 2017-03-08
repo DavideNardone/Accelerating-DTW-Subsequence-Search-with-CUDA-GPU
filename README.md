@@ -41,6 +41,8 @@ Depending on the chosen task, the input files must be adequately formatted.
 
 ## Tests
 
+TODO: Add some test examples
+
 ## Contributing
 
 1. Fork it!
