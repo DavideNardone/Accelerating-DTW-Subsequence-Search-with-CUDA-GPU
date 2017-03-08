@@ -8,9 +8,9 @@ M-TSOP is a GPU/CPU library for the `classification` and the `subsequence simila
 
 In order to improve the `time performace` of these two tasks (which may be considered highly time consuming), M-TSOP present a `GPGPU` implementation which allows to achieve almost three order of magnitude speedup, while to get better `accuracy` results, it uses different type of DTW, namely:
 
-1. D-MDTW: Dependent-Multivariate Dynamic Time Warping
-2. I-MDTW: Independent-Multivariate Dynamic Time Warping
-3. R-MDTW: Rotation-Multivariate Dynamic Time Warping
+1. **D-MDTW:** Dependent-Multivariate Dynamic Time Warping
+2. **I-MDTW:** Independent-Multivariate Dynamic Time Warping
+3. **R-MDTW:** Rotation-Multivariate Dynamic Time Warping
 
 For more information, please refer to [1-2].
 
@@ -25,18 +25,66 @@ The package is purely written in CUDA using C language as support. In order to u
 
 ## Usage
 
-###### Compiling and Linking
+The package can be used as a **Standard Command Line Options style** with a list of options that are explained as following. 
 
+###### Compiling
 
+Once you are in the main folder, you must compile the files **MD_DTW.cu** and **module.cu** as illustred below:
+
+`nvcc [options] [source files] -o output file>` (e.g. `nvcc -D WS=421 MD_DTW.cu module.cu -o mdtwObj`)
+
+where `-D option` is necessary to define a `static variable` which is used to store the MTS to test against into the *local memory* of each CUDA block.
+
+**NOTE:** The implementation presented here assume that any comparison among two MTS has the same length.
 
 ###### Running
+
+As we said before, **M-TSOP** allow you to perform two task:
+
+1. Classification
+
+2. Similarity subseq-search
+
+Each of the two tasks can be perfomed on **GPU** as well as on **CPU**.
+
+The program can run with the following flag options:
+
+- **-t** It's used to decide what tasks you want to perform (i.e. CLASSIFICATION,SUBSEQ_SEARCH) 
+- **-i** It represents the input parameters, where:
+  1. The first parameter represents which version you want to use: *CPU* or *GPU*;
+  2. The second parameter represents the number of dimension of the MTS;
+  3. The third/fourth parameter (depending on the first parameter) represents the #thread for each block (GPU) and/or the *read mode*.  
+- **-f** It's used to specify the file path of the data (refer to Data Format section for more information).
+- **-k**(optional) In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation* specifying then the number of folds. 
+- **-o** Depending on the *task* and *read mode*, it represents the MTS option parameters:
+  1. **CLASSIFICATION (read-mode=0 oppure 1):**
+    * The first parameter represents the number of MTS samples;
+    * The second parameter represents the length of each MTS sample (same size for each dimension);
+    **NOTE:** For this combination it's need the *-k flag*,
+  2. **CLASSIFICATION (read-mode=2):**
+    * The first parameter represents the number of MTS in the TRAINING SET;
+    * The second parameter represents the number of MTS in the TESTING SET;
+    * The third parameter represents the MTS length (same size for each dimension).
+  3. **SUBSEQ_SEARCH (read-mode=0,1,2):**
+    * The first parameter represents the MTS length (same size for each dimension);
+    * The second parameter represents the MTS query length to search
+- **-m** It's used to specify the type of DTW to use:
+  * 0: D-MDTW
+  * 1: I-MDTW
+  * 2: R-MDTW (It suites only for theCLASSIFICATION task)
+- **-d** It's specify ID of the GPU you would like to use (e.g. 0: GeForce GTX TITAN X)
+- **--help** It's show how to use M-TSOP package
+- **--version** It's show the info version about the package
 
 
 ###### Data format
 
-M-TSOP library works only with `.txt` file.
+M-TSOP library works only with `txt` file format.
 
 Depending on the chosen task, the input files must be adequately formatted. 
+
+
+**NOTE:** The implementation presented here assume that any comparison among two MTS has the same length.
 
 
 ## Tests
