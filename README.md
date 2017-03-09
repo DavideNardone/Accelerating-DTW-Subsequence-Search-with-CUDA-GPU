@@ -116,7 +116,7 @@ For this task, MTSS provides three different type of reading mode:
 
 2. read-mode=1: It's possible to feed MTSS with *N files*, where each of them is formatted as a *N\*T* data matrix, where each of the *N* rows must contain in the first position the integer class label and then the *T-1* values of the MTS. (A template file is placed in the data/classification/rm_1).
 
-3. read-mode=2: It's possible to feed MTSS with a TRAINIG SET and a TESTING SET file. Both the file must be formatted as *D\*T* data matrix, where each d-th row must contains the MTS values. (Also in this case, the MTS are appended in the file). (A template file is placed in the data/classification/rm_2).
+3. read-mode=2: It's possible to feed MTSS with a TRAINING SET and a TESTING SET file. Both the file must be formatted as *D\*T* data matrix, where each d-th row must contains the MTS values. (Also in this case, the MTS are appended in the file). (A template file is placed in the data/classification/rm_2).
 
 
 **NOTE:** The MTSS implementation presented here assume that all the MTS have the same time length.
