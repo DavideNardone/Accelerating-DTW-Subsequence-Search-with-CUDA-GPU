@@ -34,8 +34,8 @@ int main( int argc, char** argv)
     int flag_cross = 0;
     int flag_alg_mode = 0;
     int n_file=0;
-    int class_mode = 0; //default value
-    char *compution_type, *task;
+    int class_mode = 0;
+    char *task, *compution_type, *distance_type;
     int *arr_num_file;
     int* tInd = NULL;
     struct data data_struct;
@@ -278,7 +278,7 @@ int main( int argc, char** argv)
         }
 
         else if (flag_alg_mode){
-            num_opts = 1;
+            num_opts = 2;
 
             printf("i_flag_alg_mode: %d, argc: %d\n",i,argc);
 
@@ -289,6 +289,10 @@ int main( int argc, char** argv)
          
             class_mode = atoi(argv[i]);
             printf("class_mode: %d\n",class_mode);
+            distance_type = argv[i+1];
+            printf("distance type: %s\n",distance_type);
+            i = i+1;
+
             flag_alg_mode = 0;
         }
         else if (flag_device){
@@ -429,7 +433,7 @@ int main( int argc, char** argv)
                 float * h_Out;
                 switch (class_mode){
 
-                    case 0: //TODO: insert calculation of min value and classification error rate
+                    case 0:
 
                         h_Out = (float *) malloc(trainSize*sizeof(float));
 
@@ -440,8 +444,12 @@ int main( int argc, char** argv)
                             for (int j = 0; j < trainSize; j++) {
                                 // z_normalize2D(&h_train[j*dimensions*window_size],dimensions,window_size);
                                 // printMatrix(&h_train[i*dimensions*window_size],dimensions,window_size);
-                                h_Out[j] = short_md_dtw_c(&h_train[j*n_feat*window_size], &h_test[k*n_feat*window_size], window_size, window_size, n_feat, window_size);
-                                // printf("h_Out[%d]: %f\n",j,h_Out[j]);
+                                if ( strcmp(distance_type,"DTW") == 0)
+                                    h_Out[j] = short_md_dtw_c(&h_train[j*n_feat*window_size], &h_test[k*n_feat*window_size], window_size, window_size, n_feat, window_size);
+                                else
+                                    h_Out[j] = short_md_ed_c(&h_train[j*n_feat*window_size], &h_test[k*n_feat*window_size], window_size, n_feat, window_size);    
+
+                                printf("h_Out[%d]: %f\n",j,h_Out[j]);
                             }
 
                             // minI = (int *) malloc(sizeof(int));

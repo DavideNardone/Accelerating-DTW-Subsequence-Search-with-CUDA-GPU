@@ -51,6 +51,8 @@ extern "C" {
 	__host__ void z_normalize2D(float *, int ,int); 
 	__host__ float short_dtw_c(float *, float *,int , int );
 	__host__ float short_md_dtw_c(float *, float *,int , int ,int, int );
+	__host__ float short_ed_c(float *, float *, int );
+	__host__ float short_md_ed_c(float *, float *, int , int ,int );
 	__host__ void print_help(void);
 	__host__ void print_version(void);
 	__host__ void infoDev();

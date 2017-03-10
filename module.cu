@@ -1173,6 +1173,31 @@ __host__ void z_normalize2D(float *M, int nrow,int ncol) {
 }
 
 
+__host__ float short_md_ed_c(float *T, float *S, int window_size, int dimensions, int offset){
+
+    float sumErr = 0, dd = 0;
+
+    for(int i = 0; i < window_size; i++) {
+        dd = 0;
+        for(int j = 0; j < dimensions; j++) {
+            dd += (T[(j*offset)+i]-S[(j*offset)+i])*(T[(j*offset)+i]-S[(j*offset)+i]);
+            // printf("dd[%d]: %d\n", j, dd);
+        }
+    sumErr += dd;
+    }
+    return sqrt(sumErr);
+}
+
+
+__host__ float short_ed_c(float *T, float *S, int window_size){
+
+    float sumErr = 0;
+
+    for(int i = 0; i < window_size; i++)
+        sumErr += ( T[i] - S[i] )*( T[i] - S[i] );
+
+    return sqrt(sumErr);
+}
 
 __host__ float short_dtw_c(float *instance, float *query,int ns, int nt) {
 
