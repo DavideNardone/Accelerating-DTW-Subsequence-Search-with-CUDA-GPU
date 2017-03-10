@@ -120,7 +120,7 @@ For this task, MTSS provides three different type of reading mode:
 
 **SUBSEQ_SEARCH**
 
-For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES represents the Time Series on which the Q_SERIES has to be searched. Both the files must be formatted as *D*T* data matrix where each column must contain the dimensional values of the T_SERIES at each time instant *t* and viceversa (depending on the read-mode (0|1)).
+For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES represents the Time Series on which the Q_SERIES has to be searched. Both the files must be formatted as *D*T* data matrix where each column must contain the dimensional values of the T_SERIES at each time instant *t* and viceversa (depending on the read-mode (0|1)). (A template file is placed in [data/subseq_search/](data/subseq_search/).
 
 **NOTE:** The MTSS presented here assume that all the MTS have the same time length.
 
