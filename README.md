@@ -106,20 +106,23 @@ Some examples follow:
 
 ### Data format
 
-MTSS works only with `txt` file format. The data file muste be adequayely formatted depending on the type of task to perform.
+MTSS works only with `txt` file format. Depending on the type of task to perform, the data file must be adequayely formatted.
 
 **_CLASSIFICATION_**
 
 For this task, MTSS provides three different type of reading mode:
 
-1. read-mode=0: It's possible to feed MTSS with two files, (DATA, LABEL). The DATA file must be formatted as a *T\*D* data matrix, where each row must contain the dimensional values of the MTS at time instant *t* (in this case, the MTS are appended in the file), while the LABEL file just contains the integer class label. (A template file is placed in the data/classification/rm_0)
+1. read-mode=0: It's possible to feed MTSS with two files, (DATA, LABEL). The DATA file must be formatted as a *T\*D* data matrix, where each row must contain the dimensional values of the MTS at time instant *t* (in this case, the MTS are appended in the file), while the LABEL file just contains the integer class label. (A template file is placed in [data/classification/rm_0](data/classification/rm_0)
 
-2. read-mode=1: It's possible to feed MTSS with *N files*, where each of them is formatted as a *N\*T* data matrix, where each of rows must contain in the first position the integer class label and then the *T-1* values of the MTS. (A template file is placed in the data/classification/rm_1).
+2. read-mode=1: It's possible to feed MTSS with *N files*, where each of them is formatted as a *N\*T* data matrix, where each of rows must contain in the first position the integer class label and then the *T-1* values of the MTS. (A template file is placed in [data/classification/rm_1](data/classification/rm_1)).
 
-3. read-mode=2: It's possible to feed MTSS with a TRAINING SET and a TESTING SET file. Both the file must be formatted as *D\*T* data matrix, where each d-th row must contain the MTS values. (Also in this case, the MTS are appended in the file). (A template file is placed in the data/classification/rm_2).
+3. read-mode=2: It's possible to feed MTSS with a TRAINING SET and a TESTING SET file. Both the file must be formatted as *D\*T* data matrix, where each d-th row must contain the MTS values. (Also in this case, the MTS are appended in the file). (A template file is placed in [data/classification/rm_2](data/classification/rm_2)).
 
+**SUBSEQ_SEARCH**
 
-**NOTE:** The MTSS implementation presented here assume that all the MTS have the same time length.
+For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES represents the Time Series on which the Q_SERIES has to be searched. Both the files must be formatted as *D\*T* data matrix where each column must contain the dimensional values of the T_SERIES at each time instant *t* and viceversa (depending on the read-mode (0|1)).
+
+**NOTE:** The MTSS presented here assume that all the MTS have the same time length.
 
 
 ## Tests
