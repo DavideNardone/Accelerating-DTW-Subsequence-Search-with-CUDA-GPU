@@ -112,11 +112,11 @@ MTSS works only with `txt` file format. The data file muste be adequayely format
 
 For this task, MTSS provides three different type of reading mode:
 
-1. read-mode=0: It's possible to feed MTSS with two files, (DATA, LABEL). The DATA file must be formatted as a *T\*D* data matrix, where each row must contains the dimensional values of the MTS at time instant *t* (in this case, the MTS are appended in the file), while the LABEL file just contains the integer class label. (A template file is placed in the data/classification/rm_0)
+1. read-mode=0: It's possible to feed MTSS with two files, (DATA, LABEL). The DATA file must be formatted as a *T\*D* data matrix, where each row must contain the dimensional values of the MTS at time instant *t* (in this case, the MTS are appended in the file), while the LABEL file just contains the integer class label. (A template file is placed in the data/classification/rm_0)
 
-2. read-mode=1: It's possible to feed MTSS with *N files*, where each of them is formatted as a *N\*T* data matrix, where each of the *N* rows must contain in the first position the integer class label and then the *T-1* values of the MTS. (A template file is placed in the data/classification/rm_1).
+2. read-mode=1: It's possible to feed MTSS with *N files*, where each of them is formatted as a *N\*T* data matrix, where each of rows must contain in the first position the integer class label and then the *T-1* values of the MTS. (A template file is placed in the data/classification/rm_1).
 
-3. read-mode=2: It's possible to feed MTSS with a TRAINING SET and a TESTING SET file. Both the file must be formatted as *D\*T* data matrix, where each d-th row must contains the MTS values. (Also in this case, the MTS are appended in the file). (A template file is placed in the data/classification/rm_2).
+3. read-mode=2: It's possible to feed MTSS with a TRAINING SET and a TESTING SET file. Both the file must be formatted as *D\*T* data matrix, where each d-th row must contain the MTS values. (Also in this case, the MTS are appended in the file). (A template file is placed in the data/classification/rm_2).
 
 
 **NOTE:** The MTSS implementation presented here assume that all the MTS have the same time length.
