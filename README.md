@@ -72,10 +72,11 @@ The program can run with the following flag options:
     * The first parameter represents the MTS length (same size for each dimension);
     * The second parameter represents the MTS *query* length to search for.
 - **-m**: It's used to specify the type of **_MDTW_** to use:
-  * **0**: D-MDTW
-  * **1**: I-MDTW
-  * **2**: R-MDTW (It suites only for the CLASSIFICATION task)
-- **-d**: It's specify ID of the GPU you would like to use (e.g. 0: GeForce GTX TITAN X).
+  * **0**: Dependent similarity measure;
+  * **1**: Independent similarity measure;
+  * **2**: Rotation similarity measure (It suites only for the CLASSIFICATION task)
+  * **\<similarity distance\>**: ED or DTW.
+- **-d**: It specify the GPU's ID you want to use (e.g. 0: GeForce GTX TITAN X).
 - **--help**: It quickly explain how to use MTSS software.
 - **--version**: It's show the info version about the sofware.
 
