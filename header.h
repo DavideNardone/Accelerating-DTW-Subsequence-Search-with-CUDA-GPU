@@ -35,8 +35,11 @@ extern "C" {
 	#endif
 
 	//device
+	__global__ void MD_ED_D(float* , float* , int , int , float* , int , int );
 	__global__ void MD_DTW_D(float* , float* , int , int , int , float* ,int, int );
+	__global__ void MD_ED_I(float* , float* , int , int , float* , int , int );
 	__global__ void MD_DTW_I(float* , float* , int , int , int , float* ,int, int);
+	__global__ void rMD_ED_D(float* , float* , int , int , float* , int );
 	__global__ void rMD_DTW_D(float* , float* , int , int , int , float*, int);
 	__device__ float stdDev(float *, int ,float *);
 
@@ -70,6 +73,7 @@ extern "C" {
 	__host__ void findInd(int* , int , int* , int );
 	__host__ int unique_val(int* ,int );
 	__host__ int* accumarray(int* ,int ,int* );
+	__host__ float timedifference_msec(struct timeval , struct timeval );
 	__host__ void shuffle(int *, size_t , size_t );
 	__host__ void idAssign(int* ,int ,int* ,int ,int* ,int* ,int* );
 	__host__ int* crossvalind_Kfold(int* ,int ,int );

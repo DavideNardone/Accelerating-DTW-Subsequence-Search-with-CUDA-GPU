@@ -10,7 +10,7 @@ int main( int argc, char** argv)
     struct timeval stop_CPU, start_CPU;
     cudaEvent_t start_GPU, stop_GPU;
 
-    float time_GPU_MD_DTW_D,time_GPU_MD_DTW_I,time_GPU_rMDTW;
+    float time_GPU_MD_DTW_D,time_GPU_MD_DTW_I,time_GPU_rMDTW, elapsed;
 
     int i,j,k,f,nss; 
 
@@ -36,6 +36,7 @@ int main( int argc, char** argv)
     int n_file=0;
     int class_mode = 0;
     char *task, *compution_type, *distance_type;
+    const char *strategy;
     int *arr_num_file;
     int* tInd = NULL;
     struct data data_struct;
@@ -288,6 +289,13 @@ int main( int argc, char** argv)
             }              
          
             class_mode = atoi(argv[i]);
+            if(class_mode == 0)
+                strategy = "DEPENDENT";
+            else if(class_mode == 1)
+                strategy = "INDEPENDENT";
+            else
+                strategy = "ROTATION INVARIANT";
+
             printf("class_mode: %d\n",class_mode);
             distance_type = argv[i+1];
             printf("distance type: %s\n",distance_type);
@@ -419,7 +427,7 @@ int main( int argc, char** argv)
 
 
             /******************************* HOST MEMORY ALLOCATION *******************************/
-            printf("\n****************Classification using %s****************\n\n",compution_type);
+            printf("\n****************Classification w/ %s-%s using %s****************\n\n" ,strategy, distance_type, compution_type);
             printf("TRAINING SET:\tlength: %d, n_attrs: %d byte_size: %f\n",trainSize,n_feat,(float)trainBytes);
             printf("TESTING SET:\tlength: %d, n_attrs: %d, byte_size: %f\n\n",testSize,n_feat,(float)testBytes);
 
@@ -444,12 +452,12 @@ int main( int argc, char** argv)
                             for (int j = 0; j < trainSize; j++) {
                                 // z_normalize2D(&h_train[j*dimensions*window_size],dimensions,window_size);
                                 // printMatrix(&h_train[i*dimensions*window_size],dimensions,window_size);
-                                if ( strcmp(distance_type,"DTW") == 0)
+                                if ( strcmp(distance_type,"DTW") == 0) //DTW distance
                                     h_Out[j] = short_md_dtw_c(&h_train[j*n_feat*window_size], &h_test[k*n_feat*window_size], window_size, window_size, n_feat, window_size);
-                                else
+                                else //Euclidean distance
                                     h_Out[j] = short_md_ed_c(&h_train[j*n_feat*window_size], &h_test[k*n_feat*window_size], window_size, n_feat, window_size);    
 
-                                printf("h_Out[%d]: %f\n",j,h_Out[j]);
+                                // printf("h_Out[%d]: %f\n",j,h_Out[j]);
                             }
 
                             // minI = (int *) malloc(sizeof(int));
@@ -461,7 +469,9 @@ int main( int argc, char** argv)
                             printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
                         }
                         gettimeofday(&stop_CPU, NULL);
-                        printf("\nExecution time for %s DTW_D with CPU %lf ms\n", task,(double)(stop_CPU.tv_usec - start_CPU.tv_usec));
+
+                        elapsed = timedifference_msec(start_CPU, stop_CPU);
+                        printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, elapsed);
 
                         RA = (float)(testSize-err)*(100.0/testSize);
                         ER_RA = (float)(testSize-(testSize-err))/(testSize);
@@ -487,7 +497,10 @@ int main( int argc, char** argv)
                                 cum_sum = 0.0;
                                 // z_normalize2D(&h_train[j*dimensions*window_size],dimensions,window_size);
                                 for (int d = 0; d < n_feat; d++) {
-                                    dtw_curr = short_dtw_c(&h_train[(d*window_size)+(j*n_feat*window_size)],&h_test[(k*n_feat*window_size)+(d*window_size)],window_size,window_size);
+                                    if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                                        dtw_curr = short_dtw_c(&h_train[(d*window_size)+(j*n_feat*window_size)],&h_test[(k*n_feat*window_size)+(d*window_size)],window_size,window_size);
+                                    else
+                                        dtw_curr = short_ed_c(&h_train[(d*window_size)+(j*n_feat*window_size)],&h_test[(k*n_feat*window_size)+(d*window_size)],window_size);
                                     cum_sum += dtw_curr;
                                     // printf("dtw[%d]: %f\n",k,dtw_curr);
                                 }
@@ -504,7 +517,9 @@ int main( int argc, char** argv)
                             printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
                         }
                         gettimeofday(&stop_CPU, NULL);
-                        printf("\nExecution time for %s w/ DTW_I with CPU %lf ms\n", task, (double)(stop_CPU.tv_usec - start_CPU.tv_usec));
+
+                        elapsed = timedifference_msec(start_CPU, stop_CPU);
+                        printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, elapsed);
 
                         RA = (float)(testSize-err)*(100.0/testSize);
                         ER_RA = (float)(testSize-(testSize-err))/(testSize);
@@ -530,7 +545,10 @@ int main( int argc, char** argv)
                             // printf("j: %d\n",j);
                             for (int k = 0; k < window_size; k++) {
                                 // short_md_dtw_c(&h_train[j*n_feat*window_size], &h_test[k*n_feat*window_size], window_size, window_size, n_feat, window_size);
-                                h_Out[(j*window_size)+k] = short_md_dtw_c(&h_train[(2*j*n_feat*window_size)+k],&h_test[i*n_feat*window_size],window_size,window_size,n_feat,2*window_size);
+                                if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                                    h_Out[(j*window_size)+k] = short_md_dtw_c(&h_train[(2*j*n_feat*window_size)+k],&h_test[i*n_feat*window_size],window_size,window_size,n_feat,2*window_size);
+                                else
+                                    h_Out[(j*window_size)+k] = short_md_ed_c(&h_train[(2*j*n_feat*window_size)+k],&h_test[i*n_feat*window_size],window_size,n_feat,2*window_size);
                                 // printf("shift-%d, dtw[%d]: %f\n",k,j,h_Out[k]);
                             }
                             // min = min_arr(h_Out,trainSize,minI);
@@ -543,7 +561,6 @@ int main( int argc, char** argv)
                         *minI = -1;
                         minINR = -1;
                         minNR = 99999999999.99;
-                        i = 0;
                         for(int m = 0 ; m < trainSize ; m++ )
                         {
                                 // printf("DTW[%d]: %f\n",window_size*j,h_Out[window_size*j]);
@@ -576,7 +593,21 @@ int main( int argc, char** argv)
 
                     }
                     gettimeofday(&stop_CPU, NULL);
-                    printf("\nExecution time for %s w/ DTW_I with CPU %f ms\n", task, (double)(stop_CPU.tv_usec - start_CPU.tv_usec));
+
+                    elapsed = timedifference_msec(start_CPU, stop_CPU);
+                    printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, elapsed);
+
+                    RIA = (float)(testSize-err)*(100.0/testSize);
+                    ER_RIA = (float)(testSize-(testSize-err))/(testSize);
+                    printf("Rotation Invariant Accuracy is %f\n",RIA);
+                    printf("The Error rate of RI is %f\n",ER_RIA);
+                    mean_RIA += RIA;
+                    mean_ER_RIA += ER_RIA;
+
+                    RA = (float)(testSize-errNR)*(100.0/testSize);
+                    ER_RA = (float)(testSize-(testSize-errNR))/(testSize);
+                    printf("\nRegular Accuracy is %f\n",RA);
+                    printf("The Error rate of NR is %f\n",ER_RA);
 
                     break;
                 }
@@ -672,7 +703,11 @@ int main( int argc, char** argv)
                             cudaMemset(&d_test, 0, n_feat*window_size*sizeof(float));
                             cudaMemcpy(d_test, h_test + k*(n_feat*window_size) , n_feat*window_size*sizeof(float), cudaMemcpyHostToDevice);
 
-                            MD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,0);
+                            if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                                MD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,0);
+                            else
+                                MD_ED_D <<<grid, threads, T2>>> (d_train, d_test, window_size,n_feat,d_Out,trainSize,0);
+
                             cudaDeviceSynchronize(); //it may be avoided if there's not printf in the kernel function
                             cudaMemcpy(h_Out, d_Out, trainSize*sizeof(float), cudaMemcpyDeviceToHost);
                             // printArray(h_Out,trainSize);
@@ -705,8 +740,8 @@ int main( int argc, char** argv)
                         cudaEventSynchronize(stop_GPU);
                         cudaEventElapsedTime(&time_GPU_MD_DTW_D,start_GPU,stop_GPU);
                         cudaEventDestroy(start_GPU);
-                        cudaEventDestroy(stop_GPU); 
-                        printf("\nExecution time for %s MD_DTW_D with GPU %f ms\n", task, time_GPU_MD_DTW_D);
+                        cudaEventDestroy(stop_GPU);
+                        printf("\nExecution time for %s w/ GPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, time_GPU_MD_DTW_D);
 
                         RA = (float)(testSize-err)*(100.0/testSize);
                         ER_RA = (float)(testSize-(testSize-err))/(testSize);
@@ -753,7 +788,11 @@ int main( int argc, char** argv)
                         for (k = 0; k < testSize; k++){
                             cudaMemcpy(d_test, h_test + k*(n_feat*window_size) , n_feat*window_size*sizeof(float), cudaMemcpyHostToDevice);
 
-                            MD_DTW_I <<<grid, threads, sh_mem>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,0);
+                            if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                                MD_DTW_I <<<grid, threads, sh_mem>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,0);
+                            else
+                                MD_ED_I <<<grid, threads, sh_mem>>> (d_train, d_test, window_size, n_feat,d_Out,trainSize,0);
+
                             cudaThreadSynchronize();
                             cudaMemcpy(h_Out, d_Out, trainSize*sizeof(float), cudaMemcpyDeviceToHost);
                             // printArray(DTW_indep_host,trainSize);
@@ -773,7 +812,7 @@ int main( int argc, char** argv)
                         cudaEventElapsedTime(&time_GPU_MD_DTW_I,start_GPU,stop_GPU);
                         cudaEventDestroy(start_GPU);
                         cudaEventDestroy(stop_GPU); 
-                        printf("\nExecution time for %s w/ MD_DTW_I with GPU %f ms\n", task, time_GPU_MD_DTW_I);
+                        printf("\nExecution time for %s w/ GPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, time_GPU_MD_DTW_I);
 
                         RA = (float)(testSize-err)*(100.0/testSize);
                         ER_RA = (float)(testSize-(testSize-err))/(testSize);
@@ -809,8 +848,11 @@ int main( int argc, char** argv)
                         {
                             cudaMemcpy(d_test, h_test + (k*n_feat*window_size), n_feat*window_size*sizeof(float), cudaMemcpyHostToDevice);
 
+                            if ( strcmp(distance_type,"DTW") == 0) //DTW distance                            
+                                rMD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize);
+                            else
+                                rMD_ED_D <<<grid, threads, T2>>> (d_train, d_test, window_size, n_feat,d_Out,trainSize);
 
-                            rMD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize);
                             cudaThreadSynchronize();
 
                             cudaMemcpy(h_Out, d_Out, trainSize*window_size*sizeof(float), cudaMemcpyDeviceToHost);
@@ -858,8 +900,8 @@ int main( int argc, char** argv)
                         cudaEventSynchronize(stop_GPU);
                         cudaEventElapsedTime(&time_GPU_rMDTW,start_GPU,stop_GPU);
                         cudaEventDestroy(start_GPU);
-                        cudaEventDestroy(stop_GPU); 
-                        printf("\nExecution time for %s w/ rMD_DTW_D with GPU %f ms\n", task, time_GPU_rMDTW);
+                        cudaEventDestroy(stop_GPU);
+                        printf("\nExecution time for %s w/ GPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, time_GPU_rMDTW);
                     
                         RIA = (float)(testSize-err)*(100.0/testSize);
                         ER_RIA = (float)(testSize-(testSize-err))/(testSize);
@@ -920,7 +962,7 @@ int main( int argc, char** argv)
         float *q_series = (float *) malloc (q_bytes);
         float* owp = (float*) malloc (nss*sizeof(float));
         memset(owp,0,nss*sizeof(float));
-        float *d_owp_copy;
+        // float *d_owp_copy;
 
         readFileSubSeq(argv, arr_num_file, n_file, t_series, t_size, q_series, window_size, n_feat, read_mode);
 
@@ -935,60 +977,67 @@ int main( int argc, char** argv)
             printf("Time Series Q:\t:length: %d, n_feat: %d, byte_size: %lu\n", q_size, n_feat, sizeof(float)*q_size);
             printf("Number of Subsequences to search: %d\n", nss);            
 
-            float min, min_curr;
+            float dist, min = 0.0, val_curr;
 
             switch (class_mode){
 
                 case 0: {
 
-                    printf("DTW_D CPU version processing...\n");
+                    printf("%s-%s CPU version processing...\n" ,strategy, distance_type);
 
                     gettimeofday(&start_CPU, NULL);
 
                     for (int i = 0; i < nss; i++) {
 
-                        min = 0.0;
+                        dist = 0.0;
                         // z_normalize(&t_serie[i],window_size,subseq_norm);
                         // float short_md_dtw_c(float *S, float *T,int ns, int nt,int dim)
                         // min = short_dtw_c(&t_series[i],q_series, window_size, window_size);
+                        if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                            dist = short_md_dtw_c(&t_series[i], q_series, window_size, window_size, n_feat, t_size);
+                        else
+                            dist = short_md_ed_c(&t_series[i], q_series, window_size, n_feat, t_size);
 
-                        min = short_md_dtw_c(&t_series[i], q_series, window_size, window_size, n_feat, t_size);
-                        owp[i] = min;
-                        printf("min[%d]: %f\n", i, owp[i]);
+                        owp[i] = dist;
+                        // printf("val[%d]: %f\n", i, owp[i]);
                     }
-
                     gettimeofday(&stop_CPU, NULL);
-                    printf("\nExecution time for %s w/ DTW_D with CPU %lf ms\n", task,(double)(stop_CPU.tv_usec - start_CPU.tv_usec));
+
+                    elapsed = timedifference_msec(start_CPU, stop_CPU);
+                    printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, elapsed);
 
                     //computing minimum value
                     min = min_arr(owp,nss,ind_min_val);
-                    printf("ind_min_val_CPU_version: %d, min_val_CPU_version: %f\n\n",*ind_min_val,min);
+                    printf("ind_min_val_CPU_version: %d, min_val_CPU_version: %f\n\n" ,*ind_min_val,min);
                 }
 
-                free(t_series);
-                free(q_series);
-                free(owp);
                 break;
 
                 case 1: {
 
-                    printf("DTW_I CPU version processing...\n");
+                    printf("%s-%s CPU version processing...\n" ,strategy, distance_type);
 
                     gettimeofday(&start_CPU, NULL);
 
                     for (int i = 0; i < nss; i++) {
-                        min = 0.0;
+                        dist = 0.0;
                         // z_normalize2D(&h_train[j*dimensions*window_size],dimensions,window_size);
                         for (int k = 0; k < n_feat; k++) {
-                            min_curr = short_dtw_c(&t_series[(k*t_size)+i],&q_series[(k*window_size)],window_size,window_size);
-                            min += min_curr;
+                            if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                                val_curr = short_dtw_c(&t_series[(k*t_size)+i],&q_series[(k*window_size)],window_size,window_size);
+                            else
+                                val_curr = short_ed_c(&t_series[(k*t_size)+i],&q_series[(k*window_size)],window_size);
+
+                            dist += val_curr;
                             // printf("dtw[%d]: %f\n",k,dtw_curr);
                         }
-                        owp[i] = min;
-                        printf("min[%d]: %f\n", i, owp[i]);
+                        owp[i] = dist;
+                        // printf("min[%d]: %f\n", i, owp[i]);
                     }
                     gettimeofday(&stop_CPU, NULL);
-                    printf("\nExecution time for %s w/ DTW_I with CPU %lf ms\n", task,(double)(stop_CPU.tv_usec - start_CPU.tv_usec));
+
+                    elapsed = timedifference_msec(start_CPU, stop_CPU);
+                    printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n" ,task, strategy, distance_type, elapsed);
 
                     //computing minimum value
                     min = min_arr(owp,nss,ind_min_val);
@@ -1063,8 +1112,11 @@ int main( int argc, char** argv)
 
     //                 cudaMemset(&d_test, 0, n_feat*window_size*sizeof(float));
     //                 cudaMemcpy(d_test, h_test + k*(n_feat*window_size) , n_feat*window_size*sizeof(float), cudaMemcpyHostToDevice);
+                    if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                        MD_DTW_D <<<grid, threads, T2>>> (d_t_series, d_q_series, window_size, window_size,n_feat,d_owp,t_size,1);
+                    else
+                        MD_ED_D <<<grid, threads, T2>>> (d_t_series, d_q_series, window_size, n_feat, d_owp,t_size,1);
 
-                    MD_DTW_D <<<grid, threads, T2>>> (d_t_series, d_q_series, window_size, window_size,n_feat,d_owp,t_size,1);
                     // cudaDeviceSynchronize(); //it may be avoided if there's not printf in the kernel function
                     cudaEventRecord(stop_GPU,0);
                     cudaEventSynchronize(stop_GPU);
@@ -1073,10 +1125,10 @@ int main( int argc, char** argv)
                     cudaEventDestroy(stop_GPU);
                     printf("\nExecution time for %s w/ MD_DTW_D with GPU %f ms\n", task, time_GPU_MD_DTW_D);
 
-                    d_owp_copy = (float*) malloc(nss*sizeof(float));
-                    cudaMemcpy(d_owp_copy, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
-                    // printArray(d_owp_copy, nss);
-                    min = min_arr(d_owp_copy, nss, ind_min_val);
+                    // d_owp_copy = (float*) malloc(nss*sizeof(float));
+                    cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
+                    // printArray(owp, nss);
+                    min = min_arr(owp, nss, ind_min_val);
                     printf("ind_min_val_GPU_GM_version: %d, min_val_GPU_GM_version: %f\n\n",*ind_min_val,min);
 
                 }
@@ -1105,7 +1157,11 @@ int main( int argc, char** argv)
                     cudaEventRecord(start_GPU,0);
 
                     float sh_mem = ((threads.x*threads.y) + (n_feat*t_size))*sizeof(float);
-                    MD_DTW_I <<<grid, threads, sh_mem>>> (d_t_series, d_q_series, window_size, window_size,n_feat,d_owp,t_size,1);
+                    if ( strcmp(distance_type,"DTW") == 0) //DTW distance
+                        MD_DTW_I <<<grid, threads, sh_mem>>> (d_t_series, d_q_series, window_size, window_size,n_feat,d_owp,t_size, 1);
+                    else
+                        MD_ED_I <<<grid, threads, sh_mem>>> (d_t_series, d_q_series, window_size, n_feat, d_owp, t_size, 1);
+
                     cudaThreadSynchronize();
                     checkCUDAError("DTW Kernel");
                     cudaEventRecord(stop_GPU,0);
@@ -1116,10 +1172,10 @@ int main( int argc, char** argv)
                     printf("\nExecution time for %s w/ MD_DTW_I with GPU %f ms\n", task, time_GPU_MD_DTW_I);
 
 
-                    d_owp_copy = (float*) malloc(nss*sizeof(float));
-                    cudaMemcpy(d_owp_copy, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
-                    // printArray(d_owp_copy, nss);
-                    min = min_arr(d_owp_copy, nss, ind_min_val);
+                    // d_owp_copy = (float*) malloc(nss*sizeof(float));
+                    cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
+                    // printArray(owp, nss);
+                    min = min_arr(owp, nss, ind_min_val);
                     printf("ind_min_val_GPU_GM_version: %d, min_val_GPU_GM_version: %f\n\n",*ind_min_val,min);
                 }
                 break;
@@ -1130,11 +1186,11 @@ int main( int argc, char** argv)
             cudaFree(d_t_series);
             cudaFree(d_q_series);
             cudaFree(d_owp);
+            // free(d_owp_copy);
         }
         free(t_series);
         free(q_series);
         free(owp);
-        free(d_owp_copy);
         printf("\nMemory deallocated!\n\n");
 
     }
