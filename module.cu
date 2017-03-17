@@ -680,7 +680,7 @@ __global__ void MD_DTW_D(float* S, float* T, int ns, int nt, int dimensions, flo
 __host__ int checkFlagOpts(char **input_args, int num_args, int ind, int num_opts){
 
     int count=0;
-    printf("num_opts: %d\n", num_opts);
+    // printf("num_opts: %d\n", num_opts);
     char *pch = NULL;
 
     if (ind + num_opts < num_args ){ //it means a wrong number of options params and that there's no other flag option
@@ -720,7 +720,7 @@ for (i = 0; i < n_file; i++)
 {
     char *curr_file = file_name[ind_files[i]];
     inputFile[i] = fopen(curr_file,"r");
-    printf("file %s opened\n", curr_file);
+    // printf("file %s opened\n", curr_file);
     //FIXME: doesnt work whether a path file not exist
     if ((inputFile + i) == NULL ) {
         fprintf(stderr, "Failed to open file \"");
@@ -803,7 +803,7 @@ for (int i = 0; i < n_file; i++)
 {
     char *curr_file = file_name[ind_files[i]];
     inputFile[i] = fopen(curr_file,"r");
-    printf("file %s opened\n", curr_file);
+    // printf("file %s opened\n", curr_file);
     //FIXME: doesnt work whether a path file not exist
     if ((inputFile + i) == NULL ) {
         fprintf(stderr, "Failed to open file \"");
@@ -918,7 +918,7 @@ else {
 
     tmp = (float*)malloc(window_size*sizeof(float));
 
-    printf("mode 2, train_size: %d, test_size: %d!\n",data_struct.train_size,data_struct.test_size);
+    // printf("mode 2, train_size: %d, test_size: %d!\n",data_struct.train_size,data_struct.test_size);
     // exit(-1);
 
     int i = 0;
@@ -965,7 +965,7 @@ else {
 
 } //END ELSE
 
-printf("DONE reading\n");
+// printf("DONE reading\n");
 //Closing and deallocatin all files
 for (k=0; k<n_file; k++)
     fclose(inputFile[k]);

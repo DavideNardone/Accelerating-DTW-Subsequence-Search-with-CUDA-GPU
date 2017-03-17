@@ -53,10 +53,10 @@ int main( int argc, char** argv)
     /*
      * argument parsing
      */
-    printf("argc: %d\n",argc);
-    printf("argv[0]: %s\n",argv[0]);
+    // printf("argc: %d\n",argc);
+    // printf("argv[0]: %s\n",argv[0]);
     for(i = 1; i < argc; i++) {
-        printf("argv[%d]: %s\n",i,argv[i]);
+        // printf("argv[%d]: %s\n",i,argv[i]);
 
         if(flag_task){
             num_opts = 1;
@@ -89,7 +89,7 @@ int main( int argc, char** argv)
             if (strcmp(compution_type,"GPU") == 0){
                 num_opts = 3;
 
-                printf("i_flag_in: %d, argc: %d\n",i,argc);
+                // printf("i_flag_in: %d, argc: %d\n",i,argc);
 
                 if(!checkFlagOpts(argv,argc,i,num_opts)) {
                     printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -104,7 +104,7 @@ int main( int argc, char** argv)
             else if( (strcmp(compution_type,"CPU") == 0) ) {
                 num_opts = 2;
 
-                printf("i_flag_in: %d, argc: %d\n",i,argc);
+                // printf("i_flag_in: %d, argc: %d\n",i,argc);
 
                 if(!checkFlagOpts(argv,argc,i,num_opts)) {
                     printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -130,7 +130,7 @@ int main( int argc, char** argv)
                     n_file = 2; //[0,1] data and label descriptors
                     num_opts = n_file;
 
-                    printf("i_flag_file: %d, argc: %d\n",i,argc);
+                    // printf("i_flag_file: %d, argc: %d\n",i,argc);
 
                     if(!checkFlagOpts(argv,argc,i,num_opts)) {
                         printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -141,7 +141,7 @@ int main( int argc, char** argv)
                     n_file = n_feat;
                     num_opts = n_feat;
 
-                    printf("i_flag_file: %d, argc: %d\n",i,argc);
+                    // printf("i_flag_file: %d, argc: %d\n",i,argc);
 
                     if(!checkFlagOpts(argv,argc,i,num_opts)) {
                         printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -156,7 +156,7 @@ int main( int argc, char** argv)
             else { //SUB_SEQ_SEARCH TASK
                 n_file = 2;
                 num_opts = n_file;
-                printf("i_flag_file: %d, argc: %d\n",i,argc);
+                // printf("i_flag_file: %d, argc: %d\n",i,argc);
 
                 if(!checkFlagOpts(argv,argc,i,num_opts)) {
                     printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -168,19 +168,19 @@ int main( int argc, char** argv)
             if ( blockSize > 1024 || blockSize < 0 )
                 printf("Irregular number of threads for block\n");
 
-            printf("n_feat: %d\n",n_feat);
-            printf("n_file: %d\n",n_file);
-            printf("read_mode: %d\n",read_mode);
+            // printf("n_feat: %d\n",n_feat);
+            // printf("n_file: %d\n",n_file);
+            // printf("read_mode: %d\n",read_mode);
 
             // i=i+4;
-            printf("i:%d\n", i);
+            // printf("i:%d\n", i);
 
             arr_num_file = (int *)malloc(n_file*sizeof(int));
 
             int j = 0;
             int cc = n_file;
             while(cc > 0) {
-                printf("file_argv[%d]: %s\n",i,argv[i]);
+                // printf("file_argv[%d]: %s\n",i,argv[i]);
                 arr_num_file[j] = i;
 
                 i++;
@@ -196,7 +196,7 @@ int main( int argc, char** argv)
             
             num_opts = 1;
 
-            printf("i_flag_cross: %d, argc: %d\n",i,argc);
+            // printf("i_flag_cross: %d, argc: %d\n",i,argc);
 
             if(!checkFlagOpts(argv,argc,i,num_opts)) {
                 printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -222,12 +222,12 @@ int main( int argc, char** argv)
                     data_struct.train_size = 0;
                     data_struct.test_size = 0;
                     window_size = atoi(argv[i+1]);
-                    printf("dataSize: %d\n",dataSize);
+                    // printf("dataSize: %d\n",dataSize);
                     i = i + 1;
                 }
                 else {
 
-                    printf("i_flag_opt: %d, argc: %d\n",i,argc);
+                    // printf("i_flag_opt: %d, argc: %d\n",i,argc);
 
                     if(!checkFlagOpts(argv,argc,i,num_opts)) {
                         printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -243,14 +243,14 @@ int main( int argc, char** argv)
 
                     window_size = atoi(argv[i+2]);
 
-                    printf("train_size: %d\n",train_size);
-                    printf("test_size: %d\n",test_size);
+                    // printf("train_size: %d\n",train_size);
+                    // printf("test_size: %d\n",test_size);
 
                     i = i + 2;
                 }
             }
             else if ( strcmp(task,"SUBSEQ_SEARCH") == 0 ) { //SUBSEQ_SEARCH TASK
-                printf("SUBSEQ_SEARCH\n");
+                // printf("SUBSEQ_SEARCH\n");
                 num_opts = 2;
 
                 if(!checkFlagOpts(argv,argc,i,num_opts)) {
@@ -258,9 +258,9 @@ int main( int argc, char** argv)
                     exit(-1);
                 }
                 t_size = atoi(argv[i]);
-                printf("T_SIZE: %d\n", t_size);
+                // printf("T_SIZE: %d\n", t_size);
                 q_size = atoi(argv[i+1]);
-                printf("Q_SIZE: %d\n", q_size);
+                // printf("Q_SIZE: %d\n", q_size);
                 i = i + 1;
             }
             else{
@@ -281,7 +281,7 @@ int main( int argc, char** argv)
         else if (flag_alg_mode){
             num_opts = 2;
 
-            printf("i_flag_alg_mode: %d, argc: %d\n",i,argc);
+            // printf("i_flag_alg_mode: %d, argc: %d\n",i,argc);
 
             if(!checkFlagOpts(argv,argc,i,num_opts)) {
                 printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -296,9 +296,9 @@ int main( int argc, char** argv)
             else
                 strategy = "ROTATION INVARIANT";
 
-            printf("class_mode: %d\n",class_mode);
+            // printf("class_mode: %d\n",class_mode);
             distance_type = argv[i+1];
-            printf("distance type: %s\n",distance_type);
+            // printf("distance type: %s\n",distance_type);
             i = i+1;
 
             flag_alg_mode = 0;
@@ -306,7 +306,7 @@ int main( int argc, char** argv)
         else if (flag_device){
             num_opts = 1;
 
-            printf("i_flag_device: %d, argc: %d\n",i,argc);
+            // printf("i_flag_device: %d, argc: %d\n",i,argc);
             
             if(!checkFlagOpts(argv,argc,i,num_opts)) {
                 printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
@@ -315,7 +315,7 @@ int main( int argc, char** argv)
 
 
             device = atoi(argv[i]);
-            printf("device: %d\n",device);
+            // printf("device: %d\n",device);
             flag_device = 0;
 
         }
@@ -354,7 +354,7 @@ int main( int argc, char** argv)
         int * dataLabels = (int *) malloc(dataSize*sizeof(int));
         float* data = (float*) malloc (dataBytes);
 
-        printf("Reading data...\n");
+        // printf("Reading data...\n");
 
         readFile(argv, arr_num_file, n_file, read_mode, data, data_struct, window_size, dataLabels, n_feat, class_mode);
         // printf("datasize: %d\n", dataSize);
@@ -391,12 +391,12 @@ int main( int argc, char** argv)
                 testSize = countVal(tInd,dataSize,f);
                 trainSize = dataSize - testSize;
 
-                printf("DataSize: %d\n",dataSize);
-                printf("trainSize: %d\n",trainSize);
-                printf("testSize: %d\n",testSize);
-                printf("window_size: %d\n",window_size);
-                printf("n_feat: %d\n",n_feat);
-                printf("\nK_FOLD: %d\n",f+1);
+                // printf("DataSize: %d\n",dataSize);
+                // printf("trainSize: %d\n",trainSize);
+                // printf("testSize: %d\n",testSize);
+                // printf("window_size: %d\n",window_size);
+                // printf("n_feat: %d\n",n_feat);
+                // printf("\nK_FOLD: %d\n",f+1);
             }
             else {
                 trainSize = data_struct.train_size;
@@ -683,7 +683,7 @@ int main( int argc, char** argv)
                 {
                     case 0 ://MD_DTW_D
                     {
-                        grid_size=ceil((float)trainSize/blockSize);
+                        grid_size = ceil((float)trainSize/blockSize);
                         // grid(grid_size,1);
                         // dim3 threads(blockSize,1);
                         grid.x = grid_size;
@@ -731,8 +731,7 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
-                            // exit(-1);
+                            // printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
 
                         }
 
@@ -803,8 +802,7 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
-                            // exit(-1);
+                            // printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
                         }
 
                         cudaEventRecord(stop_GPU,0);
@@ -893,7 +891,7 @@ int main( int argc, char** argv)
                             if( trainLabels[minINR] != testLabels[k] )
                                 errNR++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min, trainLabels[minINR], minNR );
+                            // printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min, trainLabels[minINR], minNR );
                         }
 
                         cudaEventRecord(stop_GPU,0);
@@ -948,9 +946,9 @@ int main( int argc, char** argv)
         //nss=number of subsequences
         nss = t_size - q_size + 1;
         window_size = q_size; //query size
-        printf("t_size: %d\n", t_size);
-        printf("q_size/window_size: %d\n", q_size);
-        printf("nss: %d\n", nss);
+        // printf("t_size: %d\n", t_size);
+        // printf("q_size/window_size: %d\n", q_size);
+        // printf("nss: %d\n", nss);
 
 
         //T and Q lengths series bytes
@@ -983,7 +981,7 @@ int main( int argc, char** argv)
 
                 case 0: {
 
-                    printf("%s-%s CPU version processing...\n" ,strategy, distance_type);
+                    printf("%s-%s %s version processing...\n" ,distance_type,strategy,compution_type);
 
                     gettimeofday(&start_CPU, NULL);
 
@@ -1015,7 +1013,7 @@ int main( int argc, char** argv)
 
                 case 1: {
 
-                    printf("%s-%s CPU version processing...\n" ,strategy, distance_type);
+                    printf("%s-%s %s version processing...\n" ,distance_type,strategy,compution_type);
 
                     gettimeofday(&start_CPU, NULL);
 
@@ -1105,7 +1103,7 @@ int main( int argc, char** argv)
                     printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,threads.x);
                     printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,threads.y);
 
-                    printf("DTW GPU_GM_D version processing...\n");
+                    printf("%s-%s %s version processing...\n" ,distance_type,strategy,compution_type);
                     cudaEventCreate(&start_GPU);
                     cudaEventCreate(&stop_GPU);
                     cudaEventRecord(start_GPU,0);
@@ -1151,7 +1149,7 @@ int main( int argc, char** argv)
                     printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,threads.x);
                     printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,threads.y);
 
-                    printf("DTW GPU_GM_I version processing...\n");
+                    printf("%s-%s %s version processing...\n" ,distance_type,strategy,compution_type);
                     cudaEventCreate(&start_GPU);
                     cudaEventCreate(&stop_GPU);
                     cudaEventRecord(start_GPU,0);
@@ -1163,7 +1161,6 @@ int main( int argc, char** argv)
                         MD_ED_I <<<grid, threads, sh_mem>>> (d_t_series, d_q_series, window_size, n_feat, d_owp, t_size, 1);
 
                     cudaThreadSynchronize();
-                    checkCUDAError("DTW Kernel");
                     cudaEventRecord(stop_GPU,0);
                     cudaEventSynchronize(stop_GPU);
                     cudaEventElapsedTime(&time_GPU_MD_DTW_I,start_GPU,stop_GPU);
