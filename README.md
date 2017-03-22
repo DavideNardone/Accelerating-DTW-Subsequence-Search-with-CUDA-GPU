@@ -113,7 +113,7 @@ MTSS works only with `txt` file format. Depending on the type of task to perform
 
 For this task, MTSS provides three different type of reading mode:
 
-1. read-mode=0: It's possible to feed MTSS with two files, (DATA, LABEL). The DATA file must be formatted as a *T*D* data matrix, where each row must contain the dimensional values of the MTS at time instant *t* (in this case, the MTS are appended in the file), while the LABEL file just contains the integer class label. (A template file is placed in [data/classification/rm_0](data/classification/rm_0)
+1. read-mode=0: It's possible to feed MTSS with two files, (DATA, LABEL). The DATA file must be formatted as a *T*D* data matrix, where each row must represents the t-th features values of the MTS at the time instant *d-th* (in this case, the MTS are appended in the file), while the LABEL file just contains the integer class label. (A template file is placed in [data/classification/rm_0](data/classification/rm_0)
 
 2. read-mode=1: It's possible to feed MTSS with *N files*, where each of them is formatted as a *N*T* data matrix, where each of rows must contain in the first position the integer class label and then the *T-1* values of the MTS. (A template file is placed in [data/classification/rm_1](data/classification/rm_1)).
 
