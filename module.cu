@@ -43,7 +43,111 @@ __device__ float stdDev(float *data, int n,float *avg)
 }
 
 
-//http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance (FIRS APPROACH)
+
+//http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance (SECOND APPROACH)
+__global__ void MD_ED_D(float* S, float* T, int window_size, int dimensions, float* data_out, int trainSize, int task, int gm) {
+    
+    long long int i,j,p;
+    float sumErr = 0, dd = 0;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x; 
+
+
+    if(gm==0){
+        extern __shared__ float T2[];
+
+        int t, offset;
+        if( task == 0 ){
+
+            offset = window_size;
+
+            int wind=dimensions*WS;
+            t = idx*wind;
+            if((idx*wind)+wind > trainSize*wind) //CHANGE FORMULA 120=train_size
+                return;
+
+
+            if(threadIdx.x==0){
+                for (i = 0; i < dimensions; i++)
+                    for (j = 0; j < window_size; j++)
+                        T2[window_size*i+j] = T[window_size*i+j];
+            }
+            // if(threadIdx.x==0)
+            //     printArrayDev(T2,dimensions*window_size);
+
+            __syncthreads(); //it may be avoided with the removing of the if condition
+            // it may influences the algorithm performance (try!!!)
+        }
+        else {
+
+            // in this case 'trainSize' is the number of subsequence to search 'nss', that is, the length of dataset to perform on
+            offset = trainSize;
+
+            t = idx;        
+            if( (idx + WS) > trainSize)
+                return;
+            
+            if(threadIdx.x==0){
+                for (i = 0; i < dimensions; i++)
+                    for (j = 0; j < window_size; j++)
+                        T2[window_size*i+j] = T[window_size*i+j];
+            }
+            __syncthreads();
+
+            // if(threadIdx.x==0)
+            //     printArrayDev(T2,dimensions*nt);
+
+        }
+
+
+        for(j = 0; j < window_size; j++){
+            dd = 0;
+            for (p = 0; p < dimensions; p++)
+                dd += (S[(t+p*offset)+j] - T2[(p*window_size)+j]) * (S[(t+p*offset)+j] - T2[(p*window_size)+j]);
+
+            sumErr += dd;
+        }
+        // printf("summ_err: %f\n", sqrt(sumErr));
+        data_out[idx] = sqrt(sumErr);
+    }
+    else{
+
+        int t, offset;
+        if( task == 0 ){
+
+            offset = window_size;
+
+            int wind=dimensions*WS;
+            t = idx*wind;
+            if((idx*wind)+wind > trainSize*wind) //CHANGE FORMULA 120=train_size
+                return;
+
+        }
+        else {
+
+            // in this case 'trainSize' is the number of subsequence to search 'nss', that is, the length of dataset to perform on
+            offset = trainSize;
+
+            t = idx;        
+            if( (idx + WS) > trainSize)
+                return;
+        }
+
+
+        for(j = 0; j < window_size; j++){
+            dd = 0;
+            for (p = 0; p < dimensions; p++)
+                dd += (S[(t+p*offset)+j] - T[(p*window_size)+j]) * (S[(t+p*offset)+j] - T[(p*window_size)+j]);
+
+            sumErr += dd;
+        }
+        // printf("summ_err: %f\n", sqrt(sumErr));
+        data_out[idx] = sqrt(sumErr);
+
+    }
+
+}
+
+//http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance (FIRST APPROACH)
 __global__ void MD_ED_I(float* S, float* T, int window_size, int dimensions, float* data_out, int trainSize, int task) {
 
     int idx, offset_x;
@@ -113,6 +217,287 @@ __global__ void MD_ED_I(float* S, float* T, int window_size, int dimensions, flo
 
 }
 
+
+__global__ void rMD_ED_D(float* S, float* T, int window_size, int dimensions, float* data_out, int trainSize, int gm) {
+
+    
+    long long int i,j,p;
+    float sumErr = 0, dd = 0;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x; //i.e [0...6]*[512]+[0...511]    
+
+
+    if(gm == 0){
+
+        extern __shared__ float T2[];
+
+
+        // float sum = 0, sum_sqr = 0, mean = 0, mean_sqr = 0, variance = 0, std_dev = 0;
+
+
+        //offset training set
+        int s = dimensions*2*WS*(idx/WS);
+        int t = s + idx%WS;
+
+
+        if (idx >= (trainSize*window_size) ) //
+            return;
+         
+
+        if(threadIdx.x==0){
+            for (i = 0; i < dimensions; i++)
+                for (j = 0; j < window_size; j++)
+                    T2[window_size*i+j]=T[window_size*i+j];
+        }
+        __syncthreads(); //it may be avoided with the removing of the if condition
+        // it may influences the algorithm performance (try!!!)
+
+
+
+        for(j = 0; j < window_size; j++){
+            dd = 0;
+            for (p = 0; p < dimensions; p++)
+                dd += (S[(t+p*2*window_size)+j] - T2[(p*window_size)+j]) * (S[(t+p*2*window_size)+j] - T2[(p*window_size)+j]);
+
+            sumErr += dd;
+        }
+        // printf("summ_err: %f\n", sqrt(sumErr));
+        data_out[idx] = sqrt(sumErr);
+
+    }
+    else{
+
+
+        //offset training set
+        int s = dimensions*2*WS*(idx/WS);
+        int t = s + idx%WS;
+
+
+        if (idx >= (trainSize*window_size) )
+            return;
+         
+        for(j = 0; j < window_size; j++){
+            dd = 0;
+            for (p = 0; p < dimensions; p++)
+                dd += (S[(t+p*2*window_size)+j] - T[(p*window_size)+j]) * (S[(t+p*2*window_size)+j] - T[(p*window_size)+j]);
+
+            sumErr += dd;
+        }
+        // printf("summ_err: %f\n", sqrt(sumErr));
+        data_out[idx] = sqrt(sumErr);
+
+    }
+
+
+}
+
+
+__global__ void MD_DTW_D(float* S, float* T, int ns, int nt, int dimensions, float* data_out, int trainSize, int task, int gm) {
+
+    long long int k,l,g;
+    
+    long long int i,j,p;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x; 
+
+    float min_nb=0;
+    float array[WS][2];
+    // float instance[D][WS];
+
+    if (gm==0) {
+
+        //query timeseries
+        extern __shared__ float T2[];
+
+        // float mean = 0, std_dev = 0;
+        int t, offset;
+        if( task == 0 ){
+
+            offset = ns;
+
+            int wind=dimensions*WS;
+            t = idx*wind;
+            if((idx*wind)+wind > trainSize*wind) //CHANGE FORMULA 120=train_size
+                return;
+
+
+            if(threadIdx.x==0){
+                for (i = 0; i < dimensions; i++)
+                    for (j = 0; j < nt; j++)
+                        T2[nt*i+j]=T[nt*i+j];
+            }
+            __syncthreads(); //it may be avoided with the removing of the if condition
+            // it may influences the algorithm performance (try!!!)
+        }
+        else {
+
+            offset = trainSize;
+
+            t = idx;        
+            if( (idx + WS) > trainSize)
+                return;
+
+          if(threadIdx.x==0){
+            for (i = 0; i < dimensions; i++)
+                for (j = 0; j < nt; j++)
+                    T2[nt*i+j] = T[nt*i+j];
+            }
+            __syncthreads();
+
+            // if(threadIdx.x==0)
+            //     printArrayDev(T2,dimensions*nt);
+
+        }
+        
+        k = 0;
+        l = 1;
+        
+        //computing first row (instace versus query)
+        for(i=0;i<nt;i++)
+        {
+            array[i][k]=0.0;
+            for (p = 0; p < dimensions; p++)
+            {
+                if (i==0)
+                    array[i][k]+=pow((S[t+p*offset]-T2[p*nt]),2);
+                else
+                    array[i][k]+=pow((S[t+p*offset]-T2[p*nt+i]),2);
+            }
+            // printf("array[%d][%d]: %f\n",i,k,array[i][k]);
+            if(i!=0)
+                array[i][k]+=array[i-1][k];
+            
+        }
+    // }
+        k = 1;
+        l = 0;
+        
+        
+        for(j=1; j<ns; j++)
+        {
+            // printf("j: %d\n",j);
+            i = 0;
+            array[i][k]=0.0;
+
+            for (p = 0; p < dimensions; p++){
+                // float val=S[t+p*ns+j];
+                array[i][k]+=pow((S[t+p*offset+j]-T2[p*nt+i]),2);
+             }
+
+            
+            array[i][k]+=array[i][l];
+            
+            for (i=1; i<nt; i++)
+            {
+                // printf("i: %d\n",i);
+                array[i][k]=0.0;
+                float a = array[i-1][l];
+                float b = array[i][l];
+                float c = array[i-1][k];
+                
+                min_nb = fminf(a,b);
+                min_nb = fminf(c,min_nb);
+
+                for (p = 0; p < dimensions; p++)
+                    array[i][k]+=pow((S[t+p*offset+j]-T2[p*nt+i]),2);
+                
+                array[i][k]+=min_nb;
+            }
+            g = k;
+            k = l;
+            l = g;
+        }
+        
+        
+        data_out[idx] = array[nt-1][g];
+
+    }
+    else {
+
+        // float mean = 0, std_dev = 0;
+        int t, offset;
+        if( task == 0 ){
+
+            offset = ns;
+
+            int wind = dimensions*WS;
+            t = idx*wind;
+            if((idx*wind)+wind > trainSize*wind) //CHANGE FORMULA 120=train_size
+                return;
+
+        }
+        else {
+
+            offset = trainSize;
+
+            t = idx;        
+            if( (idx + WS) > trainSize)
+                return;
+        }
+        
+        k = 0;
+        l = 1;
+        
+        //computing first row (instace versus query)
+        for(i=0;i<nt;i++)
+        {
+            array[i][k]=0.0;
+            for (p = 0; p < dimensions; p++)
+            {
+                if (i==0)
+                    array[i][k]+=pow((S[t+p*offset]-T[p*nt]),2);
+                else
+                    array[i][k]+=pow((S[t+p*offset]-T[p*nt+i]),2);
+            }
+            // printf("array[%d][%d]: %f\n",i,k,array[i][k]);
+            if(i!=0)
+                array[i][k]+=array[i-1][k];
+            
+        }
+    // }
+        k = 1;
+        l = 0;
+        
+        
+        for(j=1; j<ns; j++)
+        {
+            // printf("j: %d\n",j);
+            i = 0;
+            array[i][k]=0.0;
+
+            for (p = 0; p < dimensions; p++){
+                // float val=S[t+p*ns+j];
+                array[i][k]+=pow((S[t+p*offset+j]-T[p*nt+i]),2);
+             }
+
+            
+            array[i][k]+=array[i][l];
+            
+            for (i=1; i<nt; i++)
+            {
+                // printf("i: %d\n",i);
+                array[i][k]=0.0;
+                float a = array[i-1][l];
+                float b = array[i][l];
+                float c = array[i-1][k];
+                
+                min_nb = fminf(a,b);
+                min_nb = fminf(c,min_nb);
+
+                for (p = 0; p < dimensions; p++)
+                    array[i][k]+=pow((S[t+p*offset+j]-T[p*nt+i]),2);
+                
+                array[i][k]+=min_nb;
+            }
+            g = k;
+            k = l;
+            l = g;
+        }
+        
+        
+        data_out[idx] = array[nt-1][g];
+    }
+
+
+}
 
 
 __global__ void MD_DTW_I(float* S, float* T, int ns, int nt, int dimensions, float* data_out, int trainSize, int task) {
@@ -252,55 +637,7 @@ __global__ void MD_DTW_I(float* S, float* T, int ns, int nt, int dimensions, flo
 }
 
 
-
-__global__ void rMD_ED_D(float* S, float* T, int window_size, int dimensions, float* data_out, int trainSize) {
-
-    
-    long long int i,j,p;
-    float sumErr = 0, dd = 0;
-    int idx = blockIdx.x * blockDim.x + threadIdx.x; //i.e [0...6]*[512]+[0...511]    
-
-
-    extern __shared__ float T2[];
-
-
-    // float sum = 0, sum_sqr = 0, mean = 0, mean_sqr = 0, variance = 0, std_dev = 0;
-
-
-    //offset training set
-    int s = dimensions*2*WS*(idx/WS);
-    int t = s + idx%WS;
-
-
-    if (idx >= (trainSize*window_size) ) //
-        return;
-     
-
-    if(threadIdx.x==0){
-        for (i = 0; i < dimensions; i++)
-            for (j = 0; j < window_size; j++)
-                T2[window_size*i+j]=T[window_size*i+j];
-    }
-    __syncthreads(); //it may be avoided with the removing of the if condition
-    // it may influences the algorithm performance (try!!!)
-
-
-
-    for(j = 0; j < window_size; j++){
-        dd = 0;
-        for (p = 0; p < dimensions; p++)
-            dd += (S[(t+p*2*window_size)+j] - T2[(p*window_size)+j]) * (S[(t+p*2*window_size)+j] - T2[(p*window_size)+j]);
-
-        sumErr += dd;
-    }
-    // printf("summ_err: %f\n", sqrt(sumErr));
-    data_out[idx] = sqrt(sumErr);
-
-
-
-}
-
-__global__ void rMD_DTW_D(float* S, float* T, int ns, int nt, int dimensions, float* data_out, int trainSize) {
+__global__ void rMD_DTW_D(float* S, float* T, int ns, int nt, int dimensions, float* data_out, int trainSize, int gm) {
 
     long long int k,l,g;
     
@@ -312,218 +649,22 @@ __global__ void rMD_DTW_D(float* S, float* T, int ns, int nt, int dimensions, fl
     float array[WS][2];
     // float instance[D][WS];
 
+    if (gm == 0){
 
-    extern __shared__ float T2[];
-
-
-    // float sum = 0, sum_sqr = 0, mean = 0, mean_sqr = 0, variance = 0, std_dev = 0;
+        extern __shared__ float T2[];
 
 
-    //offset training set
-    int s =dimensions*2*WS*(idx/WS);
-    int t = s + idx%WS;
+        // float sum = 0, sum_sqr = 0, mean = 0, mean_sqr = 0, variance = 0, std_dev = 0;
 
 
-    if (idx >= (trainSize*ns) ) //
-        return;
-     
-
-    if(threadIdx.x==0){
-        for (i = 0; i < dimensions; i++)
-            for (j = 0; j < nt; j++)
-                T2[nt*i+j]=T[nt*i+j];
-    }
-    __syncthreads(); //it may be avoided with the removing of the if condition
-    // it may influences the algorithm performance (try!!!)
+        //offset training set
+        int s =dimensions*2*WS*(idx/WS);
+        int t = s + idx%WS;
 
 
-
-    //NOT WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //Z-NORMALIZATION
-    // for (p = 0; p < dimensions; p++)
-    // {
-    //     std_dev = stdDev(&S[t+(dimensions*WS)],WS,&mean);
-    //     // printf("block: %d, thread: %d mean: %f\n",blockIdx.x, threadIdx.x, mean);
-    //     // printf("block: %d, thread: %d std_dev: %f\n",blockIdx.x, threadIdx.x, std_dev);
-
-    //     for (i = t; i < dimensions*WS; i++)
-    //     {
-    //         S[t+i]=(S[t+i]-mean)/std_dev;
-            
-    //     }
-    // }
-
-
-    // if (blockIdx.x==0) {
-
-
-    // if (idx==315) {
-    //     for (i = 0; i < dimensions; i++) {
-    //         for (j = 0; j <ns; j++) {
-    //             printf("block_id: %d, thread: %d, S[%lld]: %f\n",blockIdx.x,t,(2*ns*i+t)+j,S[(2*ns*i+t)+j]);
-    //         }
-    //     }
-    // }
-    // __syncthreads();
-
-    // }
- 
-    k = 0;
-    l = 1;
-    
-    //computing first row (instace versus query)
-    for(i=0;i<nt;i++)
-    {
-        array[i][k]=0.0;
-        for (p = 0; p < dimensions; p++)
-        {
-            if (i==0)
-                array[i][k]+=pow((S[t+p*2*ns]-T2[p*nt]),2);
-            else
-                array[i][k]+=pow((S[t+p*2*ns]-T2[p*nt+i]),2);
-        }
-        // printf("array[%d][%d]: %f\n",i,k,array[i][k]);
-        if(i!=0)
-            array[i][k]+=array[i-1][k];
-        
-    }
-
-    k = 1;
-    l = 0;
-    
-    
-    for(j=1; j<ns; j++)
-    {
-        // printf("j: %d\n",j);
-        i = 0;
-        array[i][k]=0.0;
-
-        for (p = 0; p < dimensions; p++){
-            // float val=S[t+p*ns+j];
-            array[i][k]+=pow((S[t+p*2*ns+j]-T2[p*nt+i]),2);
-         }
-
-        
-        array[i][k]+=array[i][l];
-        
-        for (i=1; i<nt; i++)
-        {
-            // printf("i: %d\n",i);
-            array[i][k]=0.0;
-            float a = array[i-1][l];
-            float b = array[i][l];
-            float c = array[i-1][k];
-            
-            min_nb = fminf(a,b);
-            min_nb = fminf(c,min_nb);
-
-            for (p = 0; p < dimensions; p++)
-                array[i][k]+=pow((S[t+p*2*ns+j]-T2[p*nt+i]),2);
-            
-            array[i][k]+=min_nb;
-        }
-        g = k;
-        k = l;
-        l = g;
-    }
-
-
-    data_out[idx]=array[nt-1][g];
-    // printf("block_id: %d, idx: %d thread: %d, DTW: %f\n",blockIdx.x,idx,t,array[nt-1][g]);
-
-// }
-
-}
-
-
-//http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance (SECOND APPROACH)
-__global__ void MD_ED_D(float* S, float* T, int window_size, int dimensions, float* data_out, int trainSize, int task) {
-    
-    long long int i,j,p;
-    float sumErr = 0, dd = 0;
-    int idx = blockIdx.x * blockDim.x + threadIdx.x; 
-
-    extern __shared__ float T2[];
-
-    int t, offset;
-    if( task == 0 ){
-
-        offset = window_size;
-
-        int wind=dimensions*WS;
-        t = idx*wind;
-        if((idx*wind)+wind > trainSize*wind) //CHANGE FORMULA 120=train_size
+        if (idx >= (trainSize*ns) ) //
             return;
-
-
-        if(threadIdx.x==0){
-            for (i = 0; i < dimensions; i++)
-                for (j = 0; j < window_size; j++)
-                    T2[window_size*i+j] = T[window_size*i+j];
-        }
-        // if(threadIdx.x==0)
-        //     printArrayDev(T2,dimensions*window_size);
-
-        __syncthreads(); //it may be avoided with the removing of the if condition
-        // it may influences the algorithm performance (try!!!)
-    }
-    else {
-
-        // in this case 'trainSize' is the number of subsequence to search 'nss', that is, the length of dataset to perform on
-        offset = trainSize;
-
-        t = idx;        
-        if( (idx + WS) > trainSize)
-            return;
-
-        for (i = 0; i < dimensions; i++)
-            for (j = 0; j < window_size; j++)
-                T2[window_size*i+j] = T[window_size*i+j];
-        // __syncthreads();
-        // if(threadIdx.x==0)
-        //     printArrayDev(T2,dimensions*nt);
-
-    }
-
-
-    for(j = 0; j < window_size; j++){
-        dd = 0;
-        for (p = 0; p < dimensions; p++)
-            dd += (S[(t+p*offset)+j] - T2[(p*window_size)+j]) * (S[(t+p*offset)+j] - T2[(p*window_size)+j]);
-
-        sumErr += dd;
-    }
-    // printf("summ_err: %f\n", sqrt(sumErr));
-    data_out[idx] = sqrt(sumErr);
-
-}
-
-
-__global__ void MD_DTW_D(float* S, float* T, int ns, int nt, int dimensions, float* data_out, int trainSize, int task) {
-
-    long long int k,l,g;
-    
-    long long int i,j,p;
-    int idx = blockIdx.x * blockDim.x + threadIdx.x; 
-
-    float min_nb=0;
-    float array[WS][2];
-    // float instance[D][WS];
-
-    //query timeseries
-    extern __shared__ float T2[];
-
-    // float mean = 0, std_dev = 0;
-    int t, offset;
-    if( task == 0 ){
-
-        offset = ns;
-
-        int wind=dimensions*WS;
-        t = idx*wind;
-        if((idx*wind)+wind > trainSize*wind) //CHANGE FORMULA 120=train_size
-            return;
-
+         
 
         if(threadIdx.x==0){
             for (i = 0; i < dimensions; i++)
@@ -532,150 +673,148 @@ __global__ void MD_DTW_D(float* S, float* T, int ns, int nt, int dimensions, flo
         }
         __syncthreads(); //it may be avoided with the removing of the if condition
         // it may influences the algorithm performance (try!!!)
+     
+        k = 0;
+        l = 1;
+        
+        //computing first row (instace versus query)
+        for(i=0;i<nt;i++)
+        {
+            array[i][k]=0.0;
+            for (p = 0; p < dimensions; p++)
+            {
+                if (i==0)
+                    array[i][k]+=pow((S[t+p*2*ns]-T2[p*nt]),2);
+                else
+                    array[i][k]+=pow((S[t+p*2*ns]-T2[p*nt+i]),2);
+            }
+            // printf("array[%d][%d]: %f\n",i,k,array[i][k]);
+            if(i!=0)
+                array[i][k]+=array[i-1][k];
+            
+        }
+
+        k = 1;
+        l = 0;
+        
+        
+        for(j=1; j<ns; j++)
+        {
+            // printf("j: %d\n",j);
+            i = 0;
+            array[i][k]=0.0;
+
+            for (p = 0; p < dimensions; p++){
+                // float val=S[t+p*ns+j];
+                array[i][k]+=pow((S[t+p*2*ns+j]-T2[p*nt+i]),2);
+             }
+
+            
+            array[i][k]+=array[i][l];
+            
+            for (i=1; i<nt; i++)
+            {
+                // printf("i: %d\n",i);
+                array[i][k]=0.0;
+                float a = array[i-1][l];
+                float b = array[i][l];
+                float c = array[i-1][k];
+                
+                min_nb = fminf(a,b);
+                min_nb = fminf(c,min_nb);
+
+                for (p = 0; p < dimensions; p++)
+                    array[i][k]+=pow((S[t+p*2*ns+j]-T2[p*nt+i]),2);
+                
+                array[i][k]+=min_nb;
+            }
+            g = k;
+            k = l;
+            l = g;
+        }
+
+
+        data_out[idx]=array[nt-1][g];
+        // printf("block_id: %d, idx: %d thread: %d, DTW: %f\n",blockIdx.x,idx,t,array[nt-1][g]);
     }
     else {
 
-        offset = trainSize;
+        //offset training set
+        int s =dimensions*2*WS*(idx/WS);
+        int t = s + idx%WS;
 
-        t = idx;        
-        if( (idx + WS) > trainSize)
+
+        if (idx >= (trainSize*ns) ) //
             return;
-
-      if(threadIdx.x==0){
-        for (i = 0; i < dimensions; i++)
-            for (j = 0; j < nt; j++)
-                T2[nt*i+j] = T[nt*i+j];
-        }
-        __syncthreads();
-
-        // if(threadIdx.x==0)
-        //     printArrayDev(T2,dimensions*nt);
-
-    }
-    // __syncthreads();
-
-    //NOT WORKING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //Z-NORMALIZATION
-    // for (p = 0; p < dimensions; p++)
-    // {
-    //     std_dev = stdDev(&S[t+(dimensions*WS)],dimensions*WS,&mean);
-    //     // printf("block: %d, thread: %d mean: %f\n",blockIdx.x, threadIdx.x, mean);
-    //     // printf("block: %d, thread: %d std_dev: %f\n",blockIdx.x, threadIdx.x, std_dev);
-
-    //     for (i = t; i < dimensions*WS; i++)
-    //     {
-    //         S[t+i]=(S[t+i]-mean)/std_dev;
-            
-    //     }
-    // }
-
-    // for(i=t; i<t+(D*WS); i++) {
-
-    //   sum += S[i];
-    //   sum_sqr += S[i] * S[i]; //pow(data[i],2);
-    // }
-
-
-    // // //measures for normalization step
-    // mean = sum/WS;
-    // mean_sqr = mean*mean;
-
-    // variance = (sum_sqr/WS) - mean_sqr;
-    // std_dev = sqrt(variance);
-
-
-    // if(idx==1){
-        // printMatrixDev(T,D,WS);
-    // //normalizing subsequence C[t+1,t+2,...,t+WS]
-        // instance2[0][0]=3.0;
-        // printf("instance: %f\n",instance2[0][0] );
-    // for(i=0; i<dimensions; i++){
-    //     for (j = 0; j < ns; j++){
-    //         // printf("val: %f\n",S[t+i*WS+j]);
-    //         instance[i][j] = S[t+i*ns+j];
-    //         // printf("instance[%d][%d]: %f\n",i,j,instance[i][j]);
-    //     }
-    // }
-    
-            
-    //     // (data_in[t+i]-mean)/std_dev; 
-    // }
-
- 
-    k = 0;
-    l = 1;
-    
-    //computing first row (instace versus query)
-    for(i=0;i<nt;i++)
-    {
-        array[i][k]=0.0;
-        for (p = 0; p < dimensions; p++)
+         
+        k = 0;
+        l = 1;
+        
+        //computing first row (instace versus query)
+        for(i=0;i<nt;i++)
         {
-            if (i==0)
-                array[i][k]+=pow((S[t+p*offset]-T2[p*nt]),2);
-            else
-                array[i][k]+=pow((S[t+p*offset]-T2[p*nt+i]),2);
-        }
-        // printf("array[%d][%d]: %f\n",i,k,array[i][k]);
-        if(i!=0)
-            array[i][k]+=array[i-1][k];
-        
-    }
-// }
-    k = 1;
-    l = 0;
-    
-    
-    for(j=1; j<ns; j++)
-    {
-        // printf("j: %d\n",j);
-        i = 0;
-        array[i][k]=0.0;
-
-        for (p = 0; p < dimensions; p++){
-            // float val=S[t+p*ns+j];
-            array[i][k]+=pow((S[t+p*offset+j]-T2[p*nt+i]),2);
-         }
-
-        
-        array[i][k]+=array[i][l];
-        
-        for (i=1; i<nt; i++)
-        {
-            // printf("i: %d\n",i);
             array[i][k]=0.0;
-            float a = array[i-1][l];
-            float b = array[i][l];
-            float c = array[i-1][k];
-            
-            min_nb = fminf(a,b);
-            min_nb = fminf(c,min_nb);
-
             for (p = 0; p < dimensions; p++)
-                array[i][k]+=pow((S[t+p*offset+j]-T2[p*nt+i]),2);
+            {
+                if (i==0)
+                    array[i][k]+=pow((S[t+p*2*ns]-T[p*nt]),2);
+                else
+                    array[i][k]+=pow((S[t+p*2*ns]-T[p*nt+i]),2);
+            }
+            // printf("array[%d][%d]: %f\n",i,k,array[i][k]);
+            if(i!=0)
+                array[i][k]+=array[i-1][k];
             
-            array[i][k]+=min_nb;
         }
-        g = k;
-        k = l;
-        l = g;
+
+        k = 1;
+        l = 0;
+        
+        
+        for(j=1; j<ns; j++)
+        {
+            // printf("j: %d\n",j);
+            i = 0;
+            array[i][k]=0.0;
+
+            for (p = 0; p < dimensions; p++){
+                // float val=S[t+p*ns+j];
+                array[i][k]+=pow((S[t+p*2*ns+j]-T[p*nt+i]),2);
+             }
+
+            
+            array[i][k]+=array[i][l];
+            
+            for (i=1; i<nt; i++)
+            {
+                // printf("i: %d\n",i);
+                array[i][k]=0.0;
+                float a = array[i-1][l];
+                float b = array[i][l];
+                float c = array[i-1][k];
+                
+                min_nb = fminf(a,b);
+                min_nb = fminf(c,min_nb);
+
+                for (p = 0; p < dimensions; p++)
+                    array[i][k]+=pow((S[t+p*2*ns+j]-T[p*nt+i]),2);
+                
+                array[i][k]+=min_nb;
+            }
+            g = k;
+            k = l;
+            l = g;
+        }
+
+
+        data_out[idx]=array[nt-1][g];
+        // printf("block_id: %d, idx: %d thread: %d, DTW: %f\n",blockIdx.x,idx,t,array[nt-1][g]);
+
     }
-    
-    
-    data_out[idx] = array[nt-1][g];
-    // printf("data_out[%d]: %f\n",idx,data_out[idx]);
-    // __syncthreads();
-    
+
 // }
-
-
-    // data_out[idx] = array[WS-1][g];
-    
-    // return min;
 
 }
-
-
 
 __host__ int checkFlagOpts(char **input_args, int num_args, int ind, int num_opts){
 
@@ -814,13 +953,12 @@ for (int i = 0; i < n_file; i++)
 } 
 
 int i,j,k;
-float *tmp;
 float label = 0;
 
 //reading data from 1 big file
 if (read_mode==0) { //read_mode=0
 
-    tmp = (float*)malloc(n_feat*sizeof(float));
+    // tmp = (float*)malloc(n_feat*sizeof(float));
 
     // checking order input file
     fseek(inputFile[0], 0L, SEEK_END);
@@ -844,44 +982,74 @@ if (read_mode==0) { //read_mode=0
         data_ind = 1;
     }
 
+    //DIMENSION ON THE COLS AND LENGTH ON ROWS
+    // for(i = 0; i < data_struct.tot_size; i++) {
+
+    //         //reading labels
+    //         fscanf(inputFile[lab_ind],"%f",&label); //fd=1 label descript
+                 
+    //         dataLabels[i] = (int)label;
+    //         // printf("label: %d\n",dataLabels[i]);
+    //         //exit(-1);
+    //         for (j = 0; j < window_size; j++) {
+    //             //reading data
+    //             for (k = 0; k < n_feat; k++)
+    //                 fscanf(inputFile[data_ind],"%f",&tmp[k]); //fd=0 data descript
+                
+    //             for (k = 0; k < n_feat; k++) {
+
+    //                 if (class_alg < 2) { // MDT_D or MDT_I
+    //                     data[(n_feat*i*window_size)+(k*window_size)+j] = tmp[k];
+    //                     // printf("h_train_orig[%d]:\t %f\n",(n_feat*i*window_size)+(k*window_size)+j,data[(n_feat*i*window_size)+(k*window_size)+j]);
+    //                 }
+    //                 else {
+
+    //                     data[(n_feat*2*i*window_size)+(2*k*window_size)+j] = tmp[k];
+    //                     data[(n_feat*2*i*window_size)+((2*k*window_size)+window_size)+j] = tmp[k];
+    //                     // printf("h_train_orig[%d]:\t %f\n",(n_feat*2*i*window_size)+(2*k*window_size)+j,data[(n_feat*2*i*window_size)+(2*k*window_size)+j]);
+    //                     // printf("h_train_copy[%d]:\t %f\n",(n_feat*2*i*window_size)+((2*k*window_size)+window_size)+j,data[(n_feat*2*i*window_size)+((2*k*window_size)+window_size)+j]);
+    //                 }
+    //             }
+    //            // printf("STEP_J: %d\n",j);
+    //             // exit(-1);
+    //         }
+    //        // printf("STEP_I: %d\n",i);
+    //     }
+
+    float tmp=0;
+
+    //DIMENSION ON THE ROWS AND LENGTH ON COLS
     for(i = 0; i < data_struct.tot_size; i++) {
 
-            //reading labels
-            fscanf(inputFile[lab_ind],"%f",&label); //fd=1 label descript
+        fscanf(inputFile[lab_ind],"%f",&label); //fd=1 label descript
                  
-            dataLabels[i] = (int)label;
-            // printf("label: %d\n",dataLabels[i]);
-            //exit(-1);
+        dataLabels[i] = (int)label;
+
+        for (k = 0; k < n_feat; k++) {
             for (j = 0; j < window_size; j++) {
-                //reading data
-                for (k = 0; k < n_feat; k++)
-                    fscanf(inputFile[data_ind],"%f",&tmp[k]); //fd=0 data descript
-                
-                for (k = 0; k < n_feat; k++) {
+                fscanf(inputFile[data_ind],"%f" ,&tmp); //fd=0 data descript
+                // printf("val: %f\n", tmp);
 
-                    if (class_alg < 2) { // MDT_D or MDT_I
-                        data[(n_feat*i*window_size)+(k*window_size)+j] = tmp[k];
-                        // printf("h_train_orig[%d]:\t %f\n",(n_feat*i*window_size)+(k*window_size)+j,data[(n_feat*i*window_size)+(k*window_size)+j]);
-                    }
-                    else {
+                if (class_alg < 2) { // MDT_D or MDT_I
 
-                        data[(n_feat*2*i*window_size)+(2*k*window_size)+j] = tmp[k];
-                        data[(n_feat*2*i*window_size)+((2*k*window_size)+window_size)+j] = tmp[k];
-                        // printf("h_train_orig[%d]:\t %f\n",(n_feat*2*i*window_size)+(2*k*window_size)+j,data[(n_feat*2*i*window_size)+(2*k*window_size)+j]);
-                        // printf("h_train_copy[%d]:\t %f\n",(n_feat*2*i*window_size)+((2*k*window_size)+window_size)+j,data[(n_feat*2*i*window_size)+((2*k*window_size)+window_size)+j]);
-                    }
+                    data[(n_feat*i*window_size) + (k*window_size)+j] = tmp;
+
+                } else {
+
+                    data[(n_feat*2*i*window_size)+(2*k*window_size)+j] = tmp;
+                    data[(n_feat*2*i*window_size)+((2*k*window_size)+window_size)+j] = tmp;
                 }
-               // printf("STEP_J: %d\n",j);
-                // exit(-1);
+
             }
-           // printf("STEP_I: %d\n",i);
         }
     }
+
+}
 
 //reading from k-files
 else if(read_mode == 1) {
 
-    tmp = (float*)malloc(n_feat*sizeof(float));
+    float *tmp = (float*)malloc(n_feat*sizeof(float));
     // n_file = n_feat;
 
     for(i = 0; i < data_struct.tot_size; i++) {
@@ -916,7 +1084,7 @@ else if(read_mode == 1) {
 }
 else {
 
-    tmp = (float*)malloc(window_size*sizeof(float));
+    float *tmp = (float*)malloc(window_size*sizeof(float));
 
     // printf("mode 2, train_size: %d, test_size: %d!\n",data_struct.train_size,data_struct.test_size);
     // exit(-1);

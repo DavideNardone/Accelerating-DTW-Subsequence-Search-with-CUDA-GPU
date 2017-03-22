@@ -35,12 +35,12 @@ extern "C" {
 	#endif
 
 	//device
-	__global__ void MD_ED_D(float* , float* , int , int , float* , int , int );
-	__global__ void MD_DTW_D(float* , float* , int , int , int , float* ,int, int );
+	__global__ void MD_ED_D(float* , float* , int , int , float* , int , int, int );
+	__global__ void MD_DTW_D(float* , float* , int , int , int , float* ,int, int, int );
 	__global__ void MD_ED_I(float* , float* , int , int , float* , int , int );
 	__global__ void MD_DTW_I(float* , float* , int , int , int , float* ,int, int);
-	__global__ void rMD_ED_D(float* , float* , int , int , float* , int );
-	__global__ void rMD_DTW_D(float* , float* , int , int , int , float*, int);
+	__global__ void rMD_ED_D(float* , float* , int , int , float* , int, int );
+	__global__ void rMD_DTW_D(float* , float* , int , int , int , float*, int, int);
 	__device__ float stdDev(float *, int ,float *);
 
 

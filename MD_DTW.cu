@@ -24,6 +24,8 @@ int main( int argc, char** argv)
     int k_fold=0; //input data to set
     int n_feat=0;
     int device = 0;
+    int gm;
+    float T2;
 
     int num_opts;
     int flag_task = 0;
@@ -383,6 +385,7 @@ int main( int argc, char** argv)
         for (f = 0; f < k_fold; f++){
             //SETTIN FOR EACH K_FOLD ALL THE VARIABLES 
             err = 0;
+            errNR = 0;
 
 
             // i_train = 0;
@@ -655,17 +658,7 @@ int main( int argc, char** argv)
                 dim3 threads;
 
 
-                float T2 = (n_feat*window_size)*sizeof(float);            
-
-                if (T2 > deviceProp.sharedMemPerBlock) {
-
-                    printf("The segment T2: %f doesn't fit into the shared memory: %lu\n",T2,deviceProp.sharedMemPerBlock);
-                    exit(-1);
-                }
-
                 /******************************* DEVICE MEMORY ALLOCATION *******************************/
-
-
 
 
                 // rMD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize);
@@ -683,6 +676,18 @@ int main( int argc, char** argv)
                 {
                     case 0 ://MD_DTW_D
                     {
+
+                        T2 = (n_feat*window_size)*sizeof(float);
+
+                        if (T2 > deviceProp.sharedMemPerBlock) {
+
+                            printf("The T2 test timeserie: %f doesn't fit into the shared memory: %lu, so it will be allocated into the global memory\n",T2,deviceProp.sharedMemPerBlock);
+                            gm = 1;
+                            T2 = 0;
+                        }
+                        else
+                            gm = 0;
+
                         grid_size = ceil((float)trainSize/blockSize);
                         // grid(grid_size,1);
                         // dim3 threads(blockSize,1);
@@ -704,9 +709,10 @@ int main( int argc, char** argv)
                             cudaMemcpy(d_test, h_test + k*(n_feat*window_size) , n_feat*window_size*sizeof(float), cudaMemcpyHostToDevice);
 
                             if ( strcmp(distance_type,"DTW") == 0) //DTW distance
-                                MD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,0);
+                                // gMD_DTW_D <<<grid, threads>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,0);
+                                MD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,0,gm);
                             else
-                                MD_ED_D <<<grid, threads, T2>>> (d_train, d_test, window_size,n_feat,d_Out,trainSize,0);
+                                MD_ED_D <<<grid, threads, T2>>> (d_train, d_test, window_size,n_feat,d_Out,trainSize,0, gm);
 
                             cudaDeviceSynchronize(); //it may be avoided if there's not printf in the kernel function
                             cudaMemcpy(h_Out, d_Out, trainSize*sizeof(float), cudaMemcpyDeviceToHost);
@@ -731,7 +737,7 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            // printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
 
                         }
 
@@ -802,7 +808,7 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            // printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
                         }
 
                         cudaEventRecord(stop_GPU,0);
@@ -826,6 +832,18 @@ int main( int argc, char** argv)
                     break;
                     case 2:
                     {
+
+                        T2 = (n_feat*window_size)*sizeof(float);
+
+                        if (T2 > deviceProp.sharedMemPerBlock) {
+
+                            printf("The T2 test timeserie: %f doesn't fit into the shared memory: %lu, so it will be allocated into the global memory\n",T2,deviceProp.sharedMemPerBlock);
+                            gm = 1;
+                            T2 = 0;
+                        }
+                        else
+                            gm = 0;
+
                         grid_size=ceil((float)trainSize*window_size/blockSize);
                         // dim3 grid(grid_size,1);
                         // dim3 threads(blockSize,1);
@@ -847,9 +865,9 @@ int main( int argc, char** argv)
                             cudaMemcpy(d_test, h_test + (k*n_feat*window_size), n_feat*window_size*sizeof(float), cudaMemcpyHostToDevice);
 
                             if ( strcmp(distance_type,"DTW") == 0) //DTW distance                            
-                                rMD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize);
+                                rMD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size, window_size,n_feat,d_Out,trainSize,gm);
                             else
-                                rMD_ED_D <<<grid, threads, T2>>> (d_train, d_test, window_size, n_feat,d_Out,trainSize);
+                                rMD_ED_D <<<grid, threads, T2>>> (d_train, d_test, window_size, n_feat,d_Out,trainSize, gm);
 
                             cudaThreadSynchronize();
 
@@ -891,7 +909,7 @@ int main( int argc, char** argv)
                             if( trainLabels[minINR] != testLabels[k] )
                                 errNR++;
 
-                            // printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min, trainLabels[minINR], minNR );
+                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min, trainLabels[minINR], minNR );
                         }
 
                         cudaEventRecord(stop_GPU,0);
@@ -1093,12 +1111,17 @@ int main( int argc, char** argv)
                     threads.x = blockSize;
                     threads.y = 1;
 
-                    float T2 = (n_feat*window_size)*sizeof(float);
+                    T2 = (n_feat*window_size)*sizeof(float);
 
                     if (T2 > deviceProp.sharedMemPerBlock) {
-                        printf("The segment T2: %f doesn't fit into the shared memory: %lu\n",T2,deviceProp.sharedMemPerBlock);
-                        exit(-1);
+
+                        printf("The T2 test timeserie: %f doesn't fit into the shared memory: %lu, so it will be allocated into the global memory\n",T2,deviceProp.sharedMemPerBlock);
+                        gm = 1;
+                        T2 = 0;
+                        // exit(-1);
                     }
+                    else
+                        gm = 0;
 
                     printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,threads.x);
                     printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,threads.y);
@@ -1111,9 +1134,10 @@ int main( int argc, char** argv)
     //                 cudaMemset(&d_test, 0, n_feat*window_size*sizeof(float));
     //                 cudaMemcpy(d_test, h_test + k*(n_feat*window_size) , n_feat*window_size*sizeof(float), cudaMemcpyHostToDevice);
                     if ( strcmp(distance_type,"DTW") == 0) //DTW distance
-                        MD_DTW_D <<<grid, threads, T2>>> (d_t_series, d_q_series, window_size, window_size,n_feat,d_owp,t_size,1);
+                        MD_DTW_D <<<grid, threads, T2>>> (d_t_series, d_q_series, window_size, window_size,n_feat,d_owp,t_size,1,gm);
                     else
-                        MD_ED_D <<<grid, threads, T2>>> (d_t_series, d_q_series, window_size, n_feat, d_owp,t_size,1);
+                        MD_ED_D <<<grid, threads, T2>>> (d_t_series, d_q_series, window_size, n_feat, d_owp,t_size,1,gm)
+                    ;
 
                     // cudaDeviceSynchronize(); //it may be avoided if there's not printf in the kernel function
                     cudaEventRecord(stop_GPU,0);
