@@ -125,23 +125,6 @@ For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES 
 
 **NOTE:** The MTSS presented here assume that all the MTS have the same time length.
 
-
-## Tests
-
-TODO: Add some test examples
-
-## Contributing
-
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request
-
-## History
-
-TODO: Write history
-
 ## References
 
 [1] Sart, Doruk, et al. "Accelerating dynamic time warping subsequence search with GPUs and FPGAs." Data Mining (ICDM), 2010 IEEE 10th International Conference on. IEEE, 2010.
@@ -152,4 +135,4 @@ APA
 
 ## License
 
-APGL-3.0
+MIT
