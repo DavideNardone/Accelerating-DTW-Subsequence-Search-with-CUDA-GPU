@@ -4,7 +4,7 @@ A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multi
 
 ## What MTSS is?
 
-MTSS is a GPU/CPU software designed for the **_Classification_** and the **_Subsequence Similarity Search_** of MTSO. Originally inspired by [1], MTSS aims to improve the *Time Perfomance* and *Accuracy* for classyfing and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**. 
+MTSS is a GPU/CPU software designed for the **_Classification_** and the **_Subsequence Similarity Search_** of MTSO. Originally inspired by [1], MTSS aims to improve the *Time Performance* and *Accuracy* for classifying and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**. 
 
 In order to improve the *Time Performace* of these two tasks (which may be considered highly time consuming), MTSS present a **GPGPU** implementation which allows to achieve almost three order of magnitude speedup, while to get better *Accuracy* results, it uses different type of DTW, namely:
 
