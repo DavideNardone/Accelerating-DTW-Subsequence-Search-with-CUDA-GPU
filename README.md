@@ -125,6 +125,21 @@ For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES 
 
 **NOTE:** The MTSS presented here assume that all the MTS have the same time length.
 
+
+# AUTHORS
+
+  Davide Nardone, University of Naples Parthenope, Science and Techonlogies Departement, Msc Applied Computer Science
+  https://www.linkedin.com/in/davide-nardone-127428102/
+  
+# CONTACTS
+
+  if you have any problem, questions, ideas or suggestions, please contact me at:
+  - **davide.nardone@studenti.uniparthenope.it**
+
+# WEBSITE
+
+  Visit the CCMMMA Web page for more info: http://meteo.uniparthenope.it/
+
 ## References
 
 [1] Sart, Doruk, et al. "Accelerating dynamic time warping subsequence search with GPUs and FPGAs." Data Mining (ICDM), 2010 IEEE 10th International Conference on. IEEE, 2010.
