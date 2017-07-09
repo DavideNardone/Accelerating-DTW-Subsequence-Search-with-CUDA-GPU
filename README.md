@@ -39,7 +39,7 @@ where `-D option` is necessary to define a `static variable` which is used to st
 
 ### Running
 
-As we said before, **MTSS** allow you to perform two task:
+As we said before, **MTSS** allows you to perform two task:
 
 1. **Classification**
 
