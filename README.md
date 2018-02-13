@@ -18,7 +18,7 @@ For more information, please refer to [1-2].
 
 The software is purely written in CUDA using C language as support. In order to use it you must have installed:
 
-1. A working gcc compiler. 
+1. A working gcc compiler.
 
 2. A CUDA version 5.0 or greater. For installing, please refer to the [official CUDA documention](http://docs.nvidia.com/cuda/#axzz4al7PKeAs).
 
@@ -133,8 +133,8 @@ For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES 
   
 # CONTACTS
 
-  if you have any problem, questions, ideas or suggestions, please contact me at:
-  - **davide.nardone@studenti.uniparthenope.it**
+For any kind of problem, questions, ideas or suggestions, please don't esitate to contact me at: 
+- **davide.nardone@studenti.uniparthenope.it**
 
 # WEBSITE
 
