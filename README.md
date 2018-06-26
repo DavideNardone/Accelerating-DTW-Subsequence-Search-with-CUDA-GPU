@@ -60,17 +60,17 @@ The program can run with the following flag options:
 - **-k**:(optional) In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation*, specifying then the number of folders. 
 - **-o**: Depending on the *task* and *read mode*, it represents the MTS option parameters:
   1. **CLASSIFICATION (read-mode=0 oppure 1):**
-    * The first parameter represents the number of MTS samples;
-    * The second parameter represents the length of each MTS sample (same size for each dimension);
+  * The first parameter represents the number of MTS samples;
+  * The second parameter represents the length of each MTS sample (same size for each dimension);
     
-    **NOTE:** For this combination it's necessary the *-k flag*,
+    **NOTE:** For this combination it's necessary the *-k flag*.
   2. **CLASSIFICATION (read-mode=2):**
-    * The first parameter represents the number of MTS sample in the TRAINING SET;
-    * The second parameter represents the number of MTS sample in the TESTING SET;
-    * The third parameter represents the MTS length (same size for each dimension).
+  * The first parameter represents the number of MTS sample in the TRAINING SET;
+  * The second parameter represents the number of MTS sample in the TESTING SET;
+  * The third parameter represents the MTS length (same size for each dimension).
   3. **SUBSEQ_SEARCH (read-mode=0 oppure 1):**
-    * The first parameter represents the MTS length (same size for each dimension);
-    * The second parameter represents the MTS *query* length to search for.
+  * The first parameter represents the MTS length (same size for each dimension);
+  * The second parameter represents the MTS *query* length to search for.
 - **-m**: It's used to specify the type of **_MDTW_** to use:
   * **0**: Dependent similarity measure;
   * **1**: Independent similarity measure;
@@ -86,13 +86,15 @@ Some examples follow:
 
 `nvcc MD_DTW_Classification.cu fun.cu -D WS=152 -o mdtwObj`
 
-`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 -m 2 -d 0`
+`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 -m 2 DTW -d 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f DATA LABEL -k 10 -o 1000 152 -m 0 -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f DATA LABEL -k 10 -o 1000 152 -m 0 DTW -d 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 -m 0 -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 DTW -m 0 -d 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f TRAINING_SET TESTING_SET -o 500 1500 152 -m 0 -d 0`
+`./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f TRAINING_SET TESTING_SET -o 500 1500 152 -m 2 DTW -d 0`
+
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f TRAINING_SET TESTING_SET -o 500 1500 152 -m 0 DTW -d 0`
 
 **SUBSEQ_SEARCH**
 
