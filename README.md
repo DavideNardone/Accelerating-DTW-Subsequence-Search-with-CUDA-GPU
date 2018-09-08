@@ -6,7 +6,7 @@ A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multi
 
 MTSS is a GPU/CPU software designed for the **_Classification_** and the **_Subsequence Similarity Search_** of MTSO. Originally inspired by [1], MTSS aims to improve the *Time Performance* and *Accuracy* for classifying and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**. 
 
-In order to improve the *Time Performace* of these two tasks (which may be considered highly time consuming), MTSS present a **GPGPU** implementation which allows to achieve almost three order of magnitude speedup, while to get better *Accuracy* results, it uses different type of DTW, namely:
+In order to improve the *Time Performance* of these two tasks (which may be considered highly time consuming), MTSS presents a **GP-GPU** implementation which allows it to achieve almost three order of magnitude speedup, whilst getting better *Accuracy* results. It uses different types of DTW, namely:
 
 1. **D-MDTW:** Dependent-Multivariate Dynamic Time Warping
 2. **I-MDTW:** Independent-Multivariate Dynamic Time Warping
@@ -16,7 +16,7 @@ For more information, please refer to [1-2].
 
 ## Installation
 
-The software is purely written in CUDA using C language as support. In order to use it you must have installed:
+The software is purely written in CUDA, using C language as support. In order to use it you must have installed:
 
 1. A working gcc compiler.
 
@@ -25,21 +25,21 @@ The software is purely written in CUDA using C language as support. In order to 
 
 ## Usage
 
-The software can be used as a **Standard Command Line Options style** with a list of options that are explained as following. 
+The software can be used as a **Standard Command Line Options style** with a list of options that are explained as follows. 
 
 ### Compiling
 
-Once you are in the main folder, you must compile the **MD_DTW.cu** and **module.cu** files as illustred below:
+Once you are in the main folder, you must compile the **MD_DTW.cu** and **module.cu** files as illustrated below:
 
-`nvcc [options] [source files] -o output file>` (i.e. `nvcc -D WS=421 MD_DTW.cu module.cu -o mdtwObj`)
+`nvcc [options] [source files] -o output file>` (i.e., `nvcc -D WS=<time_length> MD_DTW.cu module.cu -o mdtwObj`)
 
-where `-D option` is necessary to define a `static variable` which is used to store the MTS to test against into the *local memory* of each CUDA block.
+where `-D option` is necessary to define a `static variable` (representing the time's length of the MTS) which is used to store the MTS's query into the *local memory* of each CUDA block.
 
 **NOTE:** The implementation presented here assumes that each compared MTS has the same time length.
 
 ### Running
 
-As we said before, **MTSS** allows you to perform two task:
+As we said before, **MTSS** allows you to perform two tasks:
 
 1. **Classification**
 
@@ -49,28 +49,28 @@ Each of the two tasks can be perfomed on **GPU** as well as on **CPU**.
 
 The program can run with the following flag options:
 
-- **-t**: It's used to decide what tasks you want to perform (i.e. CLASSIFICATION, SUBSEQ_SEARCH)
+- **-t**: It's used to decide which task you want to perform (i.e. CLASSIFICATION, SUBSEQ_SEARCH)
 - **-i**: It represents the input parameters, where:
-  * The first parameter represents which version you want to use: *CPU* or *GPU*;
-  * The second parameter represents the number of dimension for the MTS;
+  * The version you want to use: *CPU* or *GPU*;
+  * The number of dimension for the MTS;
   * The third/fourth parameter (depending on the first parameter) represents the *#thread* for each block (GPU) and/or the *read mode*.
   
-  **NOTE:** For more information about the read mode, please refer to the section **_Data Format_**.
+  **NOTE:** For more information about the *read mode*, please refer to the section **_Data Format_**.
 - **-f**: It's used to specify the file path of the data (refer to the section **_Data Format_**).
 - **-k**:(optional) In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation*, specifying then the number of folders. 
-- **-o**: Depending on the *task* and *read mode*, it represents the MTS option parameters:
+- **-o**: Depending on the *task* and *read mode*, the followig parameters represents
   1. **CLASSIFICATION (read-mode=0 oppure 1):**
-  * The first parameter represents the number of MTS samples;
-  * The second parameter represents the length of each MTS sample (same size for each dimension);
+  * The number of MTS samples;
+  * The length of each MTS sample (same size for each dimension);
     
     **NOTE:** For this combination it's necessary the *-k flag*.
   2. **CLASSIFICATION (read-mode=2):**
-  * The first parameter represents the number of MTS sample in the TRAINING SET;
-  * The second parameter represents the number of MTS sample in the TESTING SET;
-  * The third parameter represents the MTS length (same size for each dimension).
+  * The number of MTS sample in the TRAINING SET;
+  * The number of MTS sample in the TESTING SET;
+  * The MTS length (same size for each dimension).
   3. **SUBSEQ_SEARCH (read-mode=0 oppure 1):**
-  * The first parameter represents the MTS length (same size for each dimension);
-  * The second parameter represents the MTS *query* length to search for.
+  * The MTS length (same size for each dimension);
+  * The MTS *query*'s length to search for.
 - **-m**: It's used to specify the type of **_MDTW_** to use:
   * **0**: Dependent similarity measure;
   * **1**: Independent similarity measure;
@@ -113,7 +113,7 @@ MTSS works only with `txt` file format. Depending on the type of task to perform
 
 **_CLASSIFICATION_**
 
-For this task, MTSS provides three different type of reading mode:
+For this task, MTSS provides three different types of reading mode:
 
 1. read-mode=0: It's possible to feed MTSS with two files, (DATA, LABEL). The DATA file must be formatted as a *T*D* data matrix, where each row must represents the t-th features values of the MTS at the time instant *d-th* (in this case, the MTS are appended in the file), while the LABEL file just contains the integer class label. (A template file is placed in [data/classification/rm_0](data/classification/rm_0)
 
