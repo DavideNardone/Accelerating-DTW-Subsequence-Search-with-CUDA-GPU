@@ -57,7 +57,7 @@ The program can run with the following flag options:
   
   **NOTE:** For more information about the *read mode*, please refer to the section **_Data Format_**.
 - **-f**: It's used to specify the file path of the data (refer to the section **_Data Format_**).
-- **-k**:(optional) In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation*, specifying then the number of folders. 
+- **-k (optional)**: In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation*, specifying then the number of folders. 
 - **-o**: Depending on the *task* and *read mode*, the followig parameters represents
   1. **CLASSIFICATION (read-mode=0 oppure 1):**
   * The number of MTS samples;
