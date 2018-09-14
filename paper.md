@@ -49,11 +49,3 @@ Running:
 The author thanks the department of Science and Technology, University of Naples Parthenope, for the support in developing the software and acknowledges support from the Computer Visione and Pattern Recognition-Lab and the High Performance Scientific Computing Smart-Lab.
 
 # References
-Sanguansat, Parinya. "Multiple multidimensional sequence alignment using generalized dynamic time warping." WSEAS Transactions on Mathematics 11.8 (2012): 668-678.
-
-NVIDIA CUDA Programming Guide. Version 2.3. http://developer.download.nvidia.com/compute/cuda/2_3/toolkit/docs/NVIDIA_CUDA_Programming_Guide_2.3.pdf
-
-Sart, D., Mueen, A., Najjar, W., Keogh, E., & Niennattrakul, V. (2010, December). Accelerating dynamic time warping subsequence search with GPUs and FPGAs. In Data Mining (ICDM), 2010 IEEE 10th International Conference on (pp. 1001-1006). IEEE.
-
-Shokoohi-Yekta, Mohammad, Jun Wang, and Eamonn Keogh. "On the non-trivial generalization of dynamic time warping to the multi-dimensional case." Proceedings of the 2015 SIAM International Conference on Data Mining. Society for Industrial and Applied Mathematics, 2015.
-
