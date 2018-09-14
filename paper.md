@@ -28,6 +28,6 @@ In order to improve the Time Performance of these two tasks (which may be consid
 2. **I-MDTW:** Independent-Multivariate Dynamic Time Warping
 3. **R-MDTW:** Rotation-Multivariate Dynamic Time Warping
 
-For more information, please refer to [sart2010accelerating-shokoohi2015non].
+For more information, please refer to [@sart2010accelerating-@shokoohi2015non].
 
 # References
