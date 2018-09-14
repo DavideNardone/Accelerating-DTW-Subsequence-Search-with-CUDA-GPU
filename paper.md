@@ -2,6 +2,8 @@
 title: 'MTSS: A CUDA software for the analysis of Multivariate Time Series'
 tags:
 - machine learning
+- time series
+- multivariate analysis
 - classification
 - subsequence similarity search
 - GPU
