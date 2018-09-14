@@ -24,9 +24,10 @@ Originally inspired by [@sart2010accelerating], MTSS aims to improve the Time Pe
 
 In order to improve the Time Performance of these two tasks (which may be considered highly time consuming), MTSS presents a GP-GPU implementation which allows it to achieve almost three order of magnitude speedup, whilst getting better Accuracy results. It uses different types of DTW, namely:
 
-D-MDTW: Dependent-Multivariate Dynamic Time Warping
-I-MDTW: Independent-Multivariate Dynamic Time Warping
-R-MDTW: Rotation-Multivariate Dynamic Time Warping
+1. **D-MDTW:** Dependent-Multivariate Dynamic Time Warping
+2. **I-MDTW:** Independent-Multivariate Dynamic Time Warping
+3. **R-MDTW:** Rotation-Multivariate Dynamic Time Warping
+
 For more information, please refer to [sart2010accelerating-shokoohi2015non].
 
 # References
