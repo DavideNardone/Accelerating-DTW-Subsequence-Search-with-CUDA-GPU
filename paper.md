@@ -11,7 +11,7 @@ authors:
    orcid: 0000-0003-0486-1791
    affiliation: "1"
 affiliations:
- - name: Parthenope University of Naples
+ - name: Dept. of Science and Technology, University of Naples Parthenope
    index: 1
 date: 14 September 2018
 bibliography: paper.bib
