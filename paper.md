@@ -46,7 +46,7 @@ Running:
 ./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 DTW -m 0 -d 0
 
 # Acknowledgements
-The author thank the department of Science and Technology, University of Naples Parthenope, for the supporto in developing the software and acknowledges support from the Computer Visione and Patter Recognition-Lab and the High Performance Scientific Computing Smart-Lab.
+The author thanks the department of Science and Technology, University of Naples Parthenope, for the support in developing the software and acknowledges support from the Computer Visione and Pattern Recognition-Lab and the High Performance Scientific Computing Smart-Lab.
 
 # References
 Sanguansat, Parinya. "Multiple multidimensional sequence alignment using generalized dynamic time warping." WSEAS Transactions on Mathematics 11.8 (2012): 668-678.
