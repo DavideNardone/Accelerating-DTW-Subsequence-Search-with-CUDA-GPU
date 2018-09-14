@@ -40,9 +40,11 @@ These two approaches differ from one to another for the way in which the *k's* D
 # Examples
 
 Compiling:
+
 nvcc -D WS=421 MD_DTW.cu module.cu -o mdtwObj
 
 Running:
+
 ./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 DTW -m 0 -d 0
 
 # Acknowledgements
