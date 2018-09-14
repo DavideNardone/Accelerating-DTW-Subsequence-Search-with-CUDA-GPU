@@ -1,9 +1,11 @@
 ---
 title: 'A CUDA software for the analysis of Multivariate Time Series'
 tags:
-  - example
-  - tags
-  - for the paper
+- machine learning
+- classification
+- subsequence similarity search
+- GPU
+- CUDA
 authors:
  - name: Davide Nardone
    orcid: 0000-0003-0486-1791
