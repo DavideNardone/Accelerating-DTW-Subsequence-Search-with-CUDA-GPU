@@ -167,4 +167,4 @@ APA
 
 ## License
 
-MIT lincese located in [LICENSE.](LICENSE)
+MIT [LICENSE.](LICENSE)
