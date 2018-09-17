@@ -45,6 +45,9 @@ Running:
 
 ./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 DTW -m 0 -d 0
 
+# Source Code
+The source code for MTSS is avaiable on Github at the following [link]:(https://github.com/DavideNardone/MTSS-Multivariate-Time-Series-Sofwtare).
+
 # Acknowledgements
 The author thanks the department of Science and Technology, University of Naples Parthenope, for the support in developing the software and acknowledges support from the Computer Vision and Pattern Recognition-Lab and the High Performance Scientific Computing Smart-Lab.
 
