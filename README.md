@@ -24,8 +24,11 @@ The software is purely written in CUDA, using C language as support. In order to
 
 
 ## Usage
+Download the *zip* file by running the following command:
 
-The software can be used as a **Standard Command Line Options style** with a list of options that are explained as follows. 
+`git clone https://github.com/DavideNardone/PySMRS.git`
+
+and `unzip` the file *master.zip*.
 
 ### Compiling
 
@@ -38,6 +41,8 @@ where `-D option` is necessary to define a `static variable` (representing the t
 **NOTE:** The implementation presented here assumes that each compared MTS has the same time length.
 
 ### Running
+
+The software can be used as a **Standard Command Line Options style** with a list of options that are explained as follows. 
 
 As we said before, **MTSS** allows you to perform two tasks:
 
@@ -80,33 +85,6 @@ The program can run with the following flag options:
 - **--help**: It quickly explain how to use MTSS software.
 - **--version**: It's show the info version about the sofware.
 
-Some examples follow:
-
-**CLASSIFICATION**
-
-`nvcc MD_DTW_Classification.cu fun.cu -D WS=152 -o mdtwObj`
-
-`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 -m 2 DTW -d 0`
-
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f DATA LABEL -k 10 -o 1000 152 -m 0 DTW -d 0`
-
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f X_MAT Y_MAT Z_MAT -k 10 -o 1000 152 DTW -m 0 -d 0`
-
-`./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f TRAINING_SET TESTING_SET -o 500 1500 152 -m 2 DTW -d 0`
-
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f TRAINING_SET TESTING_SET -o 500 1500 152 -m 0 DTW -d 0`
-
-**SUBSEQ_SEARCH**
-
-`nvcc -D WS=421 MD_DTW.cu module.cu -o mdtwObj`
-
-`./mdtwObj -t SUBSEQ_SEARCH -i CPU 3 0 -f ECGseries ECGquery -o 3907 421 -m 1`
-
-`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f ECGseries ECGquery -o 3907 421 -m 0 -d 1`
-
-`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 1 -f ECGseries ECGquery -o 3907 421 -m 1 -d 1`
-
-
 ### Data format
 
 MTSS works only with `txt` file format. Depending on the type of task to perform, the data file must be adequayely formatted.
@@ -127,6 +105,47 @@ For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES 
 
 **NOTE:** The MTSS presented here assume that all the MTS have the same time length.
 
+# Examples
+
+Some examples follow:
+
+**CLASSIFICATION**
+
+**Compiling**
+
+`nvcc -D WS=152 MD_DTW.cu module.cu -o mdtwObj`
+
+**Running**
+
+CPU: 
+
+`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 -o 1000 152 -m 0 DTW`
+
+`./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 500 1000 152 -m 0 DTW`
+
+GPU:
+
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f data/classification/rm_0/DATA data/classification/rm_0/LABEL -k 10 -o 1000 152 -m 0 DTW -d 0`
+
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 -o 1000 152 DTW -m 0 -d 0`
+
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 500 1000 152 -m 0 DTW -d 0`
+
+**SUBSEQ_SEARCH**
+
+**Compiling**
+
+`nvcc -D WS=421 MD_DTW.cu module.cu -o mdtwObj`
+
+**Running**
+
+CPU: 
+
+`./mdtwObj -t SUBSEQ_SEARCH -i CPU 3 0 -f /data/subseq_search/T_series /data/subseq_search/Q_series -o 3907 421 -m 1 DTW`
+
+GPU:
+
+`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f /data/subseq_search/T_series /data/subseq_search/Q_series -o 3907 421 -m 1 DTW -d 0`
 
 # AUTHORS
 
