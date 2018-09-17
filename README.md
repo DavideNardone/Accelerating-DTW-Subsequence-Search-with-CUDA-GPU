@@ -26,7 +26,7 @@ The software is purely written in CUDA, using C language as support. In order to
 ## Usage
 Download the *zip* file by running the following command:
 
-`git clone https://github.com/DavideNardone/PySMRS.git`
+`git clone https://github.com/DavideNardone/MTSS-Multivariate-Time-Series-Sofwtare.git`
 
 and `unzip` the file *master.zip*.
 
