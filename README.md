@@ -14,7 +14,7 @@ In order to improve the *Time Performance* of these two tasks (which may be cons
 
 For more information, please refer to [1-2].
 
-## Installation
+## Dependecies
 
 The software is purely written in CUDA, using C language as support. In order to use it you must have installed:
 
