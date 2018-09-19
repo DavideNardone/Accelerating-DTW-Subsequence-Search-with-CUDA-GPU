@@ -129,7 +129,7 @@ GPU:
 
 `./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 -o 1000 152 DTW -m 0 -d 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 500 1000 152 -m 0 DTW -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 150 850 152 -m 0 DTW -d 0`
 
 **SUBSEQ_SEARCH**
 
