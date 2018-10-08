@@ -141,11 +141,11 @@ GPU:
 
 CPU: 
 
-`./mdtwObj -t SUBSEQ_SEARCH -i CPU 3 0 -f /data/subseq_search/T_series /data/subseq_search/Q_series -o 3907 421 -m 1 DTW`
+`./mdtwObj -t SUBSEQ_SEARCH -i CPU 3 0 -f data/subseq_search/T_series /data/subseq_search/Q_series -o 3907 421 -m 1 DTW`
 
 GPU:
 
-`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f /data/subseq_search/T_series /data/subseq_search/Q_series -o 3907 421 -m 1 DTW -d 0`
+`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f data/subseq_search/T_series /data/subseq_search/Q_series -o 3907 421 -m 1 DTW -d 0`
 
 # AUTHORS
 
