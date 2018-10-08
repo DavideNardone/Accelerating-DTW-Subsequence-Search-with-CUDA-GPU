@@ -859,9 +859,7 @@ for (i = 0; i < n_file; i++)
 {
     char *curr_file = file_name[ind_files[i]];
     inputFile[i] = fopen(curr_file,"r");
-    // printf("file %s opened\n", curr_file);
-    //FIXME: doesnt work whether a path file not exist
-    if ((inputFile + i) == NULL ) {
+    if ((inputFile[i]) == NULL ) {
         fprintf(stderr, "Failed to open file \"");
         fprintf(stderr, curr_file);
         fprintf(stderr, "\".\n");
