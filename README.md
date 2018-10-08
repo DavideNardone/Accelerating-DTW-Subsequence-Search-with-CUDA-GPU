@@ -168,3 +168,7 @@ APA
 ## License
 
 [MIT LICENSE](LICENSE)
+
+# Paper
+
+The following software is under riew for the [The Journal of Open Source Software]https://joss.theoj.org/ so i wouldn't recommend you to use it for any plagiarism.
