@@ -62,7 +62,8 @@ The program can run with the following flag options:
   
   **NOTE:** For more information about the *read mode*, please refer to the section **_Data Format_**.
 - **-f**: It's used to specify the file path of the data (refer to the section **_Data Format_**).
-- **-k (optional)**: In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation*, specifying then the number of folders. 
+- **-k (optional)**: In the **CLASSIFICATION** task, it's possible to perform *k-fold cross validation*, specifying then the number of folders and a flag for performing the shuffling among the folders generated. <br>
+**NB:** Setting the flag to `1` does not allow the reproducibility of the results on the same dataset among the GPU and CPU versions.
 - **-o**: Depending on the *task* and *read mode*, the followig parameters represents
   1. **CLASSIFICATION (read-mode=0 oppure 1):**
   * The number of MTS samples;
@@ -119,17 +120,17 @@ Some examples follow:
 
 CPU: 
 
-`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 -o 1000 152 -m 0 DTW`
+`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 0 -o 1000 152 -m 0 DTW`
 
 `./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 500 1000 152 -m 0 DTW`
 
 GPU:
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f data/classification/rm_0/DATA data/classification/rm_0/LABEL -k 10 -o 1000 152 -m 0 DTW -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f data/classification/rm_0/DATA data/classification/rm_0/LABEL -k 10 0 -o 1000 152 -m 0 DTW -d 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 -o 1000 152 -m 0 DTW -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 0 -o 1000 152 -m 0 DTW -d 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 150 850 152 -k 10 -m 0 DTW -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 150 850 152 -k 10 0 -m 0 DTW -d 0`
 
 **SUBSEQ_SEARCH**
 
