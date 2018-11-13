@@ -24,11 +24,9 @@ The software is purely written in CUDA, using C language as support. In order to
 
 
 ## Usage
-Download the *zip* file by running the following command:
+Runn the following command to clone the `master` repository into a *target* directory:
 
-`git clone https://github.com/DavideNardone/MTSS-Multivariate-Time-Series-Sofwtare.git`
-
-and `unzip` the file *master.zip*.
+`git clone https://github.com/DavideNardone/MTSS-Multivariate-Time-Series-Sofwtare.git <target>`
 
 ### Compiling
 
