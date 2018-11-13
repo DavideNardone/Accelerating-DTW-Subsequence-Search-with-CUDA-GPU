@@ -21,7 +21,8 @@ int main( int argc, char** argv)
     int dataSize = 0; // i.e. 440
     int train_size, test_size;
     int blockSize = 0; // i.e. 512    
-    int k_fold=0; //input data to set
+    int k_fold = 0; //input data to set
+    int flag_shuffle = 0;
     int n_feat=0;
     int device = 0;
     int gm;
@@ -196,7 +197,7 @@ int main( int argc, char** argv)
         }
         else if (flag_cross) {
             
-            num_opts = 1;
+            num_opts = 2;
 
             // printf("i_flag_cross: %d, argc: %d\n",i,argc);
 
@@ -206,11 +207,14 @@ int main( int argc, char** argv)
             }
 
             k_fold = atoi(argv[i]);
+            flag_shuffle = atoi(argv[i+1]);
             printf("k_fold: %d\n",k_fold);
             if (k_fold < 2) {
                 printf("It's not possible to perform 1-cross validation!\n");
                 exit(-1);
             }
+
+            i = i + 1;
 
             flag_cross = 0;
         }        
@@ -373,7 +377,7 @@ int main( int argc, char** argv)
         if( k_fold < 1) //not doing K-cross validation
             k_fold = 1; // (work around to do not re-write a lot of code)
         else
-            tInd = crossvalind_Kfold(dataLabels,dataSize, k_fold);
+            tInd = crossvalind_Kfold(dataLabels,dataSize, k_fold, flag_shuffle);
 
         // int* tInd=(int *)malloc(dataSize*sizeof(int)); /*********** FOR TESTING SMTH ***********/
 
@@ -1015,7 +1019,7 @@ int main( int argc, char** argv)
                             dist = short_md_ed_c(&t_series[i], q_series, window_size, n_feat, t_size);
 
                         owp[i] = dist;
-                        // printf("val[%d]: %f\n", i, owp[i]);
+                        printf("val[%d]: %f\n", i, owp[i]);
                     }
                     gettimeofday(&stop_CPU, NULL);
 

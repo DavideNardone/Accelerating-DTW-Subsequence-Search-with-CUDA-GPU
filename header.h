@@ -76,7 +76,7 @@ extern "C" {
 	__host__ float timedifference_msec(struct timeval , struct timeval );
 	__host__ void shuffle(int *, size_t , size_t );
 	__host__ void idAssign(int* ,int ,int* ,int ,int* ,int* ,int* );
-	__host__ int* crossvalind_Kfold(int* ,int ,int );
+	__host__ int* crossvalind_Kfold(int* ,int ,int, int );
 	__host__ int countVal(int *,int ,int );
 	__host__ void fakeK_fold(int *array, int n,int m);
 

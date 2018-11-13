@@ -848,7 +848,6 @@ __host__ int checkFlagOpts(char **input_args, int num_args, int ind, int num_opt
 
 __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file, float *t_series, int t_size, float *q_series, int window_size, int n_feat, int read_mode){
 
-
 int i,k;
 
 FILE **inputFile = NULL;
@@ -859,6 +858,8 @@ for (i = 0; i < n_file; i++)
 {
     char *curr_file = file_name[ind_files[i]];
     inputFile[i] = fopen(curr_file,"r");
+    // printf("file %s opened\n", curr_file);
+    //FIXME: doesnt work whether a path file not exist
     if ((inputFile[i]) == NULL ) {
         fprintf(stderr, "Failed to open file \"");
         fprintf(stderr, curr_file);
@@ -874,7 +875,6 @@ if(read_mode == 0){ // dimension on x axis (columns) and time on y axis (rows)
 
     //reading t_series file
     for(i = 0; i < t_size; i++){
-
         for (k = 0; k < n_feat; k++) {
             fscanf(inputFile[0],"%f",&tmp[k]); //fd=0 t_series descriptor
             t_series[(k*t_size)+i] = tmp[k];
@@ -888,7 +888,7 @@ if(read_mode == 0){ // dimension on x axis (columns) and time on y axis (rows)
         for (k = 0; k < n_feat; k++) {
             fscanf(inputFile[1],"%f",&tmp[k]); //fd=1 q_series descriptor
             q_series[(k*window_size)+i] = tmp[k];
-                // printf("h_train_orig[%d]:\t %f\n",(n_feat*i*window_size)+(k*window_size)+j,data[(n_feat*i*window_size)+(k*window_size)+j]);
+            // printf("%d\n", q_series[(k*window_size)+i]);
         }
        // printf("STEP_J: %d\n",j);
         // exit(-1);
@@ -1391,7 +1391,7 @@ __host__ void checkCUDAError (const char* msg) {
 }
 
 
-__host__ int* crossvalind_Kfold(int* label,int N,int K) {
+__host__ int* crossvalind_Kfold(int* label,int N,int K, int flag_shuffle) {
     
     
     //    int N=sizeof(label)/sizeof(int);
@@ -1436,16 +1436,22 @@ __host__ int* crossvalind_Kfold(int* label,int N,int K) {
             float val=(float)(K*(j+1))/nS[i]; //j+1 because we need no zero values; MATLAB: q = ceil(K*(1:nS(g))/nS(g));
             q[j]=(int)ceil(val)-1; //C indices start from 0
         }
-        shuffle(pq,K,K);
-        //        printf("pq: ");
-        //        printArray(pq, K);
-        //        printf("q: ");
-        //        printArray(q, nS[i]);
-        //        printf("h: ");
-        //        printArray(h, nS[i]);
-        shuffle(randInd,nS[i],nS[i]);
-        //        printf("randInd: ");
-        //        printArray(randInd, nS[i]);
+
+        if(flag_shuffle==1){
+
+            shuffle(pq,K,K);
+
+            //        printf("pq: ");
+            //        printArray(pq, K);
+            //        printf("q: ");
+            //        printArray(q, nS[i]);
+            //        printf("h: ");
+            //        printArray(h, nS[i]);
+            shuffle(randInd,nS[i],nS[i]);
+
+            //        printf("randInd: ");
+            //        printArray(randInd, nS[i]);
+        }
         
         idAssign(pq, K, q, nS[i],randInd,h,tInd);
         //        exit(-1);
