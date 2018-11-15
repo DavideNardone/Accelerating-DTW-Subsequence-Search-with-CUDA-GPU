@@ -107,7 +107,7 @@ For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES 
 
 ## Dataset 
 
-The example data set [3] (differently formatted) and all the information about it can be retrieved from the following source: [https://sites.google.com/site/dtwadaptive/hom]
+The example data set [3] (differently formatted) and all the information about it can be retrieved from the following source: https://sites.google.com/site/dtwadaptive/hom
 
 # Examples
 
