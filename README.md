@@ -104,6 +104,11 @@ For this task, MTSS takes in input two files (T_SERIES, Q_SERIES). The T_SERIES 
 
 **NOTE:** The MTSS presented here assume that all the MTS have the same time length.
 
+
+## Dataset 
+
+The example data set [3] (differently formatted) and all the information about it can be retrieved from the following source: [https://sites.google.com/site/dtwadaptive/hom]
+
 # Examples
 
 Some examples follow:
@@ -163,6 +168,7 @@ APA
 
 [2] Shokoohi-Yekta, Mohammad, Jun Wang, and Eamonn Keogh. "On the non-trivial generalization of dynamic time warping to the multi-dimensional case." Proceedings of the 2015 SIAM International Conference on Data Mining. Society for Industrial and Applied Mathematics, 2015.
 
+[3] Shokoohi-Yekta, M., Hu, B., Jin, H. et al. Data Min Knowl Disc (2017) 31: 1. https://doi.org/10.1007/s10618-016-0455-0
 
 ## License
 
