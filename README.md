@@ -4,9 +4,11 @@ A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multi
 
 ## What MTSS is?
 
-MTSS is a GPU/CPU software designed for the **_Classification_** and the **_Subsequence Similarity Search_** of MTS. Originally inspired by [1], MTSS aims to improve the *Time Performance* and *Accuracy* for classifying and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**. 
+MTSS is a GPU/CPU software designed for the **_classification_** and the **_subsequence similarity search_** of MTS. Originally inspired by [1], MTSS aims to improve the *time performance* and *accuracy* for classifying and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**. 
 
-In order to improve the *Time Performance* of these two tasks (which may be considered highly time consuming), MTSS presents a **GP-GPU** implementation which allows it to achieve almost three order of magnitude speedup, whilst getting better *Accuracy* results. It uses different types of DTW, namely:
+MTSS presents a **GP-GPU** implementation which improves *speed-up* and *accuracy* of the the above citated tasks when compared to single-threaded CPU implementation. It's important to stress out that the software's speed=-up performace gets better when the variables ruling the speed complexity of those two tasks drastically increase. 
+
+The software allow to uses three different types of DTW, namely:
 
 1. **D-MDTW:** Dependent-Multivariate Dynamic Time Warping
 2. **I-MDTW:** Independent-Multivariate Dynamic Time Warping
@@ -16,7 +18,7 @@ For more information, please refer to [1-2].
 
 ## Dependecies
 
-The software is purely written in CUDA, using C language as support. In order to use it you must have installed:
+The software is purely written in CUDA, using the C language as support. In order to use it you must have installed:
 
 1. A working gcc compiler.
 
@@ -32,7 +34,7 @@ Runn the following command to clone the `master` repository into a *target* dire
 
 Once you are in the main folder, you must compile the **MD_DTW.cu** and **module.cu** files as illustrated below:
 
-`nvcc [options] [source files] -o output file>` (i.e., `nvcc -arch=sm_30 -D WS=<time_length> MD_DTW.cu module.cu -o mdtwObj`)
+`nvcc [options] [source files] -o output file>` (e.g., `nvcc -arch=sm_30 -D WS=<time_length> MD_DTW.cu module.cu -o mdtwObj`)
 
 where `-D option` is necessary to define a `static variable` (representing the time's length of the MTS) which is used to store the MTS's query into the *local memory* of each CUDA block.
 
@@ -40,7 +42,7 @@ where `-D option` is necessary to define a `static variable` (representing the t
 
 ### Running
 
-The software can be used as a **Standard Command Line Options style** with a list of options that are explained as follows. 
+The software can be used as a **standard command line tool** with a list of options that are explained as follows. 
 
 As we said before, **MTSS** allows you to perform two tasks:
 
@@ -159,7 +161,7 @@ GPU:
 # CONTACTS
 
 For any kind of problem, questions, ideas or suggestions, please don't esitate to contact me at: 
-- **davide.nardone@studenti.uniparthenope.it**
+- **davide.nardone@live.it**
 
 ## References
 
@@ -176,4 +178,4 @@ APA
 
 # Paper
 
-The following software is under riew for the [The Journal of Open Source Software]https://joss.theoj.org/papers/0a9f9006cebb80198e0ad5448cc1fc10 so i wouldn't recommend you to use it for any plagiarism.
+The following software is under review for the [The Journal of Open Source Software](https://joss.theoj.org/papers/0a9f9006cebb80198e0ad5448cc1fc10).
