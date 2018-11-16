@@ -858,12 +858,9 @@ for (i = 0; i < n_file; i++)
 {
     char *curr_file = file_name[ind_files[i]];
     inputFile[i] = fopen(curr_file,"r");
-    // printf("file %s opened\n", curr_file);
-    //FIXME: doesnt work whether a path file not exist
+
     if ((inputFile[i]) == NULL ) {
-        fprintf(stderr, "Failed to open file \"");
-        fprintf(stderr, curr_file);
-        fprintf(stderr, "\".\n");
+        fprintf(stderr, "Failed to open file: %s\n", curr_file);
         exit(2);
     }
 }
@@ -940,12 +937,9 @@ for (int i = 0; i < n_file; i++)
 {
     char *curr_file = file_name[ind_files[i]];
     inputFile[i] = fopen(curr_file,"r");
-    // printf("file %s opened\n", curr_file);
-    //FIXME: doesnt work whether a path file not exist
+
     if ((inputFile + i) == NULL ) {
-        fprintf(stderr, "Failed to open file \"");
-        fprintf(stderr, curr_file);
-        fprintf(stderr, "\".\n");
+        fprintf(stderr, "Failed to open file: %s\n", curr_file);
         exit(2);
     }
 } 
@@ -1887,5 +1881,3 @@ float timedifference_msec(struct timeval t0, struct timeval t1)
 {
     return (t1.tv_sec - t0.tv_sec) * 1000.0f + (t1.tv_usec - t0.tv_usec) / 1000.0f;
 }
-
-
