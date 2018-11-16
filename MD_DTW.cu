@@ -36,6 +36,8 @@ int main( int argc, char** argv)
     int flag_device = 0;
     int flag_cross = 0;
     int flag_alg_mode = 0;
+    int flag_verbose = 0;
+    int verbose_mode = 1; //by default display all the outputs
     int n_file=0;
     int class_mode = 0;
     char *task, *compution_type, *distance_type;
@@ -325,6 +327,20 @@ int main( int argc, char** argv)
             flag_device = 0;
 
         }
+        else if (flag_verbose){
+
+            num_opts = 1;
+
+            if(!checkFlagOpts(argv,argc,i,num_opts)) {
+                printf("The number of options is incorrect. For more information run the execution as: %s --help\n",argv[0]);
+                exit(-1);
+            }
+
+            verbose_mode = atoi(argv[i]);
+
+            flag_verbose = 0;
+
+        }
         else if(!strcmp(argv[i], "-t"))
             flag_task = 1;
         else if(!strcmp(argv[i], "-i"))
@@ -338,7 +354,9 @@ int main( int argc, char** argv)
         else if(!strcmp(argv[i], "-m"))
             flag_alg_mode = 1;
         else if(!strcmp(argv[i], "-d"))
-            flag_device = 1;        
+            flag_device = 1;
+        else if(!strcmp(argv[i], "-v"))
+            flag_verbose = 1;
         else if(!strcmp(argv[i], "--help"))
             print_help();
         else if(!strcmp(argv[i], "--version"))
@@ -352,6 +370,8 @@ int main( int argc, char** argv)
         }
     }
 
+
+    int suppr_verbose = 1;
 
     if( strcmp(task,"CLASSIFICATION") == 0 ){
 
@@ -446,6 +466,7 @@ int main( int argc, char** argv)
                 float dtw_curr = 0;
                 float cum_sum = 0;
                 float * h_Out;
+
                 switch (class_mode){
 
                     case 0:
@@ -473,7 +494,15 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            if(verbose_mode > 0 && verbose_mode < testSize){
+                                if(k % verbose_mode == 0)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                                else if(k==testSize)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            }else if(suppr_verbose == 1){
+                                printf("The number of iteration is greater than testSize! Verbose mode will be suppressed for this run\n");
+                                suppr_verbose = 0;
+                            }
                         }
                         gettimeofday(&stop_CPU, NULL);
 
@@ -521,7 +550,15 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            if(verbose_mode > 0 && verbose_mode < testSize){
+                                if(k % verbose_mode == 0)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                                else if(k==testSize)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            }else if(suppr_verbose == 1){
+                                printf("The number of iteration is greater than testSize! Verbose mode will be suppressed for this run\n");
+                                suppr_verbose = 0;
+                            }
                         }
                         gettimeofday(&stop_CPU, NULL);
 
@@ -596,8 +633,15 @@ int main( int argc, char** argv)
                         if( trainLabels[minINR] != testLabels[i] )
                             errNR++;
 
-                        printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",i , testLabels[i] , trainLabels[*minI], min, trainLabels[minINR], minNR );
-
+                        if(verbose_mode > 0 && verbose_mode < testSize){
+                            if(i % verbose_mode == 0)
+                                printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",i , testLabels[i] , trainLabels[*minI], min, trainLabels[minINR], minNR );
+                            else if(i==testSize)
+                                printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",i , testLabels[i] , trainLabels[*minI], min, trainLabels[minINR], minNR );
+                        }else if(suppr_verbose == 1){
+                            printf("The number of iteration is greater than testSize! Verbose mode will be suppressed for this run\n");
+                            suppr_verbose = 0;
+                        }
                     }
                     gettimeofday(&stop_CPU, NULL);
 
@@ -741,8 +785,15 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
-
+                            if(verbose_mode > 0 && verbose_mode < testSize){
+                                if(k % verbose_mode == 0)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                                else if(k==testSize)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            }else if(suppr_verbose == 1){
+                                printf("The number of iteration is greater than testSize! Verbose mode will be suppressed for this run\n");
+                                suppr_verbose = 0;
+                            }
                         }
 
                         cudaEventRecord(stop_GPU,0);
@@ -812,7 +863,15 @@ int main( int argc, char** argv)
                             if( trainLabels[*minI] != testLabels[k] )
                                 err++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            if(verbose_mode > 0 && verbose_mode < testSize){
+                                if(k % verbose_mode == 0)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                                else if(k==testSize)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min);
+                            }else if(suppr_verbose == 1){
+                                printf("The number of iteration is greater than testSize! Verbose mode will be suppressed for this run\n");
+                                suppr_verbose = 0;
+                            }
                         }
 
                         cudaEventRecord(stop_GPU,0);
@@ -913,7 +972,15 @@ int main( int argc, char** argv)
                             if( trainLabels[minINR] != testLabels[k] )
                                 errNR++;
 
-                            printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",k , testLabels[k] , trainLabels[*minI], min, trainLabels[minINR], minNR );
+                            if(verbose_mode > 0 && verbose_mode < testSize){
+                                if(i % verbose_mode == 0)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",i , testLabels[i] , trainLabels[*minI], min, trainLabels[minINR], minNR );
+                                else if(i==testSize)
+                                    printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n",i , testLabels[i] , trainLabels[*minI], min, trainLabels[minINR], minNR );
+                            }else if(suppr_verbose == 1){
+                                printf("The number of iteration is greater than testSize! Verbose mode will be suppressed for this run\n");
+                                suppr_verbose = 0;
+                            }
                         }
 
                         cudaEventRecord(stop_GPU,0);
@@ -1019,7 +1086,17 @@ int main( int argc, char** argv)
                             dist = short_md_ed_c(&t_series[i], q_series, window_size, n_feat, t_size);
 
                         owp[i] = dist;
-                        printf("val[%d]: %f\n", i, owp[i]);
+
+                        if(verbose_mode > 0 && verbose_mode < nss){
+                            if(i % verbose_mode == 0)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                            else if(i==nss)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                        }else if(suppr_verbose == 1){
+                            printf("The number of iteration is greater than the number of subsequences! Verbose mode will be suppressed for this run\n");
+                            suppr_verbose = 0;
+                        }
+
                     }
                     gettimeofday(&stop_CPU, NULL);
 
@@ -1028,7 +1105,7 @@ int main( int argc, char** argv)
 
                     //computing minimum value
                     min = min_arr(owp,nss,ind_min_val);
-                    printf("ind_min_val_CPU_version: %d, min_val_CPU_version: %f\n\n" ,*ind_min_val,min);
+                    printf("CPU version w/ min.index value %d, min. value: %f\n\n" ,*ind_min_val,min);
                 }
 
                 break;
@@ -1051,8 +1128,18 @@ int main( int argc, char** argv)
                             dist += val_curr;
                             // printf("dtw[%d]: %f\n",k,dtw_curr);
                         }
+
                         owp[i] = dist;
-                        // printf("min[%d]: %f\n", i, owp[i]);
+
+                        if(verbose_mode > 0 && verbose_mode < nss){
+                            if(i % verbose_mode == 0)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                            else if(i==nss)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                        }else if(suppr_verbose == 1){
+                            printf("The number of iteration is greater than the number of subsequences! Verbose mode will be suppressed for this run\n");
+                            suppr_verbose = 0;
+                        }
                     }
                     gettimeofday(&stop_CPU, NULL);
 
@@ -1061,7 +1148,7 @@ int main( int argc, char** argv)
 
                     //computing minimum value
                     min = min_arr(owp,nss,ind_min_val);
-                    printf("ind_min_val_CPU_version: %d, min_val_CPU_version: %f\n\n",*ind_min_val,min);                    
+                    printf("CPU version w/ min.index value %d, min. value: %f\n\n" ,*ind_min_val,min);
                 }
                 break;
 
@@ -1153,10 +1240,22 @@ int main( int argc, char** argv)
 
                     // d_owp_copy = (float*) malloc(nss*sizeof(float));
                     cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
-                    // printArray(owp, nss);
-                    min = min_arr(owp, nss, ind_min_val);
-                    printf("ind_min_val_GPU_GM_version: %d, min_val_GPU_GM_version: %f\n\n",*ind_min_val,min);
 
+                    for (int i = 0; i < nss; ++i)
+                    {
+                        if(verbose_mode > 0 && verbose_mode < nss){
+                            if(i % verbose_mode == 0)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                            else if(i==nss)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                        }else if(suppr_verbose == 1){
+                            printf("The number of iteration is greater than the number of subsequences! Verbose mode will be suppressed for this run\n");
+                            suppr_verbose = 0;
+                        }
+                    }
+
+                    min = min_arr(owp, nss, ind_min_val);
+                    printf("GPU_GM version w/ min.index value %d, min. value: %f\n\n" ,*ind_min_val,min);
                 }
                 break;
 
@@ -1199,9 +1298,22 @@ int main( int argc, char** argv)
 
                     // d_owp_copy = (float*) malloc(nss*sizeof(float));
                     cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
-                    // printArray(owp, nss);
+
+                    for (int i = 0; i < nss; ++i)
+                    {
+                        if(verbose_mode > 0 && verbose_mode < nss){
+                            if(i % verbose_mode == 0)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                            else if(i==nss)
+                                printf("curr val diff. [%d]: %f\n", i, owp[i]);
+                        }else if(suppr_verbose == 1){
+                            printf("The number of iteration is greater than the number of subsequences! Verbose mode will be suppressed for this run\n");
+                            suppr_verbose = 0;
+                        }
+                    }
+
                     min = min_arr(owp, nss, ind_min_val);
-                    printf("ind_min_val_GPU_GM_version: %d, min_val_GPU_GM_version: %f\n\n",*ind_min_val,min);
+                    printf("GPU_GM version w/ min.index value %d, min. value: %f\n\n" ,*ind_min_val,min);
                 }
                 break;
 
