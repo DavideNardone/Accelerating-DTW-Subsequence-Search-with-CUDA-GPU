@@ -332,6 +332,13 @@ int main(int argc, char **argv) {
   /* ******************************************* ARGUMENT PARSING
    * ******************************************* */
 
+  // settingGPUenv()
+
+  if(verbose_mode == 0){
+    printf("\nThe number of iteration is greater than testSize! "
+      "Verbose mode will be suppressed for this run\n");
+  }
+
   int suppr_verbose = 1;
   if (strcmp(task, "CLASSIFICATION") == 0) {
 
@@ -345,6 +352,9 @@ int main(int argc, char **argv) {
           mean_ER_RA = 0.0f;
 
     printf("Reading data...\n");
+    printf("Dataset size: [%d,%d,%d]\n", dataSize, window_size, n_feat);
+    printf("\nClassification w/ %s-%s using " "%s\n\n", strategy, distance_type, compution_type);
+
     readFile(argv, arr_num_file, n_file, read_mode, data, data_struct,
              window_size, dataLabels, n_feat, class_mode);
 
@@ -387,13 +397,11 @@ int main(int argc, char **argv) {
                                testLabels, testSize, tInd, f, class_mode);
       /* *************** HOST MEMORY ALLOCATION *************** */
 
-      printf("\n****************Classification w/ %s-%s using "
-             "%s****************\n\n",
-             strategy, distance_type, compution_type);
-      printf("TRAINING SET:\tlength: %d, n_attrs: %d byte_size: %f\n",
-             trainSize, n_feat, (float)trainBytes);
-      printf("TESTING SET:\tlength: %d, n_attrs: %d, byte_size: %f\n\n",
-             testSize, n_feat, (float)testBytes);
+      if(verbose_mode > 0){
+        printf("Running %d/%d fold...\n", f+1, k_fold);
+        printf("\tTrain set size: [%d,%d,%d]\n", trainSize, window_size, n_feat);
+        printf("\tTest set size: [%d,%d,%d]\n\n", testSize, window_size, n_feat);
+      }
 
       minI = (int *)malloc(sizeof(int));
 
@@ -405,203 +413,200 @@ int main(int argc, char **argv) {
 
         switch (class_mode) {
 
-        case 0:
+          case 0: // MD_DTW_D
+          {
 
-          h_Out = (float *)malloc(trainSize * sizeof(float));
+            h_Out = (float *)malloc(trainSize * sizeof(float));
 
-          gettimeofday(&start_CPU, NULL);
-
-          for (int k = 0; k < testSize; k++) {
-            for (int j = 0; j < trainSize; j++) {
-              if (strcmp(distance_type, "DTW") == 0) // DTW distance
-                h_Out[j] = short_md_dtw_c(&h_train[j * n_feat * window_size],
-                                          &h_test[k * n_feat * window_size],
-                                          window_size, window_size, n_feat,
-                                          window_size);
-              else // Euclidean Distance
-                h_Out[j] = short_md_ed_c(&h_train[j * n_feat * window_size],
-                                         &h_test[k * n_feat * window_size],
-                                         window_size, n_feat, window_size);
-            }
-            min = min_arr(h_Out, trainSize, minI);
-
-            if (trainLabels[*minI] != testLabels[k])
-              err++;
-
-            if (verbose_mode > 0 && verbose_mode < testSize) {
-              if (k % verbose_mode == 0)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-              else if (k == testSize)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-            } else if (suppr_verbose == 1) {
-              printf("The number of iteration is greater than testSize! "
-                     "Verbose mode will be suppressed for this run\n");
-              suppr_verbose = 0;
-            }
-          }
-          gettimeofday(&stop_CPU, NULL);
-
-          elapsed = timedifference_msec(start_CPU, stop_CPU);
-          printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n", task,
-                 strategy, distance_type, elapsed);
-
-          RA = (float)(testSize - err) * (100.0 / testSize);
-          ER_RA = (float)(testSize - (testSize - err)) / (testSize);
-          printf("Regular Accuracy is %f\n", RA);
-          printf("The Error rate is %f\n", ER_RA);
-          mean_RA += RA;
-          mean_ER_RA += ER_RA;
-
-          free(h_train);
-          free(h_test);
-          free(h_Out);
-          printf("Memory deallocated!\n");
-          break;
-
-        case 1:
-
-          h_Out = (float *)malloc(trainSize * window_size * sizeof(float));
-
-          gettimeofday(&start_CPU, NULL);
-
-          for (int k = 0; k < testSize; k++) {
-            for (j = 0; j < trainSize; j++) {
-              cum_sum = 0.0;
-              for (int d = 0; d < n_feat; d++) {
+            gettimeofday(&start_CPU, NULL);
+            for (int k = 0; k < testSize; k++) {
+              for (int j = 0; j < trainSize; j++) {
                 if (strcmp(distance_type, "DTW") == 0) // DTW distance
-                  dtw_curr = short_dtw_c(
-                      &h_train[(d * window_size) + (j * n_feat * window_size)],
-                      &h_test[(k * n_feat * window_size) + (d * window_size)],
-                      window_size, window_size);
-                else
-                  dtw_curr = short_ed_c(
-                      &h_train[(d * window_size) + (j * n_feat * window_size)],
-                      &h_test[(k * n_feat * window_size) + (d * window_size)],
-                      window_size);
-                cum_sum += dtw_curr;
+                  h_Out[j] = short_md_dtw_c(&h_train[j * n_feat * window_size],
+                                            &h_test[k * n_feat * window_size],
+                                            window_size, window_size, n_feat,
+                                            window_size);
+                else // Euclidean Distance
+                  h_Out[j] = short_md_ed_c(&h_train[j * n_feat * window_size],
+                                           &h_test[k * n_feat * window_size],
+                                           window_size, n_feat, window_size);
               }
-              h_Out[j] = cum_sum;
-            }
-            min = min_arr(h_Out, trainSize, minI);
+              min = min_arr(h_Out, trainSize, minI);
 
-            if (trainLabels[*minI] != testLabels[k])
-              err++;
+              if (trainLabels[*minI] != testLabels[k])
+                err++;
 
-            if (verbose_mode > 0 && verbose_mode < testSize) {
-              if (k % verbose_mode == 0)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-              else if (k == testSize)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-            } else if (suppr_verbose == 1) {
-              printf("The number of iteration is greater than testSize! "
-                     "Verbose mode will be suppressed for this run\n");
-              suppr_verbose = 0;
-            }
-          }
-          gettimeofday(&stop_CPU, NULL);
-
-          elapsed = timedifference_msec(start_CPU, stop_CPU);
-          printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n", task,
-                 strategy, distance_type, elapsed);
-
-          RA = (float)(testSize - err) * (100.0 / testSize);
-          ER_RA = (float)(testSize - (testSize - err)) / (testSize);
-          printf("Regular Accuracy is %f\n", RA);
-          printf("The Error rate is %f\n", ER_RA);
-          mean_RA += RA;
-          mean_ER_RA += ER_RA;
-
-          free(h_train);
-          free(h_test);
-          free(h_Out);
-          printf("Memory deallocated!\n");
-          break;
-
-        case 2: // TODO: implement MD_RDTW
-
-          h_Out = (float *)malloc(window_size * trainSize * sizeof(float));
-
-          gettimeofday(&start_CPU, NULL);
-
-          for (int i = 0; i < testSize; i++) {
-            for (int j = 0; j < trainSize; j++) {
-              for (int k = 0; k < window_size; k++) {
-                if (strcmp(distance_type, "DTW") == 0) // DTW distance
-                  h_Out[(j * window_size) + k] = short_md_dtw_c(
-                      &h_train[(2 * j * n_feat * window_size) + k],
-                      &h_test[i * n_feat * window_size], window_size,
-                      window_size, n_feat, 2 * window_size);
-                else
-                  h_Out[(j * window_size) + k] = short_md_ed_c(
-                      &h_train[(2 * j * n_feat * window_size) + k],
-                      &h_test[i * n_feat * window_size], window_size, n_feat,
-                      2 * window_size);
+              if (verbose_mode > 0 && verbose_mode < testSize) {
+                if (k % verbose_mode == 0)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
+                else if (k == testSize-1)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
               }
             }
-            min = 9999999999.99;
+            gettimeofday(&stop_CPU, NULL);
 
-            *minI = -1;
-            minINR = -1;
-            minNR = 99999999999.99;
-            for (int m = 0; m < trainSize; m++) {
-              if (h_Out[m * window_size] < minNR) {
-                minNR = h_Out[m * window_size];
-                minINR = m;
+            elapsed = timedifference_msec(start_CPU, stop_CPU);
+            RA = (float)(testSize - err) * (100.0 / testSize);
+            ER_RA = (float)(testSize - (testSize - err)) / (testSize);
+
+            if(verbose_mode > 0){
+              printf("\n\tExecution time: %f ms\n", elapsed);
+              printf("\tRegular Accuracy is %f\n", RA);
+              printf("\tThe Error rate is %f\n\n", ER_RA);
+            }
+            mean_RA += RA;
+            mean_ER_RA += ER_RA;
+
+            free(h_train);
+            free(h_test);
+            free(h_Out);
+          } break;
+
+          case 1: // MD_DTW_I
+          {
+
+            h_Out = (float *)malloc(trainSize * window_size * sizeof(float));
+
+            gettimeofday(&start_CPU, NULL);
+
+            for (int k = 0; k < testSize; k++) {
+              for (j = 0; j < trainSize; j++) {
+                cum_sum = 0.0;
+                for (int d = 0; d < n_feat; d++) {
+                  if (strcmp(distance_type, "DTW") == 0) // DTW distance
+                    dtw_curr = short_dtw_c(
+                        &h_train[(d * window_size) + (j * n_feat * window_size)],
+                        &h_test[(k * n_feat * window_size) + (d * window_size)],
+                        window_size, window_size);
+                  else
+                    dtw_curr = short_ed_c(
+                        &h_train[(d * window_size) + (j * n_feat * window_size)],
+                        &h_test[(k * n_feat * window_size) + (d * window_size)],
+                        window_size);
+                  cum_sum += dtw_curr;
+                }
+                h_Out[j] = cum_sum;
               }
-              for (int p = 0; p < window_size; p++) {
-                int t = m * window_size + p;
+              min = min_arr(h_Out, trainSize, minI);
 
-                if (h_Out[t] < min) {
-                  min = h_Out[t];
-                  *minI = m;
+              if (trainLabels[*minI] != testLabels[k])
+                err++;
+
+              if (verbose_mode > 0 && verbose_mode < testSize) {
+                if (k % verbose_mode == 0)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
+                else if (k == testSize-1)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
+              }
+            }
+            gettimeofday(&stop_CPU, NULL);
+
+            elapsed = timedifference_msec(start_CPU, stop_CPU);
+            RA = (float)(testSize - err) * (100.0 / testSize);
+            ER_RA = (float)(testSize - (testSize - err)) / (testSize);
+
+            if(verbose_mode > 0){
+              printf("\n\tExecution time: %f ms\n", elapsed);
+              printf("\tRegular Accuracy is %f\n", RA);
+              printf("\tThe Error rate is %f\n\n", ER_RA);
+            }
+            mean_RA += RA;
+            mean_ER_RA += ER_RA;
+
+            free(h_train);
+            free(h_test);
+            free(h_Out);
+          } break;
+
+          case 2: // MD_RDTW_I
+          {
+
+            h_Out = (float *)malloc(window_size * trainSize * sizeof(float));
+
+            gettimeofday(&start_CPU, NULL);
+
+            for (int i = 0; i < testSize; i++) {
+              for (int j = 0; j < trainSize; j++) {
+                for (int k = 0; k < window_size; k++) {
+                  if (strcmp(distance_type, "DTW") == 0) // DTW distance
+                    h_Out[(j * window_size) + k] = short_md_dtw_c(
+                        &h_train[(2 * j * n_feat * window_size) + k],
+                        &h_test[i * n_feat * window_size], window_size,
+                        window_size, n_feat, 2 * window_size);
+                  else
+                    h_Out[(j * window_size) + k] = short_md_ed_c(
+                        &h_train[(2 * j * n_feat * window_size) + k],
+                        &h_test[i * n_feat * window_size], window_size, n_feat,
+                        2 * window_size);
                 }
               }
+              min = 9999999999.99;
+
+              *minI = -1;
+              minINR = -1;
+              minNR = 99999999999.99;
+              for (int m = 0; m < trainSize; m++) {
+                if (h_Out[m * window_size] < minNR) {
+                  minNR = h_Out[m * window_size];
+                  minINR = m;
+                }
+                for (int p = 0; p < window_size; p++) {
+                  int t = m * window_size + p;
+
+                  if (h_Out[t] < min) {
+                    min = h_Out[t];
+                    *minI = m;
+                  }
+                }
+              }
+
+              if (trainLabels[*minI] != testLabels[i])
+                err++;
+
+              if (trainLabels[minINR] != testLabels[i])
+                errNR++;
+
+              if (verbose_mode > 0 && verbose_mode < testSize) {
+                if (i % verbose_mode == 0)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
+                         testLabels[i], trainLabels[*minI], min,
+                         trainLabels[minINR], minNR);
+                else if (i == testSize-1)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
+                         testLabels[i], trainLabels[*minI], min,
+                         trainLabels[minINR], minNR);
+              }
             }
+            gettimeofday(&stop_CPU, NULL);
 
-            if (trainLabels[*minI] != testLabels[i])
-              err++;
+            elapsed = timedifference_msec(start_CPU, stop_CPU);
+            RIA = (float)(testSize - err) * (100.0 / testSize);
+            ER_RIA = (float)(testSize - (testSize - err)) / (testSize);
 
-            if (trainLabels[minINR] != testLabels[i])
-              errNR++;
-
-            if (verbose_mode > 0 && verbose_mode < testSize) {
-              if (i % verbose_mode == 0)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
-                       testLabels[i], trainLabels[*minI], min,
-                       trainLabels[minINR], minNR);
-              else if (i == testSize)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
-                       testLabels[i], trainLabels[*minI], min,
-                       trainLabels[minINR], minNR);
-            } else if (suppr_verbose == 1) {
-              printf("The number of iteration is greater than testSize! "
-                     "Verbose mode will be suppressed for this run\n");
-              suppr_verbose = 0;
+            if(verbose_mode > 0){
+              printf("\n\tExecution time: %f ms\n", elapsed);
+              printf("\tRotation Invariant Accuracy is %f\n", RIA);
+              printf("\tThe Error rate of RI is %f\n\n", ER_RIA);
             }
-          }
-          gettimeofday(&stop_CPU, NULL);
+            mean_RIA += RIA;
+            mean_ER_RIA += ER_RIA;
 
-          elapsed = timedifference_msec(start_CPU, stop_CPU);
-          printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n", task,
-                 strategy, distance_type, elapsed);
+            RA = (float)(testSize - errNR) * (100.0 / testSize);
+            ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
+            if(verbose_mode > 0){
+              printf("\tRegular Accuracy is %f\n", RA);
+              printf("\tThe Error rate of NR is %f\n\n", ER_RA);
+            }
+            mean_RA += RA;
+            mean_ER_RA += ER_RA;    
+          } break;
 
-          RIA = (float)(testSize - err) * (100.0 / testSize);
-          ER_RIA = (float)(testSize - (testSize - err)) / (testSize);
-          printf("Rotation Invariant Accuracy is %f\n", RIA);
-          printf("The Error rate of RI is %f\n", ER_RIA);
-          mean_RIA += RIA;
-          mean_ER_RIA += ER_RIA;
-
-          RA = (float)(testSize - errNR) * (100.0 / testSize);
-          ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
-          printf("\nRegular Accuracy is %f\n", RA);
-          printf("The Error rate of NR is %f\n", ER_RA);
-
-          break;
+          default:
+            printf("Error algorithm choice\n");
         }
       } else if (strcmp(compution_type, "GPU") == 0) {
 
@@ -609,7 +614,6 @@ int main(int argc, char **argv) {
 
         cudaDeviceProp deviceProp;
         deviceProp = getDevProp(device);
-        printf("\nDevice selected: %s\n", deviceProp.name);
 
         /* *************** DEVICE MEMORY ALLOCATION *************** */
         float *d_train = 0;
@@ -639,313 +643,307 @@ int main(int argc, char **argv) {
         /* *************** DEVICE MEMORY ALLOCATION *************** */
 
         switch (class_mode) {
-        case 0: // MD_DTW_D
-        {
-          T2 = (n_feat * window_size) * sizeof(float);
 
-          if (T2 > deviceProp.sharedMemPerBlock) {
+          case 0: // MD_DTW_D
+          {
+            T2 = (n_feat * window_size) * sizeof(float);
 
-            printf("The T2 test timeserie: %f doesn't fit into the shared "
-                   "memory: %lu, so it will be allocated into the global "
-                   "memory\n",
-                   T2, deviceProp.sharedMemPerBlock);
-            gm = 1;
-            T2 = 0;
-          } else
-            gm = 0;
+            if (T2 > deviceProp.sharedMemPerBlock) {
 
-          grid_size = ceil((float)trainSize / blockSize);
+              printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+                     "memory: %lu, so it will be allocated into the global "
+                     "memory\n",
+                     T2, deviceProp.sharedMemPerBlock);
+              gm = 1;
+              T2 = 0;
+            } else
+              gm = 0;
 
-          // number of blocks (x,y) for a grid
-          grid.x = grid_size;
-          grid.y = 1;
-          // number of threads (x,y) for each block
-          threads.x = blockSize;
-          threads.y = 1;
+            grid_size = ceil((float)trainSize / blockSize);
 
-          printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,
-                 threads.x);
-          printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
-                 threads.y);
+            // number of blocks (x,y) for a grid
+            grid.x = grid_size;
+            grid.y = 1;
+            // number of threads (x,y) for each block
+            threads.x = blockSize;
+            threads.y = 1;
 
-          cudaEventCreate(&start_GPU);
-          cudaEventCreate(&stop_GPU);
-          cudaEventRecord(start_GPU, 0);
-
-          for (k = 0; k < testSize; k++) {
-            cudaMemset(&d_test, 0, n_feat * window_size * sizeof(float));
-            cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
-                       n_feat * window_size * sizeof(float),
-                       cudaMemcpyHostToDevice);
-
-            if (strcmp(distance_type, "DTW") == 0) // DTW distance
-              MD_DTW_D << <grid, threads, T2>>> (d_train, d_test, window_size,
-                                                 window_size, n_feat, d_Out,
-                                                 trainSize, 0, gm);
-            else
-              MD_ED_D << <grid, threads, T2>>> (d_train, d_test, window_size,
-                                                n_feat, d_Out, trainSize, 0,
-                                                gm);
-
-            cudaDeviceSynchronize(); // it may be avoided if there's not printf
-                                     // in the kernel function
-            cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
-                       cudaMemcpyDeviceToHost);
-
-            min = min_arr(h_Out, trainSize, minI);
-
-            if (trainLabels[*minI] != testLabels[k])
-              err++;
-
-            if (verbose_mode > 0 && verbose_mode < testSize) {
-              if (k % verbose_mode == 0)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-              else if (k == testSize)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-            } else if (suppr_verbose == 1) {
-              printf("The number of iteration is greater than testSize! "
-                     "Verbose mode will be suppressed for this run\n");
-              suppr_verbose = 0;
+            if(flag_verbose > 0){
+              printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
+                     threads.x);
+              printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
+                     threads.y);
             }
-          }
 
-          cudaEventRecord(stop_GPU, 0);
-          cudaEventSynchronize(stop_GPU);
-          cudaEventElapsedTime(&time_GPU_MD_DTW_D, start_GPU, stop_GPU);
-          cudaEventDestroy(start_GPU);
-          cudaEventDestroy(stop_GPU);
-          printf("\nExecution time for %s w/ GPU using %s-%s:  %f ms\n", task,
-                 strategy, distance_type, time_GPU_MD_DTW_D);
+            cudaEventCreate(&start_GPU);
+            cudaEventCreate(&stop_GPU);
+            cudaEventRecord(start_GPU, 0);
 
-          RA = (float)(testSize - err) * (100.0 / testSize);
-          ER_RA = (float)(testSize - (testSize - err)) / (testSize);
-          printf("Regular Accuracy is %f\n", RA);
-          printf("The Error rate is %f\n", ER_RA);
-          mean_RA += RA;
-          mean_ER_RA += ER_RA;
+            for (k = 0; k < testSize; k++) {
+              cudaMemset(&d_test, 0, n_feat * window_size * sizeof(float));
+              cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
+                         n_feat * window_size * sizeof(float),
+                         cudaMemcpyHostToDevice);
 
-          free(h_train);
-          free(h_test);
-          free(h_Out);
-          printf("Memory deallocated!\n");
-        } break;
-        case 1: // MD_DTW_I
-        {
-          printf("DTW_INDEPENDENT\n");
+              if (strcmp(distance_type, "DTW") == 0) // DTW distance
+                MD_DTW_D << <grid, threads, T2>>> (d_train, d_test, window_size,
+                                                   window_size, n_feat, d_Out,
+                                                   trainSize, 0, gm);
+              else
+                MD_ED_D << <grid, threads, T2>>> (d_train, d_test, window_size,
+                                                  n_feat, d_Out, trainSize, 0,
+                                                  gm);
 
-          grid_size = ceil((float)(trainSize * n_feat) / blockSize);
-          float dim_row = floor((float)blockSize / n_feat);
-          float dim_col = n_feat;
+              cudaDeviceSynchronize(); // it may be avoided if there's not printf
+                                       // in the kernel function
+              cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
+                         cudaMemcpyDeviceToHost);
 
-          // number of blocks (x,y) for a grid
-          grid.x = grid_size;
-          grid.y = 1;
-          // number of threads (x,y) for each block
-          threads.x = dim_row;
-          threads.y = dim_col;
+              min = min_arr(h_Out, trainSize, minI);
 
-          printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,
-                 threads.x);
-          printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
-                 threads.y);
+              if (trainLabels[*minI] != testLabels[k])
+                err++;
 
-          float sh_mem = ((threads.x * threads.y) + (n_feat * window_size)) *
-                         sizeof(float);
-
-          cudaEventCreate(&start_GPU);
-          cudaEventCreate(&stop_GPU);
-          cudaEventRecord(start_GPU, 0);
-
-          for (k = 0; k < testSize; k++) {
-            cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
-                       n_feat * window_size * sizeof(float),
-                       cudaMemcpyHostToDevice);
-
-            if (strcmp(distance_type, "DTW") == 0) // DTW distance
-              MD_DTW_I << <grid, threads, sh_mem>>>
-                  (d_train, d_test, window_size, window_size, n_feat, d_Out,
-                   trainSize, 0);
-            else
-              MD_ED_I << <grid, threads, sh_mem>>>
-                  (d_train, d_test, window_size, n_feat, d_Out, trainSize, 0);
-
-            cudaThreadSynchronize();
-            cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
-                       cudaMemcpyDeviceToHost);
-
-            min = min_arr(h_Out, trainSize, minI);
-
-            if (trainLabels[*minI] != testLabels[k])
-              err++;
-
-            if (verbose_mode > 0 && verbose_mode < testSize) {
-              if (k % verbose_mode == 0)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-              else if (k == testSize)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
-                       trainLabels[*minI], min);
-            } else if (suppr_verbose == 1) {
-              printf("The number of iteration is greater than testSize! "
-                     "Verbose mode will be suppressed for this run\n");
-              suppr_verbose = 0;
-            }
-          }
-
-          cudaEventRecord(stop_GPU, 0);
-          cudaEventSynchronize(stop_GPU);
-          cudaEventElapsedTime(&time_GPU_MD_DTW_I, start_GPU, stop_GPU);
-          cudaEventDestroy(start_GPU);
-          cudaEventDestroy(stop_GPU);
-          printf("\nExecution time for %s w/ GPU using %s-%s:  %f ms\n", task,
-                 strategy, distance_type, time_GPU_MD_DTW_I);
-
-          RA = (float)(testSize - err) * (100.0 / testSize);
-          ER_RA = (float)(testSize - (testSize - err)) / (testSize);
-          printf("Regular Accuracy is %f\n", RA);
-          printf("The Error rate is %f\n", ER_RA);
-          mean_RA += RA;
-          mean_ER_RA += ER_RA;
-          free(h_train);
-          free(h_test);
-          free(h_Out);
-          printf("Memory deallocated!\n");
-        } break;
-        case 2: {
-
-          T2 = (n_feat * window_size) * sizeof(float);
-
-          if (T2 > deviceProp.sharedMemPerBlock) {
-
-            printf("The T2 test timeserie: %f doesn't fit into the shared "
-                   "memory: %lu, so it will be allocated into the global "
-                   "memory\n",
-                   T2, deviceProp.sharedMemPerBlock);
-            gm = 1;
-            T2 = 0;
-          } else
-            gm = 0;
-
-          grid_size = ceil((float)trainSize * window_size / blockSize);
-
-          // number of blocks (x,y) for a grid
-          grid.x = grid_size;
-          grid.y = 1;
-          // number of threads (x,y) for each block
-          threads.x = blockSize;
-          threads.y = 1;
-
-          printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,
-                 threads.x);
-          printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
-                 threads.y);
-
-          cudaEventCreate(&start_GPU);
-          cudaEventCreate(&stop_GPU);
-          cudaEventRecord(start_GPU, 0);
-
-          for (k = 0; k < testSize; k++) {
-            cudaMemcpy(d_test, h_test + (k * n_feat * window_size),
-                       n_feat * window_size * sizeof(float),
-                       cudaMemcpyHostToDevice);
-
-            if (strcmp(distance_type, "DTW") == 0) // DTW distance
-              rMD_DTW_D << <grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  window_size, n_feat, d_Out,
-                                                  trainSize, gm);
-            else
-              rMD_ED_D << <grid, threads, T2>>>
-                  (d_train, d_test, window_size, n_feat, d_Out, trainSize, gm);
-
-            cudaThreadSynchronize();
-
-            cudaMemcpy(h_Out, d_Out, trainSize * window_size * sizeof(float),
-                       cudaMemcpyDeviceToHost);
-
-            min = 9999999999.99;
-
-            *minI = -1;
-            minINR = -1;
-            minNR = 99999999999.99;
-            i = 0;
-            for (j = 0; j < trainSize; j++) {
-              if (h_Out[j * window_size] < minNR) {
-                minNR = h_Out[j * window_size];
-                minINR = j;
+              if (verbose_mode > 0 && verbose_mode < testSize) {
+                if (k % verbose_mode == 0)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
+                else if (k == testSize-1)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
               }
-              for (i = 0; i < window_size; i++) {
-                int t = j * window_size + i;
-                if (h_Out[t] < min) {
-                  min = h_Out[t];
-                  *minI = j;
+            }
+
+            cudaEventRecord(stop_GPU, 0);
+            cudaEventSynchronize(stop_GPU);
+            cudaEventElapsedTime(&time_GPU_MD_DTW_D, start_GPU, stop_GPU);
+            cudaEventDestroy(start_GPU);
+            cudaEventDestroy(stop_GPU);
+
+            RA = (float)(testSize - err) * (100.0 / testSize);
+            ER_RA = (float)(testSize - (testSize - err)) / (testSize);
+
+            if(verbose_mode > 0){
+              printf("\n\tExecution time: %f ms\n", time_GPU_MD_DTW_D);
+              printf("\tRegular Accuracy is %f\n", RA);
+              printf("\tThe Error rate is %f\n\n", ER_RA);
+            }
+            mean_RA += RA;
+            mean_ER_RA += ER_RA;
+
+            free(h_train);
+            free(h_test);
+            free(h_Out);
+          } break;
+
+          case 1: // MD_DTW_I
+          {
+            grid_size = ceil((float)(trainSize * n_feat) / blockSize);
+            float dim_row = floor((float)blockSize / n_feat);
+            float dim_col = n_feat;
+
+            // number of blocks (x,y) for a grid
+            grid.x = grid_size;
+            grid.y = 1;
+            // number of threads (x,y) for each block
+            threads.x = dim_row;
+            threads.y = dim_col;
+
+            if(flag_verbose > 0){
+              printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
+                     threads.x);
+              printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
+                     threads.y);
+            }
+
+            float sh_mem = ((threads.x * threads.y) + (n_feat * window_size)) *
+                           sizeof(float);
+
+            cudaEventCreate(&start_GPU);
+            cudaEventCreate(&stop_GPU);
+            cudaEventRecord(start_GPU, 0);
+
+            for (k = 0; k < testSize; k++) {
+              cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
+                         n_feat * window_size * sizeof(float),
+                         cudaMemcpyHostToDevice);
+
+              if (strcmp(distance_type, "DTW") == 0) // DTW distance
+                MD_DTW_I << <grid, threads, sh_mem>>>
+                    (d_train, d_test, window_size, window_size, n_feat, d_Out,
+                     trainSize, 0);
+              else
+                MD_ED_I << <grid, threads, sh_mem>>>
+                    (d_train, d_test, window_size, n_feat, d_Out, trainSize, 0);
+
+              cudaThreadSynchronize();
+              cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
+                         cudaMemcpyDeviceToHost);
+
+              min = min_arr(h_Out, trainSize, minI);
+
+              if (trainLabels[*minI] != testLabels[k])
+                err++;
+
+              if (verbose_mode > 0 && verbose_mode < testSize) {
+                if (k % verbose_mode == 0)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
+                else if (k == testSize-1)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+                         trainLabels[*minI], min);
+              }
+            }
+
+            cudaEventRecord(stop_GPU, 0);
+            cudaEventSynchronize(stop_GPU);
+            cudaEventElapsedTime(&time_GPU_MD_DTW_I, start_GPU, stop_GPU);
+            cudaEventDestroy(start_GPU);
+            cudaEventDestroy(stop_GPU);
+            printf("\n\tExecution time: %f ms\n", time_GPU_MD_DTW_I);
+
+            RA = (float)(testSize - err) * (100.0 / testSize);
+            ER_RA = (float)(testSize - (testSize - err)) / (testSize);
+            printf("\tRegular Accuracy is %f\n", RA);
+            printf("\tThe Error rate is %f\n\n", ER_RA);
+            mean_RA += RA;
+            mean_ER_RA += ER_RA;
+            free(h_train);
+            free(h_test);
+            free(h_Out);
+          } break;
+
+          case 2: // MD_RDTW_I
+          {
+
+            T2 = (n_feat * window_size) * sizeof(float);
+
+            if (T2 > deviceProp.sharedMemPerBlock) {
+
+              printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+                     "memory: %lu, so it will be allocated into the global "
+                     "memory\n",
+                     T2, deviceProp.sharedMemPerBlock);
+              gm = 1;
+              T2 = 0;
+            } else
+              gm = 0;
+
+            grid_size = ceil((float)trainSize * window_size / blockSize);
+
+            // number of blocks (x,y) for a grid
+            grid.x = grid_size;
+            grid.y = 1;
+            // number of threads (x,y) for each block
+            threads.x = blockSize;
+            threads.y = 1;
+
+            if(flag_verbose > 0){
+              printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
+                     threads.x);
+              printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
+                     threads.y);
+            }
+
+            cudaEventCreate(&start_GPU);
+            cudaEventCreate(&stop_GPU);
+            cudaEventRecord(start_GPU, 0);
+
+            for (k = 0; k < testSize; k++) {
+              cudaMemcpy(d_test, h_test + (k * n_feat * window_size),
+                         n_feat * window_size * sizeof(float),
+                         cudaMemcpyHostToDevice);
+
+              if (strcmp(distance_type, "DTW") == 0) // DTW distance
+                rMD_DTW_D << <grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    window_size, n_feat, d_Out,
+                                                    trainSize, gm);
+              else
+                rMD_ED_D << <grid, threads, T2>>>
+                    (d_train, d_test, window_size, n_feat, d_Out, trainSize, gm);
+
+              cudaThreadSynchronize();
+
+              cudaMemcpy(h_Out, d_Out, trainSize * window_size * sizeof(float),
+                         cudaMemcpyDeviceToHost);
+
+              min = 9999999999.99;
+
+              *minI = -1;
+              minINR = -1;
+              minNR = 99999999999.99;
+              i = 0;
+              for (j = 0; j < trainSize; j++) {
+                if (h_Out[j * window_size] < minNR) {
+                  minNR = h_Out[j * window_size];
+                  minINR = j;
+                }
+                for (i = 0; i < window_size; i++) {
+                  int t = j * window_size + i;
+                  if (h_Out[t] < min) {
+                    min = h_Out[t];
+                    *minI = j;
+                  }
                 }
               }
-            }
-            if (trainLabels[*minI] != testLabels[k])
-              err++;
+              if (trainLabels[*minI] != testLabels[k])
+                err++;
 
-            if (trainLabels[minINR] != testLabels[k])
-              errNR++;
+              if (trainLabels[minINR] != testLabels[k])
+                errNR++;
 
-            if (verbose_mode > 0 && verbose_mode < testSize) {
-              if (i % verbose_mode == 0)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
-                       testLabels[i], trainLabels[*minI], min,
-                       trainLabels[minINR], minNR);
-              else if (i == testSize)
-                printf("%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
-                       testLabels[i], trainLabels[*minI], min,
-                       trainLabels[minINR], minNR);
-            } else if (suppr_verbose == 1) {
-              printf("The number of iteration is greater than testSize! "
-                     "Verbose mode will be suppressed for this run\n");
-              suppr_verbose = 0;
+              if (verbose_mode > 0 && verbose_mode < testSize) {
+                if (i % verbose_mode == 0)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
+                         testLabels[i], trainLabels[*minI], min,
+                         trainLabels[minINR], minNR);
+                else if (i == testSize-1)
+                  printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f \t\t NRI: %d\t%3.6f\n", i,
+                         testLabels[i], trainLabels[*minI], min,
+                         trainLabels[minINR], minNR);
+              }
             }
+
+            cudaEventRecord(stop_GPU, 0);
+            cudaEventSynchronize(stop_GPU);
+            cudaEventElapsedTime(&time_GPU_rMDTW, start_GPU, stop_GPU);
+            cudaEventDestroy(start_GPU);
+            cudaEventDestroy(stop_GPU);
+            printf("\n\tExecution time: %f ms\n", time_GPU_rMDTW);
+
+            RIA = (float)(testSize - err) * (100.0 / testSize);
+            ER_RIA = (float)(testSize - (testSize - err)) / (testSize);
+            printf("\tRotation Invariant Accuracy is %f\n", RIA);
+            printf("\tThe Error rate of RI is %f\n\n", ER_RIA);
+            mean_RIA += RIA;
+            mean_ER_RIA += ER_RIA;
+
+            RA = (float)(testSize - errNR) * (100.0 / testSize);
+            ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
+            printf("\tRegular Accuracy is %f\n", RA);
+            printf("\tThe Error rate of NR is %f\n\n", ER_RA);
+            mean_RA += RA;
+            mean_ER_RA += ER_RA;
+
+            free(h_train);
+            free(h_test);
+            break;
           }
-
-          cudaEventRecord(stop_GPU, 0);
-          cudaEventSynchronize(stop_GPU);
-          cudaEventElapsedTime(&time_GPU_rMDTW, start_GPU, stop_GPU);
-          cudaEventDestroy(start_GPU);
-          cudaEventDestroy(stop_GPU);
-          printf("\nExecution time for %s w/ GPU using %s-%s:  %f ms\n", task,
-                 strategy, distance_type, time_GPU_rMDTW);
-
-          RIA = (float)(testSize - err) * (100.0 / testSize);
-          ER_RIA = (float)(testSize - (testSize - err)) / (testSize);
-          printf("Rotation Invariant Accuracy is %f\n", RIA);
-          printf("The Error rate of RI is %f\n", ER_RIA);
-          mean_RIA += RIA;
-          mean_ER_RIA += ER_RIA;
-
-          RA = (float)(testSize - errNR) * (100.0 / testSize);
-          ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
-          printf("\nRegular Accuracy is %f\n", RA);
-          printf("The Error rate of NR is %f\n", ER_RA);
-          mean_RA += RA;
-          mean_ER_RA += ER_RA;
-
-          free(h_train);
-          free(h_test);
-          break;
-        default:
-          printf("Error algorithm choice\n");
-        } break;
+          default:
+            printf("Error algorithm choice\n");
         }
       }
     }
     if (class_mode < 2) {
       mean_RA /= k_fold;
       mean_ER_RA /= k_fold;
-      printf("\nRegular Accuracy mean is %f\n", mean_RA);
-      printf("The Error rate mean of NR is %f\n", mean_ER_RA);
+      printf("Regular Accuracy mean is %f\n", mean_RA);
+      printf("The Error rate mean of NR is %f\n\n", mean_ER_RA);
     } else {
       mean_RIA /= k_fold;
       mean_ER_RIA /= k_fold;
-      printf("\nRotation Invariant Accuracy mean is %f\n", mean_RIA);
-      printf("The Error rate mean of RI is %f\n", mean_ER_RIA);
+      printf("Rotation Invariant Accuracy mean is %f\n", mean_RIA);
+      printf("The Error rate mean of RI is %f\n\n", mean_ER_RIA);
     }
   } else if (strcmp(task, "SUBSEQ_SEARCH") == 0) {
 
@@ -961,117 +959,106 @@ int main(int argc, char **argv) {
     float *owp = (float *)malloc(nss * sizeof(float));
     memset(owp, 0, nss * sizeof(float));
 
+    printf("Reading data...\n");
+    printf("Number of Subsequences to search: %d\n", nss);
+    printf("Time Series T: [%d,%d]\n", t_size, n_feat);
+    printf("Time Series Q: [%d,%d]\n", q_size, n_feat);
+    printf("Subsequence Search w/ %s-%s using " "%s\n\n", strategy, distance_type, compution_type);
+
     readFileSubSeq(argv, arr_num_file, n_file, t_series, t_size, q_series,
                    window_size, n_feat, read_mode);
 
     int *ind_min_val = (int *)malloc(sizeof(int));
 
     if (strcmp(compution_type, "CPU") == 0) {
-      printf("\n****************Subsequence Search with %s****************\n\n",
-             compution_type);
-      printf("Time Series T:\tlength: %d, n_feat: %d byte_size: %lu\n", t_size,
-             n_feat, sizeof(float) * t_size);
-      printf("Time Series Q:\t:length: %d, n_feat: %d, byte_size: %lu\n",
-             q_size, n_feat, sizeof(float) * q_size);
-      printf("Number of Subsequences to search: %d\n", nss);
-
       float dist, min = 0.0, val_curr;
 
       switch (class_mode) {
 
-      case 0: {
-        printf("%s-%s %s version processing...\n", distance_type, strategy,
-               compution_type);
+        case 0: // MD_DTW_D
+        {
+          gettimeofday(&start_CPU, NULL);
 
-        gettimeofday(&start_CPU, NULL);
+          for (int i = 0; i < nss; i++) {
 
-        for (int i = 0; i < nss; i++) {
-
-          dist = 0.0;
-          if (strcmp(distance_type, "DTW") == 0) // DTW distance
-            dist = short_md_dtw_c(&t_series[i], q_series, window_size,
-                                  window_size, n_feat, t_size);
-          else
-            dist = short_md_ed_c(&t_series[i], q_series, window_size, n_feat,
-                                 t_size);
-
-          owp[i] = dist;
-
-          if (verbose_mode > 0 && verbose_mode < nss) {
-            if (i % verbose_mode == 0)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-            else if (i == nss)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-          } else if (suppr_verbose == 1) {
-            printf("The number of iteration is greater than the number of "
-                   "subsequences! Verbose mode will be suppressed for this "
-                   "run\n");
-            suppr_verbose = 0;
-          }
-        }
-        gettimeofday(&stop_CPU, NULL);
-
-        elapsed = timedifference_msec(start_CPU, stop_CPU);
-        printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n", task,
-               strategy, distance_type, elapsed);
-
-        // computing minimum value
-        min = min_arr(owp, nss, ind_min_val);
-        printf("CPU version w/ min.index value %d, min. value: %f\n\n",
-               *ind_min_val, min);
-      }
-
-      break;
-
-      case 1: {
-
-        printf("%s-%s %s version processing...\n", distance_type, strategy,
-               compution_type);
-
-        gettimeofday(&start_CPU, NULL);
-
-        for (int i = 0; i < nss; i++) {
-          dist = 0.0;
-          for (int k = 0; k < n_feat; k++) {
+            dist = 0.0;
             if (strcmp(distance_type, "DTW") == 0) // DTW distance
-              val_curr = short_dtw_c(&t_series[(k * t_size) + i],
-                                     &q_series[(k * window_size)], window_size,
-                                     window_size);
+              dist = short_md_dtw_c(&t_series[i], q_series, window_size,
+                                    window_size, n_feat, t_size);
             else
-              val_curr = short_ed_c(&t_series[(k * t_size) + i],
-                                    &q_series[(k * window_size)], window_size);
+              dist = short_md_ed_c(&t_series[i], q_series, window_size, n_feat,
+                                   t_size);
 
-            dist += val_curr;
+            owp[i] = dist;
+
+            if (verbose_mode > 0 && verbose_mode < nss) {
+              if (i % verbose_mode == 0)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+              else if (i == nss)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+            } else if (suppr_verbose == 1) {
+              // printf("The number of iteration is greater than the number of "
+              //        "subsequences! Verbose mode will be suppressed for this "
+              //        "run\n");
+              suppr_verbose = 0;
+            }
           }
+          gettimeofday(&stop_CPU, NULL);
 
-          owp[i] = dist;
+          elapsed = timedifference_msec(start_CPU, stop_CPU);
+          printf("\n\tExecution time: %f ms\n", elapsed);
 
-          if (verbose_mode > 0 && verbose_mode < nss) {
-            if (i % verbose_mode == 0)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-            else if (i == nss)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-          } else if (suppr_verbose == 1) {
-            printf("The number of iteration is greater than the number of "
-                   "subsequences! Verbose mode will be suppressed for this "
-                   "run\n");
-            suppr_verbose = 0;
+          // computing minimum value
+          min = min_arr(owp, nss, ind_min_val);
+          printf("\tMin. index value %d, min. value: %f\n\n",
+                 *ind_min_val, min);
+        } break;
+
+        case 1: // MD_DTW_I
+        {
+          gettimeofday(&start_CPU, NULL);
+
+          for (int i = 0; i < nss; i++) {
+            dist = 0.0;
+            for (int k = 0; k < n_feat; k++) {
+              if (strcmp(distance_type, "DTW") == 0) // DTW distance
+                val_curr = short_dtw_c(&t_series[(k * t_size) + i],
+                                       &q_series[(k * window_size)], window_size,
+                                       window_size);
+              else
+                val_curr = short_ed_c(&t_series[(k * t_size) + i],
+                                      &q_series[(k * window_size)], window_size);
+
+              dist += val_curr;
+            }
+
+            owp[i] = dist;
+
+            if (verbose_mode > 0 && verbose_mode < nss) {
+              if (i % verbose_mode == 0)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+              else if (i == nss)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+            } else if (suppr_verbose == 1) {
+              // printf("The number of iteration is greater than the number of "
+              //        "subsequences! Verbose mode will be suppressed for this "
+              //        "run\n");
+              suppr_verbose = 0;
+            }
           }
-        }
-        gettimeofday(&stop_CPU, NULL);
+          gettimeofday(&stop_CPU, NULL);
 
-        elapsed = timedifference_msec(start_CPU, stop_CPU);
-        printf("\nExecution time for %s w/ CPU using %s-%s:  %f ms\n", task,
-               strategy, distance_type, elapsed);
+          elapsed = timedifference_msec(start_CPU, stop_CPU);
+          printf("\n\tExecution time: %f ms\n", elapsed);
 
-        // computing minimum value
-        min = min_arr(owp, nss, ind_min_val);
-        printf("CPU version w/ min.index value %d, min. value: %f\n\n",
-               *ind_min_val, min);
-      } break;
+          // computing minimum value
+          min = min_arr(owp, nss, ind_min_val);
+          printf("\tMin. index value %d, min. value: %f\n\n",
+                 *ind_min_val, min);
+        } break;
 
-      default:
-        printf("Error algorithm choice\n");
+        default:
+          printf("Error algorithm choice\n");
       }
     } else { // GPU computation
 
@@ -1096,160 +1083,143 @@ int main(int argc, char **argv) {
 
       cudaDeviceProp deviceProp;
       deviceProp = getDevProp(device);
-      printf("\nDevice selected: %s\n", deviceProp.name);
-
-      printf("\n****************Subsequence Search with %s****************\n\n",
-             compution_type);
-      printf("Time Series T:\tlength: %d, n_feat: %d byte_size: %lu\n", t_size,
-             n_feat, sizeof(float) * t_size);
-      printf("Time Series Q:\t:length: %d, n_feat: %d, byte_size: %lu\n",
-             q_size, n_feat, sizeof(float) * q_size);
-      printf("Number of Subsequences to search: %d\n", nss);
 
       switch (class_mode) {
 
-      case 0: {
+        case 0: // MD_DTW_D
+        {
 
-        // Setting CUDA variables and structure
-        grid_size = ceil((double)nss / blockSize);
+          // Setting CUDA variables and structure
+          grid_size = ceil((double)nss / blockSize);
 
-        // number of blocks (x,y) for a grid
-        grid.x = grid_size;
-        grid.y = 1;
+          // number of blocks (x,y) for a grid
+          grid.x = grid_size;
+          grid.y = 1;
 
-        // number of threads (x,y) for each block
-        threads.x = blockSize;
-        threads.y = 1;
+          // number of threads (x,y) for each block
+          threads.x = blockSize;
+          threads.y = 1;
 
-        T2 = (n_feat * window_size) * sizeof(float);
+          T2 = (n_feat * window_size) * sizeof(float);
 
-        if (T2 > deviceProp.sharedMemPerBlock) {
+          if (T2 > deviceProp.sharedMemPerBlock) {
 
-          printf("The T2 test timeserie: %f doesn't fit into the shared "
-                 "memory: %lu, so it will be allocated into the global "
-                 "memory\n",
-                 T2, deviceProp.sharedMemPerBlock);
-          gm = 1;
-          T2 = 0;
-        } else
-          gm = 0;
+            printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+                   "memory: %lu, so it will be allocated into the global "
+                   "memory\n",
+                   T2, deviceProp.sharedMemPerBlock);
+            gm = 1;
+            T2 = 0;
+          } else
+            gm = 0;
 
-        printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,
-               threads.x);
-        printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
-               threads.y);
-
-        printf("%s-%s %s version processing...\n", distance_type, strategy,
-               compution_type);
-        cudaEventCreate(&start_GPU);
-        cudaEventCreate(&stop_GPU);
-        cudaEventRecord(start_GPU, 0);
-
-        if (strcmp(distance_type, "DTW") == 0) // DTW distance
-          MD_DTW_D << <grid, threads, T2>>> (d_t_series, d_q_series,
-                                             window_size, window_size, n_feat,
-                                             d_owp, t_size, 1, gm);
-        else
-          MD_ED_D << <grid, threads, T2>>> (d_t_series, d_q_series, window_size,
-                                            n_feat, d_owp, t_size, 1, gm);
-
-        cudaEventRecord(stop_GPU, 0);
-        cudaEventSynchronize(stop_GPU);
-        cudaEventElapsedTime(&time_GPU_MD_DTW_D, start_GPU, stop_GPU);
-        cudaEventDestroy(start_GPU);
-        cudaEventDestroy(stop_GPU);
-        printf("\nExecution time for %s w/ MD_DTW_D with GPU %f ms\n", task,
-               time_GPU_MD_DTW_D);
-
-        cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
-
-        for (int i = 0; i < nss; ++i) {
-          if (verbose_mode > 0 && verbose_mode < nss) {
-            if (i % verbose_mode == 0)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-            else if (i == nss)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-          } else if (suppr_verbose == 1) {
-            printf("The number of iteration is greater than the number of "
-                   "subsequences! Verbose mode will be suppressed for this "
-                   "run\n");
-            suppr_verbose = 0;
+          if(verbose_mode > 0){
+            printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
+                   threads.x);
+            printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
+                   threads.y);
           }
-        }
+          cudaEventCreate(&start_GPU);
+          cudaEventCreate(&stop_GPU);
+          cudaEventRecord(start_GPU, 0);
 
-        min = min_arr(owp, nss, ind_min_val);
-        printf("GPU_GM version w/ min.index value %d, min. value: %f\n\n",
-               *ind_min_val, min);
-      } break;
+          if (strcmp(distance_type, "DTW") == 0) // DTW distance
+            MD_DTW_D << <grid, threads, T2>>> (d_t_series, d_q_series,
+                                               window_size, window_size, n_feat,
+                                               d_owp, t_size, 1, gm);
+          else
+            MD_ED_D << <grid, threads, T2>>> (d_t_series, d_q_series, window_size,
+                                              n_feat, d_owp, t_size, 1, gm);
 
-      case 1: {
+          cudaEventRecord(stop_GPU, 0);
+          cudaEventSynchronize(stop_GPU);
+          cudaEventElapsedTime(&time_GPU_MD_DTW_D, start_GPU, stop_GPU);
+          cudaEventDestroy(start_GPU);
+          cudaEventDestroy(stop_GPU);
+          printf("\n\tExecution time:  %f ms\n", time_GPU_MD_DTW_D);
 
-        // Setting CUDA variables and structure
-        grid_size = ceil((float)(nss * n_feat) / blockSize);
-        float dim_row = floor((float)blockSize / n_feat);
-        float dim_col = n_feat;
+          cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
 
-        // number of blocks (x,y) for a grid
-        grid.x = grid_size;
-        grid.y = 1;
-
-        // number of threads (x,y) for each block
-        threads.x = dim_row;
-        threads.y = dim_col;
-
-        printf("Grid_size_x: %d, number_of_threads_x: %d \n", grid.x,
-               threads.x);
-        printf("Grid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
-               threads.y);
-
-        printf("%s-%s %s version processing...\n", distance_type, strategy,
-               compution_type);
-        cudaEventCreate(&start_GPU);
-        cudaEventCreate(&stop_GPU);
-        cudaEventRecord(start_GPU, 0);
-
-        float sh_mem =
-            ((threads.x * threads.y) + (n_feat * t_size)) * sizeof(float);
-        if (strcmp(distance_type, "DTW") == 0) // DTW distance
-          MD_DTW_I << <grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                                 window_size, window_size,
-                                                 n_feat, d_owp, t_size, 1);
-        else
-          MD_ED_I << <grid, threads, sh_mem>>>
-              (d_t_series, d_q_series, window_size, n_feat, d_owp, t_size, 1);
-
-        cudaThreadSynchronize();
-        cudaEventRecord(stop_GPU, 0);
-        cudaEventSynchronize(stop_GPU);
-        cudaEventElapsedTime(&time_GPU_MD_DTW_I, start_GPU, stop_GPU);
-        cudaEventDestroy(start_GPU);
-        cudaEventDestroy(stop_GPU);
-        printf("\nExecution time for %s w/ MD_DTW_I with GPU %f ms\n", task,
-               time_GPU_MD_DTW_I);
-
-        cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
-
-        for (int i = 0; i < nss; ++i) {
-          if (verbose_mode > 0 && verbose_mode < nss) {
-            if (i % verbose_mode == 0)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-            else if (i == nss)
-              printf("curr val diff. [%d]: %f\n", i, owp[i]);
-          } else if (suppr_verbose == 1) {
-            printf("The number of iteration is greater than the number of "
-                   "subsequences! Verbose mode will be suppressed for this "
-                   "run\n");
-            suppr_verbose = 0;
+          for (int i = 0; i < nss; ++i) {
+            if (verbose_mode > 0 && verbose_mode < nss) {
+              if (i % verbose_mode == 0)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+              else if (i == nss)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+            } else if (suppr_verbose == 1) {
+              // printf("The number of iteration is greater than the number of "
+              //        "subsequences! Verbose mode will be suppressed for this "
+              //        "run\n");
+              suppr_verbose = 0;
+            }
           }
-        }
 
-        min = min_arr(owp, nss, ind_min_val);
-        printf("GPU_GM version w/ min.index value %d, min. value: %f\n\n",
-               *ind_min_val, min);
-      } break;
+          min = min_arr(owp, nss, ind_min_val);
+          printf("\tMin. index value %d, min. value: %f\n\n",
+                 *ind_min_val, min);
+        } break;
 
-      default:
-        printf("Error algorithm choice\n");
+        case 1: // MD_DTW_I
+        {
+
+          // Setting CUDA variables and structure
+          grid_size = ceil((float)(nss * n_feat) / blockSize);
+          float dim_row = floor((float)blockSize / n_feat);
+          float dim_col = n_feat;
+
+          // number of blocks (x,y) for a grid
+          grid.x = grid_size;
+          grid.y = 1;
+
+          // number of threads (x,y) for each block
+          threads.x = dim_row;
+          threads.y = dim_col;
+
+          printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
+                 threads.x);
+          printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
+                 threads.y);
+
+          cudaEventCreate(&start_GPU);
+          cudaEventCreate(&stop_GPU);
+          cudaEventRecord(start_GPU, 0);
+
+          float sh_mem =
+              ((threads.x * threads.y) + (n_feat * t_size)) * sizeof(float);
+          if (strcmp(distance_type, "DTW") == 0) // DTW distance
+            MD_DTW_I << <grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size, window_size,
+                                                   n_feat, d_owp, t_size, 1);
+          else
+            MD_ED_I << <grid, threads, sh_mem>>>
+                (d_t_series, d_q_series, window_size, n_feat, d_owp, t_size, 1);
+
+          cudaThreadSynchronize();
+          cudaEventRecord(stop_GPU, 0);
+          cudaEventSynchronize(stop_GPU);
+          cudaEventElapsedTime(&time_GPU_MD_DTW_I, start_GPU, stop_GPU);
+          cudaEventDestroy(start_GPU);
+          cudaEventDestroy(stop_GPU);
+          printf("\n\tExecution time: %f ms\n", time_GPU_MD_DTW_I);
+
+          cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
+
+          for (int i = 0; i < nss; ++i) {
+            if (verbose_mode > 0 && verbose_mode < nss) {
+              if (i % verbose_mode == 0)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+              else if (i == nss)
+                printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+            }
+          }
+
+          min = min_arr(owp, nss, ind_min_val);
+          printf("\tMin. index value %d, min. value: %f\n\n",
+                 *ind_min_val, min);
+        } break;
+
+        default:
+          printf("Error algorithm choice\n");
       }
       cudaFree(d_t_series);
       cudaFree(d_q_series);
