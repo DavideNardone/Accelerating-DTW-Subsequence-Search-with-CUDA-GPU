@@ -125,17 +125,17 @@ Some examples follow:
 
 CPU: 
 
-`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 0 -o 1000 152 -m 0 DTW`
+`./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 0 -o 1000 152 -m 0 DTW -v 0`
 
-`./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 500 1000 152 -m 0 DTW`
+`./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 500 1000 152 -m 0 DTW -v 0`
 
 GPU:
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f data/classification/rm_0/DATA data/classification/rm_0/LABEL -k 10 0 -o 1000 152 -m 0 DTW -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 0 -f data/classification/rm_0/DATA data/classification/rm_0/LABEL -k 10 0 -o 1000 152 -m 0 DTW -d 0 -v 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 0 -o 1000 152 -m 0 DTW -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 0 -o 1000 152 -m 0 DTW -d 0 -v 0`
 
-`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 150 850 152 -k 10 0 -m 0 DTW -d 0`
+`./mdtwObj -t CLASSIFICATION -i GPU 3 512 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 150 850 152 -k 10 0 -m 0 DTW -d 0 -v 0`
 
 **SUBSEQ_SEARCH**
 
@@ -147,11 +147,11 @@ GPU:
 
 CPU: 
 
-`./mdtwObj -t SUBSEQ_SEARCH -i CPU 3 0 -f data/subseq_search/T_series data/subseq_search/Q_series -o 3907 421 -m 1 DTW`
+`./mdtwObj -t SUBSEQ_SEARCH -i CPU 3 0 -f data/subseq_search/T_series data/subseq_search/Q_series -o 3907 421 -m 1 DTW -v 0`
 
 GPU:
 
-`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f data/subseq_search/T_series data/subseq_search/Q_series -o 3907 421 -m 1 DTW -d 0`
+`./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f data/subseq_search/T_series data/subseq_search/Q_series -o 3907 421 -m 1 DTW -d 0 -v 0`
 
 # AUTHORS
 
