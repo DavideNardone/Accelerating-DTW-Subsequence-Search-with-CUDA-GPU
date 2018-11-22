@@ -1,0 +1,1204 @@
+\hypertarget{module_8c}{}\section{source/module.c File Reference}
+\label{module_8c}\index{source/module.\+c@{source/module.\+c}}
+{\ttfamily \#include \char`\"{}header.\+h\char`\"{}}\newline
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\+\_\+\+\_\+device\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a0a0d2d3421728991fe288b60f1e1b705}{print\+Array\+Dev}} (float $\ast$array, int n)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily print\+Array\+Dev} print all the elements contained into {\ttfamily array} on the std out. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+device\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_aaa8ba45baa247d1732aa6026babb6909}{print\+Matrix\+Dev}} (float $\ast$matrix, int M, int N)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily print\+Matrix\+Dev} print all the elements contained into {\ttfamily matrix} on the std out. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+device\+\_\+\+\_\+ float \mbox{\hyperlink{module_8c_a525de6fb020e7414358412e4656ab008}{std\+Dev}} (float $\ast$data, int n, float $\ast$avg)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily std\+Dev} compute the {\ttfamily standard deviation} of a given vector allocated on the C\+U\+DA device. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a59c79eb8994d5545fc3b1f46e84a396c}{M\+D\+\_\+\+E\+D\+\_\+D}} (float $\ast$S, float $\ast$T, int window\+\_\+size, int dimensions, float $\ast$data\+\_\+out, int train\+Size, int task, int gm)
+\begin{DoxyCompactList}\small\item\em The kernel function {\ttfamily M\+D\+\_\+\+E\+D\+\_\+D} computes the {\ttfamily Dependent-\/\+Multi Dimensional Euclidean} distance (D-\/\+M\+DE). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a800c50e9b7a93895cbf5d101231d8f8f}{M\+D\+\_\+\+E\+D\+\_\+I}} (float $\ast$S, float $\ast$T, int window\+\_\+size, int dimensions, float $\ast$data\+\_\+out, int train\+Size, int task)
+\begin{DoxyCompactList}\small\item\em The kernel function {\ttfamily M\+D\+\_\+\+E\+D\+\_\+I} computes the {\ttfamily Independent-\/\+Multi Dimensional Euclidean} distance (I-\/\+M\+DE). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a8a008caf9f61ff2674971e9202926fad}{r\+M\+D\+\_\+\+E\+D\+\_\+D}} (float $\ast$S, float $\ast$T, int window\+\_\+size, int dimensions, float $\ast$data\+\_\+out, int train\+Size, int gm)
+\begin{DoxyCompactList}\small\item\em The kernel function {\ttfamily r\+M\+D\+\_\+\+E\+D\+\_\+D} computes the {\ttfamily Rotation Dependent-\/\+Multi Dimensional Euclidean} distance (r\+D-\/\+M\+DE). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a20b2afab1c8ede21cc8ebb20c48d96b8}{M\+D\+\_\+\+D\+T\+W\+\_\+D}} (float $\ast$S, float $\ast$T, int ns, int nt, int dimensions, float $\ast$data\+\_\+out, int train\+Size, int task, int gm)
+\begin{DoxyCompactList}\small\item\em The kernel function {\ttfamily M\+D\+\_\+\+D\+T\+W\+\_\+D} computes the {\ttfamily Dependent-\/\+Multi Dimensional Dynamic Time Warping} distance (D-\/\+M\+D\+D\+TW). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a2675c108aeca641d0416cfbf67711efd}{M\+D\+\_\+\+D\+T\+W\+\_\+I}} (float $\ast$S, float $\ast$T, int ns, int nt, int dimensions, float $\ast$data\+\_\+out, int train\+Size, int task)
+\begin{DoxyCompactList}\small\item\em The kernel function {\ttfamily M\+D\+\_\+\+E\+D\+\_\+I} computes the {\ttfamily Independent Multi Dimensional-\/\+Dynamic Time Warping} distance (I-\/\+M\+D\+D\+TW). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+global\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a43dc540b044391a869143f128f96d39d}{r\+M\+D\+\_\+\+D\+T\+W\+\_\+D}} (float $\ast$S, float $\ast$T, int ns, int nt, int dimensions, float $\ast$data\+\_\+out, int train\+Size, int gm)
+\begin{DoxyCompactList}\small\item\em The kernel function {\ttfamily r\+M\+D\+\_\+\+D\+T\+W\+\_\+D} computes the {\ttfamily Rotation Dependent-\/\+Multi Dimensional Dynamic Time Warping} distance (r\+D-\/\+M\+D\+D\+TW). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ int \mbox{\hyperlink{module_8c_ac6a94f6a7fa5bc9ef3e8a71721ef86c1}{check\+Flag\+Opts}} (char $\ast$$\ast$input\+\_\+args, int num\+\_\+args, int ind, int num\+\_\+opts)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily check\+Flag\+Opts} check out the correctness of the parameters for a given flag. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_accb7b8dca144b3ad6827328402bb6830}{read\+File\+Sub\+Seq}} (char $\ast$$\ast$file\+\_\+name, int $\ast$ind\+\_\+files, int n\+\_\+file, float $\ast$t\+\_\+series, int t\+\_\+size, float $\ast$q\+\_\+series, int window\+\_\+size, int n\+\_\+feat, int read\+\_\+mode)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily read\+File\+Sub\+Seq} allows to read several file formats for the {\ttfamily S\+U\+B\+S\+E\+Q\+U\+E\+N\+CE S\+E\+A\+R\+CH} task. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_adaf01b877bf24172d81f3abf7e8c34a1}{read\+File}} (char $\ast$$\ast$file\+\_\+name, int $\ast$ind\+\_\+files, int n\+\_\+file, int read\+\_\+mode, float $\ast$data, struct data data\+\_\+struct, int window\+\_\+size, int $\ast$data\+Labels, int n\+\_\+feat, int class\+\_\+alg)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily read\+File} allows to read several file formats for the {\ttfamily C\+L\+A\+S\+S\+I\+F\+I\+C\+A\+T\+I\+ON} task. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_afbc660c849067a14bf66eb8a2b038a4e}{create\+Training\+Testing\+Set}} (float $\ast$data, int $\ast$data\+Labels, int data\+Size, int window\+\_\+size, int n\+\_\+feat, float $\ast$h\+\_\+train, int $\ast$train\+Labels, int train\+Size, float $\ast$h\+\_\+test, int $\ast$test\+Labels, int test\+Size, int $\ast$t\+Ind, int k\+\_\+th\+\_\+fold, int class\+\_\+mode)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily create\+Training\+Testing\+Set} splits the dataset information into random train and test subsets. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ int \mbox{\hyperlink{module_8c_a7905f9b8911967deb42ff0af1604bc34}{cmpfunc}} (const void $\ast$a, const void $\ast$b)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily cmpfunc} is an utiliy function for sorting vector values. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a602306ad20c7e60186329ca37fe034a8}{generate\+Array}} (int size, int $\ast$arrayG, int offset)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily generate\+Array} fills an input array from a desidered starting point. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_acb04607160d5f16c463cffb694692a73}{find\+Ind}} (int $\ast$array, int size, int $\ast$arrayG, int g)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily find\+Ind} fill an array with incremental value whether a desiderd value exist into an input array. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ int \mbox{\hyperlink{module_8c_a6b4c6d6e74eee37718947a58439dec0a}{unique\+\_\+val}} (int $\ast$array, int size)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily unique\+\_\+val} look for unique value into an array. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ int $\ast$ \mbox{\hyperlink{module_8c_aca9f44087f35155d97dec48fcae16459}{accumarray}} (int $\ast$array, int size, int $\ast$val)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily accumarray} is an utility function for the k-\/fold cross validation. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_ace373a1086cdbe8c103f097cb9d91e8a}{shuffle}} (int $\ast$array, size\+\_\+t array\+\_\+size, size\+\_\+t shuff\+\_\+size)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily shuffle} is function for shuffling the data contained into an array. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a90d67b768fda3877457938f7178b438c}{id\+Assign}} (int $\ast$perm, int size\+\_\+perm, int $\ast$group, int size\+\_\+group, int $\ast$rand\+\_\+ind, int $\ast$h, int $\ast$t\+Ind)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily id\+Assign}is an utility function for the k-\/fold cross validation. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_aeb192c636a5e2befc79d33435fc9f5ad}{check\+C\+U\+D\+A\+Error}} (const char $\ast$msg)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily check\+C\+U\+D\+A\+Error} display on the standard output more information about a type of C\+U\+DA error. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ int $\ast$ \mbox{\hyperlink{module_8c_a1f9f3e4749f32d757e482a6237b58bde}{crossvalind\+\_\+\+Kfold}} (int $\ast$label, int N, int K, int flag\+\_\+shuffle)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily crossvalind\+\_\+\+Kfold} generates Cross-\/\+Validation indices for splitting the dataset into train and test set. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ int \mbox{\hyperlink{module_8c_a88f999c53808282db98bc3c3b172a06f}{count\+Val}} (int $\ast$data, int N, int key)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily count\+Val} count the number of occurences found for a desidered value stored into an array. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ float \mbox{\hyperlink{module_8c_a7aeaadfaafb444a37a8a4cf783994888}{standard\+\_\+deviation}} (float $\ast$data, int n, float $\ast$avg)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily standard\+\_\+deviation} compute the {\ttfamily standard deviation} of a given vector. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_ac81c472b54a439047fbea65790615dbb}{z\+\_\+normalize2D}} (float $\ast$M, int nrow, int ncol)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily z\+\_\+normalize2D} z-\/normalize an input vector. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ float \mbox{\hyperlink{module_8c_afcd5a2cbd12c503083baa7fd593c1bfa}{short\+\_\+ed\+\_\+c}} (float $\ast$T, float $\ast$S, int window\+\_\+size)
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily short\+\_\+ed\+\_\+c} computes the {\ttfamily mono-\/dimensional Euclidean} distance. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ float \mbox{\hyperlink{module_8c_a229d331919e4d723a1e2cd176db43f2f}{short\+\_\+dtw\+\_\+c}} (float $\ast$instance, float $\ast$query, int ns, int nt)
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily short\+\_\+dtw\+\_\+c} computes the {\ttfamily mono-\/dimensional Dynamic Time Warping} distance (D\+TW). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ float \mbox{\hyperlink{module_8c_a61a022d6eb32c5c03bac5e0dbdb86a92}{short\+\_\+md\+\_\+ed\+\_\+c}} (float $\ast$T, float $\ast$S, int window\+\_\+size, int dimensions, int offset)
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily short\+\_\+md\+\_\+ed\+\_\+c} computes the {\ttfamily Multi-\/\+Dimensional Euclidean} distance (M\+D-\/E). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ float \mbox{\hyperlink{module_8c_a50ddf6d0a2561ac3cca95bbb584c8964}{short\+\_\+md\+\_\+dtw\+\_\+c}} (float $\ast$S, float $\ast$T, int ns, int nt, int dim, int offset)
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily short\+\_\+md\+\_\+dtw\+\_\+c} computes the {\ttfamily Multi-\/\+Dimensional Dynamic Time Warping} distance (M\+D-\/\+D\+TW). \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a037ea99db1cf478d1c0fbb21594f773f}{print\+\_\+help}} (void)
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily print\+\_\+help} print on the standard output several information about the input parameters to feed to the software. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_ac361364f692571d780a45221a001e1a0}{print\+\_\+version}} (void)
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily print\+\_\+version} print on the standard output the software version. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a128a479fe9bdcbb37bca1e0d80987ab3}{info\+Dev}} ()
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily info\+Dev} print on the standard output several information abou the available G\+P\+Us. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ cuda\+Device\+Prop \mbox{\hyperlink{module_8c_a74aa1ec19079dad50197316d88e906d6}{get\+Dev\+Prop}} (int device)
+\begin{DoxyCompactList}\small\item\em The function {\ttfamily get\+Dev\+Prop} return an object {\ttfamily device\+Prop} containing all the information about a specific G\+PU device. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a1331205e32e3539f76d360ae7d9c73be}{initialize\+Array}} (float $\ast$array, int n, float val)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily initialize\+Array} fills an input array with a desidered value. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a92ee3baf858ac543f8f7bfb3eef5af7f}{initialize\+Matrix}} (float $\ast$matrix, int M, int N)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily initialize\+Matrix} fills an input matrix with random values. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a6491f0155e8592f83344a99437af1d4e}{print\+Array}} (float $\ast$array, int n)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily print\+Array} print on the standard output an input array of float values. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_ad993151972c6f9df0e1ce571e5b08550}{print\+ArrayI}} (int $\ast$array, int n)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily print\+ArrayI} print on the standard output an input array of integer values. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_a31ba16e05560e68e7d3b0bbe8e7ddee6}{print\+Matrix}} (float $\ast$matrix, int M, int N)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily print\+Matrix} print on the standard output an input matrix of float values. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_affa03689738dadeeadd3af670761541b}{equal\+Array}} (float $\ast$a, float $\ast$b, int n)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily equal\+Array} check whether the host and device result are the same. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ void \mbox{\hyperlink{module_8c_af25d530979e493fca362426f40715e1b}{compare\+Array}} (float $\ast$a, float $\ast$b, int n)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily equal\+Array} print on the standard output both the host and device array. \end{DoxyCompactList}\item 
+\+\_\+\+\_\+host\+\_\+\+\_\+ float \mbox{\hyperlink{module_8c_a5fa005881f4c0a95fdb20ac5e5e60602}{min\+\_\+arr}} (float $\ast$arr, int n, int $\ast$ind)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily min\+\_\+arr} computes the minimum value of an input array. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{module_8c_ae948871df06c090286c2063ab51bb4ed}{timedifference\+\_\+msec}} (struct timeval t0, struct timeval t1)
+\begin{DoxyCompactList}\small\item\em The callback function {\ttfamily timedifference\+\_\+msec} computes the time difference among {\ttfamily t0} and {\ttfamily t1}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{module_8c_aca9f44087f35155d97dec48fcae16459}\label{module_8c_aca9f44087f35155d97dec48fcae16459}} 
+\index{module.\+c@{module.\+c}!accumarray@{accumarray}}
+\index{accumarray@{accumarray}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{accumarray()}{accumarray()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ int$\ast$ accumarray (\begin{DoxyParamCaption}\item[{int $\ast$}]{array,  }\item[{int}]{size,  }\item[{int $\ast$}]{val }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily accumarray} is an utility function for the k-\/fold cross validation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & Vector where to search into \\
+\hline
+{\em size} & Size of the vector \\
+\hline
+{\em $\ast$val} & Value to find \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Utility array 
+\end{DoxyReturn}
+
+
+Definition at line 1245 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_aeb192c636a5e2befc79d33435fc9f5ad}\label{module_8c_aeb192c636a5e2befc79d33435fc9f5ad}} 
+\index{module.\+c@{module.\+c}!check\+C\+U\+D\+A\+Error@{check\+C\+U\+D\+A\+Error}}
+\index{check\+C\+U\+D\+A\+Error@{check\+C\+U\+D\+A\+Error}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{check\+C\+U\+D\+A\+Error()}{checkCUDAError()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void check\+C\+U\+D\+A\+Error (\begin{DoxyParamCaption}\item[{const char $\ast$}]{msg }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily check\+C\+U\+D\+A\+Error} display on the standard output more information about a type of C\+U\+DA error. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$msg} & Message to display along with the error information provided by C\+U\+DA \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1312 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_ac6a94f6a7fa5bc9ef3e8a71721ef86c1}\label{module_8c_ac6a94f6a7fa5bc9ef3e8a71721ef86c1}} 
+\index{module.\+c@{module.\+c}!check\+Flag\+Opts@{check\+Flag\+Opts}}
+\index{check\+Flag\+Opts@{check\+Flag\+Opts}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{check\+Flag\+Opts()}{checkFlagOpts()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ int check\+Flag\+Opts (\begin{DoxyParamCaption}\item[{char $\ast$$\ast$}]{input\+\_\+args,  }\item[{int}]{num\+\_\+args,  }\item[{int}]{ind,  }\item[{int}]{num\+\_\+opts }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily check\+Flag\+Opts} check out the correctness of the parameters for a given flag. 
+
+The following function check out the correctness of the parameters for a given flag by counting the number of parameters.
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$$\ast$input\+\_\+args} & Vector containing all the command line parameters passed to the program \\
+\hline
+{\em num\+\_\+args} & Vector containing the number of arguments passed to the program \\
+\hline
+{\em ind} & Current index parsed on {\ttfamily $\ast$$\ast$input\+\_\+args} \\
+\hline
+{\em num\+\_\+opts} & Number of parameters to parse for the current flag stored into input\+\_\+args\mbox{[}ind\mbox{]} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Integer (0,1) indicating the corretness of the number of parameters for the current flag 
+\end{DoxyReturn}
+
+
+Definition at line 762 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a7905f9b8911967deb42ff0af1604bc34}\label{module_8c_a7905f9b8911967deb42ff0af1604bc34}} 
+\index{module.\+c@{module.\+c}!cmpfunc@{cmpfunc}}
+\index{cmpfunc@{cmpfunc}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{cmpfunc()}{cmpfunc()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ int cmpfunc (\begin{DoxyParamCaption}\item[{const void $\ast$}]{a,  }\item[{const void $\ast$}]{b }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily cmpfunc} is an utiliy function for sorting vector values. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$a} & Integer value \\
+\hline
+{\em $\ast$b} & Integer value \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Difference betwen {\ttfamily $\ast$a} and {\ttfamily $\ast$b} 
+\end{DoxyReturn}
+
+
+Definition at line 1165 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_af25d530979e493fca362426f40715e1b}\label{module_8c_af25d530979e493fca362426f40715e1b}} 
+\index{module.\+c@{module.\+c}!compare\+Array@{compare\+Array}}
+\index{compare\+Array@{compare\+Array}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{compare\+Array()}{compareArray()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void compare\+Array (\begin{DoxyParamCaption}\item[{float $\ast$}]{a,  }\item[{float $\ast$}]{b,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily equal\+Array} print on the standard output both the host and device array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$a} & array host \\
+\hline
+{\em $\ast$b} & array device \\
+\hline
+{\em n} & Size of the two vector \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1867 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a88f999c53808282db98bc3c3b172a06f}\label{module_8c_a88f999c53808282db98bc3c3b172a06f}} 
+\index{module.\+c@{module.\+c}!count\+Val@{count\+Val}}
+\index{count\+Val@{count\+Val}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{count\+Val()}{countVal()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ int count\+Val (\begin{DoxyParamCaption}\item[{int $\ast$}]{data,  }\item[{int}]{N,  }\item[{int}]{key }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily count\+Val} count the number of occurences found for a desidered value stored into an array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$data} & Vector where to search \\
+\hline
+{\em N} & Size of the vector {\ttfamily $\ast$data} \\
+\hline
+{\em key} & Desidered value to search into {\ttfamily $\ast$data} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of occurences found for the {\ttfamily key} into {\ttfamily $\ast$data} 
+\end{DoxyReturn}
+
+
+Definition at line 1390 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_afbc660c849067a14bf66eb8a2b038a4e}\label{module_8c_afbc660c849067a14bf66eb8a2b038a4e}} 
+\index{module.\+c@{module.\+c}!create\+Training\+Testing\+Set@{create\+Training\+Testing\+Set}}
+\index{create\+Training\+Testing\+Set@{create\+Training\+Testing\+Set}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{create\+Training\+Testing\+Set()}{createTrainingTestingSet()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void create\+Training\+Testing\+Set (\begin{DoxyParamCaption}\item[{float $\ast$}]{data,  }\item[{int $\ast$}]{data\+Labels,  }\item[{int}]{data\+Size,  }\item[{int}]{window\+\_\+size,  }\item[{int}]{n\+\_\+feat,  }\item[{float $\ast$}]{h\+\_\+train,  }\item[{int $\ast$}]{train\+Labels,  }\item[{int}]{train\+Size,  }\item[{float $\ast$}]{h\+\_\+test,  }\item[{int $\ast$}]{test\+Labels,  }\item[{int}]{test\+Size,  }\item[{int $\ast$}]{t\+Ind,  }\item[{int}]{k\+\_\+th\+\_\+fold,  }\item[{int}]{class\+\_\+mode }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily create\+Training\+Testing\+Set} splits the dataset information into random train and test subsets. 
+
+The following function splits the {\ttfamily data} and {\ttfamily label} information into random two different train and test subsets.
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$data} & Vector containing the data \\
+\hline
+{\em $\ast$data\+Labels} & Vector containing the label \\
+\hline
+{\em data\+Size} & Number of time series stored in the \textquotesingle{}$\ast$data\textquotesingle{} \\
+\hline
+{\em windows\+\_\+size} & Length for the time series stored into \textquotesingle{}$\ast$data\textquotesingle{} \\
+\hline
+{\em n\+\_\+feat} & Number of variables for the time series stored into \textquotesingle{}$\ast$data\textquotesingle{} \\
+\hline
+{\em $\ast$h\+\_\+train} & Vector containing the data for the train set \\
+\hline
+{\em $\ast$train\+Labels} & Vector containing the labels for the train set \\
+\hline
+{\em train\+Size} & Number of time series to be stored in the train set \\
+\hline
+{\em $\ast$h\+\_\+test} & Vector containing the data for the test set \\
+\hline
+{\em $\ast$test\+Labels} & Vector containing the labels for the test set \\
+\hline
+{\em test\+Size} & Number of time series to be stored in the test set \\
+\hline
+{\em $\ast$t\+Ind} & Vector providing train and test indices to split data in train test sets \\
+\hline
+{\em k\+\_\+th\+\_\+fold} & Number of folds. Must be at least 2 \\
+\hline
+{\em class\+\_\+mode} & Integer for handling different reading modes which depends on the the type of algorithm picked. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1053 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a1f9f3e4749f32d757e482a6237b58bde}\label{module_8c_a1f9f3e4749f32d757e482a6237b58bde}} 
+\index{module.\+c@{module.\+c}!crossvalind\+\_\+\+Kfold@{crossvalind\+\_\+\+Kfold}}
+\index{crossvalind\+\_\+\+Kfold@{crossvalind\+\_\+\+Kfold}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{crossvalind\+\_\+\+Kfold()}{crossvalind\_Kfold()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ int$\ast$ crossvalind\+\_\+\+Kfold (\begin{DoxyParamCaption}\item[{int $\ast$}]{label,  }\item[{int}]{N,  }\item[{int}]{K,  }\item[{int}]{flag\+\_\+shuffle }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily crossvalind\+\_\+\+Kfold} generates Cross-\/\+Validation indices for splitting the dataset into train and test set. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$label} & Vector of labels \\
+\hline
+{\em N} & Size of the vector {\ttfamily $\ast$label} \\
+\hline
+{\em K} & Number of fold to generate \\
+\hline
+{\em flag\+\_\+shuffle} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vector containing 1s for observations that belong to the training set and 0s for observations that belong to the test (evaluation) set. 
+\end{DoxyReturn}
+
+
+Definition at line 1330 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_affa03689738dadeeadd3af670761541b}\label{module_8c_affa03689738dadeeadd3af670761541b}} 
+\index{module.\+c@{module.\+c}!equal\+Array@{equal\+Array}}
+\index{equal\+Array@{equal\+Array}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{equal\+Array()}{equalArray()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void equal\+Array (\begin{DoxyParamCaption}\item[{float $\ast$}]{a,  }\item[{float $\ast$}]{b,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily equal\+Array} check whether the host and device result are the same. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$a} & array host \\
+\hline
+{\em $\ast$b} & array device \\
+\hline
+{\em n} & Size of the two vector \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1847 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_acb04607160d5f16c463cffb694692a73}\label{module_8c_acb04607160d5f16c463cffb694692a73}} 
+\index{module.\+c@{module.\+c}!find\+Ind@{find\+Ind}}
+\index{find\+Ind@{find\+Ind}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{find\+Ind()}{findInd()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void find\+Ind (\begin{DoxyParamCaption}\item[{int $\ast$}]{array,  }\item[{int}]{size,  }\item[{int $\ast$}]{arrayG,  }\item[{int}]{g }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily find\+Ind} fill an array with incremental value whether a desiderd value exist into an input array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & Vector where to search into \\
+\hline
+{\em size} & Size of the vector \\
+\hline
+{\em $\ast$arrayG} & Vector to fill with incremental value \\
+\hline
+{\em g} & Value to find in the {\ttfamily $\ast$array} \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1199 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a602306ad20c7e60186329ca37fe034a8}\label{module_8c_a602306ad20c7e60186329ca37fe034a8}} 
+\index{module.\+c@{module.\+c}!generate\+Array@{generate\+Array}}
+\index{generate\+Array@{generate\+Array}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{generate\+Array()}{generateArray()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void generate\+Array (\begin{DoxyParamCaption}\item[{int}]{size,  }\item[{int $\ast$}]{arrayG,  }\item[{int}]{offset }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily generate\+Array} fills an input array from a desidered starting point. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em size} & Size of the vector \\
+\hline
+{\em $\ast$arrayG} & Vector to fill \\
+\hline
+{\em $\ast$offset} & Offset from where to start to fill {\ttfamily $\ast$arrayG} \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1176 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a74aa1ec19079dad50197316d88e906d6}\label{module_8c_a74aa1ec19079dad50197316d88e906d6}} 
+\index{module.\+c@{module.\+c}!get\+Dev\+Prop@{get\+Dev\+Prop}}
+\index{get\+Dev\+Prop@{get\+Dev\+Prop}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{get\+Dev\+Prop()}{getDevProp()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ cuda\+Device\+Prop get\+Dev\+Prop (\begin{DoxyParamCaption}\item[{int}]{device }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily get\+Dev\+Prop} return an object {\ttfamily device\+Prop} containing all the information about a specific G\+PU device. 
+
+\begin{DoxyReturn}{Returns}
+{\ttfamily device\+Prop} object. 
+\end{DoxyReturn}
+
+
+Definition at line 1760 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a90d67b768fda3877457938f7178b438c}\label{module_8c_a90d67b768fda3877457938f7178b438c}} 
+\index{module.\+c@{module.\+c}!id\+Assign@{id\+Assign}}
+\index{id\+Assign@{id\+Assign}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{id\+Assign()}{idAssign()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void id\+Assign (\begin{DoxyParamCaption}\item[{int $\ast$}]{perm,  }\item[{int}]{size\+\_\+perm,  }\item[{int $\ast$}]{group,  }\item[{int}]{size\+\_\+group,  }\item[{int $\ast$}]{rand\+\_\+ind,  }\item[{int $\ast$}]{h,  }\item[{int $\ast$}]{t\+Ind }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily id\+Assign}is an utility function for the k-\/fold cross validation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$perm} & Vector of permutations \\
+\hline
+{\em size\+\_\+perm} & Size of the permutations \\
+\hline
+{\em $\ast$group} & Support vector \\
+\hline
+{\em size\+\_\+group} & Size of the support vector \\
+\hline
+{\em $\ast$rand\+\_\+ind} & Vector of random value \\
+\hline
+{\em $\ast$h} & Supprt vector \\
+\hline
+{\em $\ast$t\+Ind} & Vector of indices values for splitting the dataset into train and test set \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1296 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a128a479fe9bdcbb37bca1e0d80987ab3}\label{module_8c_a128a479fe9bdcbb37bca1e0d80987ab3}} 
+\index{module.\+c@{module.\+c}!info\+Dev@{info\+Dev}}
+\index{info\+Dev@{info\+Dev}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{info\+Dev()}{infoDev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void info\+Dev (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily info\+Dev} print on the standard output several information abou the available G\+P\+Us. 
+
+
+
+Definition at line 1722 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a1331205e32e3539f76d360ae7d9c73be}\label{module_8c_a1331205e32e3539f76d360ae7d9c73be}} 
+\index{module.\+c@{module.\+c}!initialize\+Array@{initialize\+Array}}
+\index{initialize\+Array@{initialize\+Array}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{initialize\+Array()}{initializeArray()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void initialize\+Array (\begin{DoxyParamCaption}\item[{float $\ast$}]{array,  }\item[{int}]{n,  }\item[{float}]{val }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily initialize\+Array} fills an input array with a desidered value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & Vector to fill \\
+\hline
+{\em n} & Size of the vector \\
+\hline
+{\em val} & Value to fill the array with \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1775 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a92ee3baf858ac543f8f7bfb3eef5af7f}\label{module_8c_a92ee3baf858ac543f8f7bfb3eef5af7f}} 
+\index{module.\+c@{module.\+c}!initialize\+Matrix@{initialize\+Matrix}}
+\index{initialize\+Matrix@{initialize\+Matrix}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{initialize\+Matrix()}{initializeMatrix()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void initialize\+Matrix (\begin{DoxyParamCaption}\item[{float $\ast$}]{matrix,  }\item[{int}]{M,  }\item[{int}]{N }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily initialize\+Matrix} fills an input matrix with random values. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$matrix} & Matrix to fill \\
+\hline
+{\em M} & Number of rows \\
+\hline
+{\em N} & Number of columns \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1788 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a20b2afab1c8ede21cc8ebb20c48d96b8}\label{module_8c_a20b2afab1c8ede21cc8ebb20c48d96b8}} 
+\index{module.\+c@{module.\+c}!M\+D\+\_\+\+D\+T\+W\+\_\+D@{M\+D\+\_\+\+D\+T\+W\+\_\+D}}
+\index{M\+D\+\_\+\+D\+T\+W\+\_\+D@{M\+D\+\_\+\+D\+T\+W\+\_\+D}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{M\+D\+\_\+\+D\+T\+W\+\_\+\+D()}{MD\_DTW\_D()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void M\+D\+\_\+\+D\+T\+W\+\_\+D (\begin{DoxyParamCaption}\item[{float $\ast$}]{S,  }\item[{float $\ast$}]{T,  }\item[{int}]{ns,  }\item[{int}]{nt,  }\item[{int}]{dimensions,  }\item[{float $\ast$}]{data\+\_\+out,  }\item[{int}]{train\+Size,  }\item[{int}]{task,  }\item[{int}]{gm }\end{DoxyParamCaption})}
+
+
+
+The kernel function {\ttfamily M\+D\+\_\+\+D\+T\+W\+\_\+D} computes the {\ttfamily Dependent-\/\+Multi Dimensional Dynamic Time Warping} distance (D-\/\+M\+D\+D\+TW). 
+
+The following kernel function computes the D-\/\+M\+D\+D\+TW taking advantage of the G\+PU, by using a specific number of threads for block. It considers the comparison of many Multivariate Time Series (M\+TS) stored into the unrolled vector {\ttfamily $\ast$S} against the only unrolled vector {\ttfamily $\ast$T}. By exploiting the C\+U\+DA threads, this computation can be done very fast. For more information about how it\textquotesingle{}s computed, refer to the following link\+: \href{http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance}{\tt http\+://stats.\+stackexchange.\+com/questions/184977/multivariate-\/time-\/series-\/euclidean-\/distance}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Unrolled vector containing {\ttfamily train\+Size} number of M\+TS \\
+\hline
+{\em $\ast$T} & Unrolled vector representing the second time Series to compare against {\ttfamily $\ast$S} \\
+\hline
+{\em window\+\_\+size} & Length of the two given M\+TS \\
+\hline
+{\em dimensions} & Number of variables for the two M\+TS \\
+\hline
+{\em $\ast$data\+\_\+out} & Vector containing the results achieved by comparing {\ttfamily $\ast$T} against {\ttfamily $\ast$S} \\
+\hline
+{\em $\ast$train\+Size} & Number of M\+TS contained in the vector {\ttfamily T} \\
+\hline
+{\em task} & Integer discriminating the task to perform (e.\+g., 0\+: C\+L\+A\+S\+S\+I\+F\+I\+C\+A\+T\+I\+ON, 1\+:S\+U\+B\+S\+E\+Q\+U\+E\+N\+CE S\+E\+A\+R\+CH) \\
+\hline
+{\em gm} & Integer indicating where to store the unrolled vector {\ttfamily $\ast$T} (e.\+g., 0\+:shared memory, 1\+: global memory) \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 331 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a2675c108aeca641d0416cfbf67711efd}\label{module_8c_a2675c108aeca641d0416cfbf67711efd}} 
+\index{module.\+c@{module.\+c}!M\+D\+\_\+\+D\+T\+W\+\_\+I@{M\+D\+\_\+\+D\+T\+W\+\_\+I}}
+\index{M\+D\+\_\+\+D\+T\+W\+\_\+I@{M\+D\+\_\+\+D\+T\+W\+\_\+I}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{M\+D\+\_\+\+D\+T\+W\+\_\+\+I()}{MD\_DTW\_I()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void M\+D\+\_\+\+D\+T\+W\+\_\+I (\begin{DoxyParamCaption}\item[{float $\ast$}]{S,  }\item[{float $\ast$}]{T,  }\item[{int}]{ns,  }\item[{int}]{nt,  }\item[{int}]{dimensions,  }\item[{float $\ast$}]{data\+\_\+out,  }\item[{int}]{train\+Size,  }\item[{int}]{task }\end{DoxyParamCaption})}
+
+
+
+The kernel function {\ttfamily M\+D\+\_\+\+E\+D\+\_\+I} computes the {\ttfamily Independent Multi Dimensional-\/\+Dynamic Time Warping} distance (I-\/\+M\+D\+D\+TW). 
+
+The following kernel function computes the I-\/\+M\+D\+D\+TW taking advantage of the G\+PU, by using a specific number of threads for block. It considers the comparison of many Multivariate Time Series (M\+TS) stored into the unrolled vector {\ttfamily $\ast$S} against the only unrolled vector {\ttfamily $\ast$T}. By exploiting the C\+U\+DA threads, this computation can be done very fast. For more information about how it\textquotesingle{}s computed, refer to the following link\+: \href{http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance}{\tt http\+://stats.\+stackexchange.\+com/questions/184977/multivariate-\/time-\/series-\/euclidean-\/distance}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Unrolled vector containing {\ttfamily train\+Size} number of M\+TS \\
+\hline
+{\em $\ast$T} & Unrolled vector representing the second time Series to compare against {\ttfamily $\ast$S} \\
+\hline
+{\em window\+\_\+size} & Length of the two given M\+TS \\
+\hline
+{\em dimensions} & Number of variables for the two M\+TS \\
+\hline
+{\em $\ast$data\+\_\+out} & Vector containing the results achieved by comparing {\ttfamily $\ast$T} against {\ttfamily $\ast$S} \\
+\hline
+{\em $\ast$train\+Size} & Number of M\+TS contained in the vector {\ttfamily T} \\
+\hline
+{\em task} & Integer discriminating the task to perform (e.\+g., 0\+: C\+L\+A\+S\+S\+I\+F\+I\+C\+A\+T\+I\+ON, 1\+:S\+U\+B\+S\+E\+Q\+U\+E\+N\+CE S\+E\+A\+R\+CH) \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 512 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a59c79eb8994d5545fc3b1f46e84a396c}\label{module_8c_a59c79eb8994d5545fc3b1f46e84a396c}} 
+\index{module.\+c@{module.\+c}!M\+D\+\_\+\+E\+D\+\_\+D@{M\+D\+\_\+\+E\+D\+\_\+D}}
+\index{M\+D\+\_\+\+E\+D\+\_\+D@{M\+D\+\_\+\+E\+D\+\_\+D}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{M\+D\+\_\+\+E\+D\+\_\+\+D()}{MD\_ED\_D()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void M\+D\+\_\+\+E\+D\+\_\+D (\begin{DoxyParamCaption}\item[{float $\ast$}]{S,  }\item[{float $\ast$}]{T,  }\item[{int}]{window\+\_\+size,  }\item[{int}]{dimensions,  }\item[{float $\ast$}]{data\+\_\+out,  }\item[{int}]{train\+Size,  }\item[{int}]{task,  }\item[{int}]{gm }\end{DoxyParamCaption})}
+
+
+
+The kernel function {\ttfamily M\+D\+\_\+\+E\+D\+\_\+D} computes the {\ttfamily Dependent-\/\+Multi Dimensional Euclidean} distance (D-\/\+M\+DE). 
+
+The following kernel function computes the D-\/\+M\+DE taking advantage of the G\+PU, by using a specific number of threads for block. It considers the comparison of many Multivariate Time Series (M\+TS) stored into the unrolled vector {\ttfamily $\ast$S} against the only unrolled vector {\ttfamily $\ast$T}. By exploiting the C\+U\+DA threads, this computation can be done very fast. For more information about how it\textquotesingle{}s computed, refer to the following link\+: \href{http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance}{\tt http\+://stats.\+stackexchange.\+com/questions/184977/multivariate-\/time-\/series-\/euclidean-\/distance}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Unrolled vector containing {\ttfamily train\+Size} number of M\+TS \\
+\hline
+{\em $\ast$T} & Unrolled vector representing the second time Series to compare against {\ttfamily $\ast$S} \\
+\hline
+{\em window\+\_\+size} & Length of the two given M\+TS \\
+\hline
+{\em dimensions} & Number of variables for the two M\+TS \\
+\hline
+{\em $\ast$data\+\_\+out} & Vector containing the results achieved by comparing {\ttfamily $\ast$T} against {\ttfamily $\ast$S} \\
+\hline
+{\em $\ast$train\+Size} & Number of M\+TS contained in the vector {\ttfamily T} \\
+\hline
+{\em task} & Integer discriminating the task to perform (e.\+g., 0\+: C\+L\+A\+S\+S\+I\+F\+I\+C\+A\+T\+I\+ON, 1\+:S\+U\+B\+S\+E\+Q\+U\+E\+N\+CE S\+E\+A\+R\+CH) \\
+\hline
+{\em gm} & Integer indicating where to store the unrolled vector {\ttfamily $\ast$T} (e.\+g., 0\+:shared memory, 1\+: global memory) \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 79 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a800c50e9b7a93895cbf5d101231d8f8f}\label{module_8c_a800c50e9b7a93895cbf5d101231d8f8f}} 
+\index{module.\+c@{module.\+c}!M\+D\+\_\+\+E\+D\+\_\+I@{M\+D\+\_\+\+E\+D\+\_\+I}}
+\index{M\+D\+\_\+\+E\+D\+\_\+I@{M\+D\+\_\+\+E\+D\+\_\+I}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{M\+D\+\_\+\+E\+D\+\_\+\+I()}{MD\_ED\_I()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void M\+D\+\_\+\+E\+D\+\_\+I (\begin{DoxyParamCaption}\item[{float $\ast$}]{S,  }\item[{float $\ast$}]{T,  }\item[{int}]{window\+\_\+size,  }\item[{int}]{dimensions,  }\item[{float $\ast$}]{data\+\_\+out,  }\item[{int}]{train\+Size,  }\item[{int}]{task }\end{DoxyParamCaption})}
+
+
+
+The kernel function {\ttfamily M\+D\+\_\+\+E\+D\+\_\+I} computes the {\ttfamily Independent-\/\+Multi Dimensional Euclidean} distance (I-\/\+M\+DE). 
+
+The following kernel function computes the I-\/\+M\+DE taking advantage of the G\+PU, by using a specific number of threads for block. It considers the comparison of many Multivariate Time Series (M\+TS) stored into the unrolled vector {\ttfamily $\ast$S} against the only unrolled vector {\ttfamily $\ast$T}. By exploiting the C\+U\+DA threads, this computation can be done very fast. For more information about how it\textquotesingle{}s computed, refer to the following link\+: \href{http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance}{\tt http\+://stats.\+stackexchange.\+com/questions/184977/multivariate-\/time-\/series-\/euclidean-\/distance}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Unrolled vector containing {\ttfamily train\+Size} number of M\+TS \\
+\hline
+{\em $\ast$T} & Unrolled vector representing the second time Series to compare against {\ttfamily $\ast$S} \\
+\hline
+{\em window\+\_\+size} & Length of the two given M\+TS \\
+\hline
+{\em dimensions} & Nnumber of variables for the two M\+TS \\
+\hline
+{\em $\ast$data\+\_\+out} & Vector containing the results achieved by comparing {\ttfamily $\ast$T} against {\ttfamily $\ast$S} \\
+\hline
+{\em $\ast$train\+Size} & Number of M\+TS contained in the vector {\ttfamily T} \\
+\hline
+{\em task} & Integer discriminating the task to perform (e.\+g., 0\+: C\+L\+A\+S\+S\+I\+F\+I\+C\+A\+T\+I\+ON, 1\+:S\+U\+B\+S\+E\+Q\+U\+E\+N\+CE S\+E\+A\+R\+CH) \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 184 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a5fa005881f4c0a95fdb20ac5e5e60602}\label{module_8c_a5fa005881f4c0a95fdb20ac5e5e60602}} 
+\index{module.\+c@{module.\+c}!min\+\_\+arr@{min\+\_\+arr}}
+\index{min\+\_\+arr@{min\+\_\+arr}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{min\+\_\+arr()}{min\_arr()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ float min\+\_\+arr (\begin{DoxyParamCaption}\item[{float $\ast$}]{arr,  }\item[{int}]{n,  }\item[{int $\ast$}]{ind }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily min\+\_\+arr} computes the minimum value of an input array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$arr} & array \\
+\hline
+{\em n} & Size of the two vector \\
+\hline
+{\em $\ast$ind} & Index of the minimum value found into the array {\ttfamily $\ast$arr} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+minimum value found into the array {\ttfamily $\ast$arr} 
+\end{DoxyReturn}
+
+
+Definition at line 1884 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a037ea99db1cf478d1c0fbb21594f773f}\label{module_8c_a037ea99db1cf478d1c0fbb21594f773f}} 
+\index{module.\+c@{module.\+c}!print\+\_\+help@{print\+\_\+help}}
+\index{print\+\_\+help@{print\+\_\+help}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{print\+\_\+help()}{print\_help()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void print\+\_\+help (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily print\+\_\+help} print on the standard output several information about the input parameters to feed to the software. 
+
+
+
+Definition at line 1643 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_ac361364f692571d780a45221a001e1a0}\label{module_8c_ac361364f692571d780a45221a001e1a0}} 
+\index{module.\+c@{module.\+c}!print\+\_\+version@{print\+\_\+version}}
+\index{print\+\_\+version@{print\+\_\+version}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{print\+\_\+version()}{print\_version()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void print\+\_\+version (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily print\+\_\+version} print on the standard output the software version. 
+
+
+
+Definition at line 1710 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a6491f0155e8592f83344a99437af1d4e}\label{module_8c_a6491f0155e8592f83344a99437af1d4e}} 
+\index{module.\+c@{module.\+c}!print\+Array@{print\+Array}}
+\index{print\+Array@{print\+Array}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{print\+Array()}{printArray()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void print\+Array (\begin{DoxyParamCaption}\item[{float $\ast$}]{array,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily print\+Array} print on the standard output an input array of float values. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & array \\
+\hline
+{\em n} & Size of the vector \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1802 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a0a0d2d3421728991fe288b60f1e1b705}\label{module_8c_a0a0d2d3421728991fe288b60f1e1b705}} 
+\index{module.\+c@{module.\+c}!print\+Array\+Dev@{print\+Array\+Dev}}
+\index{print\+Array\+Dev@{print\+Array\+Dev}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{print\+Array\+Dev()}{printArrayDev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+device\+\_\+\+\_\+ void print\+Array\+Dev (\begin{DoxyParamCaption}\item[{float $\ast$}]{array,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily print\+Array\+Dev} print all the elements contained into {\ttfamily array} on the std out. 
+
+The following function print all the element contained into {\ttfamily array} on the std out of the C\+U\+DA device. 
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & Vector of float elements to print \\
+\hline
+{\em n} & The size of the vector \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 13 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_ad993151972c6f9df0e1ce571e5b08550}\label{module_8c_ad993151972c6f9df0e1ce571e5b08550}} 
+\index{module.\+c@{module.\+c}!print\+ArrayI@{print\+ArrayI}}
+\index{print\+ArrayI@{print\+ArrayI}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{print\+Array\+I()}{printArrayI()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void print\+ArrayI (\begin{DoxyParamCaption}\item[{int $\ast$}]{array,  }\item[{int}]{n }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily print\+ArrayI} print on the standard output an input array of integer values. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & array \\
+\hline
+{\em n} & Size of the vector \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1816 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a31ba16e05560e68e7d3b0bbe8e7ddee6}\label{module_8c_a31ba16e05560e68e7d3b0bbe8e7ddee6}} 
+\index{module.\+c@{module.\+c}!print\+Matrix@{print\+Matrix}}
+\index{print\+Matrix@{print\+Matrix}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{print\+Matrix()}{printMatrix()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void print\+Matrix (\begin{DoxyParamCaption}\item[{float $\ast$}]{matrix,  }\item[{int}]{M,  }\item[{int}]{N }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily print\+Matrix} print on the standard output an input matrix of float values. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & array \\
+\hline
+{\em M} & Number of rows \\
+\hline
+{\em N} & Number of columns \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1831 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_aaa8ba45baa247d1732aa6026babb6909}\label{module_8c_aaa8ba45baa247d1732aa6026babb6909}} 
+\index{module.\+c@{module.\+c}!print\+Matrix\+Dev@{print\+Matrix\+Dev}}
+\index{print\+Matrix\+Dev@{print\+Matrix\+Dev}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{print\+Matrix\+Dev()}{printMatrixDev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+device\+\_\+\+\_\+ void print\+Matrix\+Dev (\begin{DoxyParamCaption}\item[{float $\ast$}]{matrix,  }\item[{int}]{M,  }\item[{int}]{N }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily print\+Matrix\+Dev} print all the elements contained into {\ttfamily matrix} on the std out. 
+
+The following function print all the elements contained into {\ttfamily matrix} on the std out of the C\+U\+DA device. 
+\begin{DoxyParams}{Parameters}
+{\em $\ast$matrix} & Matrix of float elements to print \\
+\hline
+{\em n} & The size of the matrix \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 27 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_adaf01b877bf24172d81f3abf7e8c34a1}\label{module_8c_adaf01b877bf24172d81f3abf7e8c34a1}} 
+\index{module.\+c@{module.\+c}!read\+File@{read\+File}}
+\index{read\+File@{read\+File}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{read\+File()}{readFile()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void read\+File (\begin{DoxyParamCaption}\item[{char $\ast$$\ast$}]{file\+\_\+name,  }\item[{int $\ast$}]{ind\+\_\+files,  }\item[{int}]{n\+\_\+file,  }\item[{int}]{read\+\_\+mode,  }\item[{float $\ast$}]{data,  }\item[{struct data}]{data\+\_\+struct,  }\item[{int}]{window\+\_\+size,  }\item[{int $\ast$}]{data\+Labels,  }\item[{int}]{n\+\_\+feat,  }\item[{int}]{class\+\_\+alg }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily read\+File} allows to read several file formats for the {\ttfamily C\+L\+A\+S\+S\+I\+F\+I\+C\+A\+T\+I\+ON} task. 
+
+The following function allows to read several file format for the {\ttfamily C\+L\+A\+S\+S\+I\+F\+I\+C\+A\+T\+I\+ON} task by providing in input several parameters.
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$$\ast$file\+\_\+name} & Vector containing the absolute paths for the files to read \\
+\hline
+{\em $\ast$ind\+\_\+files} & Vector containing parsed indices for the file to read \\
+\hline
+{\em read\+\_\+mode} & Integer for handling different input file formats (for more information, refer to R\+E\+A\+D\+ME) \\
+\hline
+{\em $\ast$data} & Vector for storing all the data read contained in the file \\
+\hline
+{\em data\+\_\+struct} & Struct containing some information about the data (e.\+g., dataset size, train size, ect.) \\
+\hline
+{\em windows\+\_\+size} & Length for the time series to be stored into {\ttfamily $\ast$data} \\
+\hline
+{\em $\ast$data\+Labels} & Vector for storing all the label information contained in the file \\
+\hline
+{\em n\+\_\+feat} & Number of variables for both time series \\
+\hline
+{\em class\+\_\+alg} & Integer for handling different reading modes which depends on the the type of algorithm picked \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 883 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_accb7b8dca144b3ad6827328402bb6830}\label{module_8c_accb7b8dca144b3ad6827328402bb6830}} 
+\index{module.\+c@{module.\+c}!read\+File\+Sub\+Seq@{read\+File\+Sub\+Seq}}
+\index{read\+File\+Sub\+Seq@{read\+File\+Sub\+Seq}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{read\+File\+Sub\+Seq()}{readFileSubSeq()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void read\+File\+Sub\+Seq (\begin{DoxyParamCaption}\item[{char $\ast$$\ast$}]{file\+\_\+name,  }\item[{int $\ast$}]{ind\+\_\+files,  }\item[{int}]{n\+\_\+file,  }\item[{float $\ast$}]{t\+\_\+series,  }\item[{int}]{t\+\_\+size,  }\item[{float $\ast$}]{q\+\_\+series,  }\item[{int}]{window\+\_\+size,  }\item[{int}]{n\+\_\+feat,  }\item[{int}]{read\+\_\+mode }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily read\+File\+Sub\+Seq} allows to read several file formats for the {\ttfamily S\+U\+B\+S\+E\+Q\+U\+E\+N\+CE S\+E\+A\+R\+CH} task. 
+
+The following function allows to read several file format for the {\ttfamily S\+U\+B\+S\+E\+Q\+U\+E\+N\+CE S\+E\+A\+R\+CH} task by providing in input several parameters.
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$$\ast$file\+\_\+name} & Vector containing the absolute paths for the files to read \\
+\hline
+{\em $\ast$ind\+\_\+files} & Vector containing parsed indices for the file to read \\
+\hline
+{\em n\+\_\+file} & Number of file to read \\
+\hline
+{\em $\ast$t\+\_\+series} & Vector that will contain the time series {\ttfamily $\ast$t} \\
+\hline
+{\em $\ast$q\+\_\+series} & Vector that will contain the time series {\ttfamily $\ast$q} \\
+\hline
+{\em windows\+\_\+size} & Length of both time series \\
+\hline
+{\em n\+\_\+feat} & Number of variables for both time series \\
+\hline
+{\em read\+\_\+mode} & Integer for handling different input file formats (for more information, refer to R\+E\+A\+D\+ME) \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 802 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a43dc540b044391a869143f128f96d39d}\label{module_8c_a43dc540b044391a869143f128f96d39d}} 
+\index{module.\+c@{module.\+c}!r\+M\+D\+\_\+\+D\+T\+W\+\_\+D@{r\+M\+D\+\_\+\+D\+T\+W\+\_\+D}}
+\index{r\+M\+D\+\_\+\+D\+T\+W\+\_\+D@{r\+M\+D\+\_\+\+D\+T\+W\+\_\+D}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{r\+M\+D\+\_\+\+D\+T\+W\+\_\+\+D()}{rMD\_DTW\_D()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void r\+M\+D\+\_\+\+D\+T\+W\+\_\+D (\begin{DoxyParamCaption}\item[{float $\ast$}]{S,  }\item[{float $\ast$}]{T,  }\item[{int}]{ns,  }\item[{int}]{nt,  }\item[{int}]{dimensions,  }\item[{float $\ast$}]{data\+\_\+out,  }\item[{int}]{train\+Size,  }\item[{int}]{gm }\end{DoxyParamCaption})}
+
+
+
+The kernel function {\ttfamily r\+M\+D\+\_\+\+D\+T\+W\+\_\+D} computes the {\ttfamily Rotation Dependent-\/\+Multi Dimensional Dynamic Time Warping} distance (r\+D-\/\+M\+D\+D\+TW). 
+
+The following kernel function computes the r\+D-\/\+M\+D\+D\+TW taking advantage of the G\+PU, by using a specific number of threads for block. It considers the comparison of all the possible {\ttfamily punctual rotation} of the Multivariate Time Series (M\+TS) stored into the unrolled vector {\ttfamily $\ast$S} against the only unrolled vector {\ttfamily $\ast$T}. By exploiting the C\+U\+DA threads, this computation can be done very fast.
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Unrolled vector containing {\ttfamily train\+Size} number of M\+TS \\
+\hline
+{\em $\ast$T} & Unrolled vector representing the second time Series to compare against {\ttfamily $\ast$S} \\
+\hline
+{\em window\+\_\+size} & Length of the two given M\+TS \\
+\hline
+{\em dimensions} & Nnumber of variables for the two M\+TS \\
+\hline
+{\em $\ast$data\+\_\+out} & Vector containing the results achieved by comparing {\ttfamily $\ast$T} against {\ttfamily $\ast$S} \\
+\hline
+{\em $\ast$train\+Size} & Number of M\+TS contained in the vector {\ttfamily T} \\
+\hline
+{\em gm} & Integer indicating where to store the unrolled vector {\ttfamily $\ast$T} (e.\+g., 0\+:shared memory, 1\+: global memory) \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 617 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a8a008caf9f61ff2674971e9202926fad}\label{module_8c_a8a008caf9f61ff2674971e9202926fad}} 
+\index{module.\+c@{module.\+c}!r\+M\+D\+\_\+\+E\+D\+\_\+D@{r\+M\+D\+\_\+\+E\+D\+\_\+D}}
+\index{r\+M\+D\+\_\+\+E\+D\+\_\+D@{r\+M\+D\+\_\+\+E\+D\+\_\+D}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{r\+M\+D\+\_\+\+E\+D\+\_\+\+D()}{rMD\_ED\_D()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+global\+\_\+\+\_\+ void r\+M\+D\+\_\+\+E\+D\+\_\+D (\begin{DoxyParamCaption}\item[{float $\ast$}]{S,  }\item[{float $\ast$}]{T,  }\item[{int}]{window\+\_\+size,  }\item[{int}]{dimensions,  }\item[{float $\ast$}]{data\+\_\+out,  }\item[{int}]{train\+Size,  }\item[{int}]{gm }\end{DoxyParamCaption})}
+
+
+
+The kernel function {\ttfamily r\+M\+D\+\_\+\+E\+D\+\_\+D} computes the {\ttfamily Rotation Dependent-\/\+Multi Dimensional Euclidean} distance (r\+D-\/\+M\+DE). 
+
+The following kernel function computes the r\+D-\/\+M\+DE taking advantage of the G\+PU, by using a specific number of threads for block. It considers the comparison of all the possible {\ttfamily punctual rotation} of the Multivariate Time Series (M\+TS) stored into the unrolled vector {\ttfamily $\ast$S} against the only unrolled vector {\ttfamily $\ast$T}. By exploiting the C\+U\+DA threads, this computation can be done very fast.
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Unrolled vector containing {\ttfamily train\+Size} number of M\+TS \\
+\hline
+{\em $\ast$T} & Unrolled vector representing the second time Series to compare against {\ttfamily $\ast$S} \\
+\hline
+{\em window\+\_\+size} & Length of the two given M\+TS \\
+\hline
+{\em dimensions} & Number of variables for the two M\+TS \\
+\hline
+{\em $\ast$data\+\_\+out} & Vector containing the results achieved by comparing {\ttfamily $\ast$T} against {\ttfamily $\ast$S} \\
+\hline
+{\em $\ast$train\+Size} & Number of M\+TS contained in the vector {\ttfamily T} \\
+\hline
+{\em gm} & Integer indicating where to store the unrolled vector {\ttfamily $\ast$T} (e.\+g., 0\+:shared memory, 1\+: global memory) \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 260 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a229d331919e4d723a1e2cd176db43f2f}\label{module_8c_a229d331919e4d723a1e2cd176db43f2f}} 
+\index{module.\+c@{module.\+c}!short\+\_\+dtw\+\_\+c@{short\+\_\+dtw\+\_\+c}}
+\index{short\+\_\+dtw\+\_\+c@{short\+\_\+dtw\+\_\+c}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{short\+\_\+dtw\+\_\+c()}{short\_dtw\_c()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ float short\+\_\+dtw\+\_\+c (\begin{DoxyParamCaption}\item[{float $\ast$}]{instance,  }\item[{float $\ast$}]{query,  }\item[{int}]{ns,  }\item[{int}]{nt }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily short\+\_\+dtw\+\_\+c} computes the {\ttfamily mono-\/dimensional Dynamic Time Warping} distance (D\+TW). 
+
+It considers the calculation of the D\+TW distance for two mono-\/dimensional time series stored, rispectively into the vectors {\ttfamily $\ast$instance} and {\ttfamily $\ast$query}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & instance containing the first time series \\
+\hline
+{\em $\ast$query} & Vector containing the time series to compare against {\ttfamily $\ast$instance} \\
+\hline
+{\em ns} & Length of the {\ttfamily $\ast$instance} \\
+\hline
+{\em nt} & Length of the {\ttfamily $\ast$query} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+D\+TW distance among the two time series 
+\end{DoxyReturn}
+
+
+Definition at line 1481 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_afcd5a2cbd12c503083baa7fd593c1bfa}\label{module_8c_afcd5a2cbd12c503083baa7fd593c1bfa}} 
+\index{module.\+c@{module.\+c}!short\+\_\+ed\+\_\+c@{short\+\_\+ed\+\_\+c}}
+\index{short\+\_\+ed\+\_\+c@{short\+\_\+ed\+\_\+c}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{short\+\_\+ed\+\_\+c()}{short\_ed\_c()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ float short\+\_\+ed\+\_\+c (\begin{DoxyParamCaption}\item[{float $\ast$}]{T,  }\item[{float $\ast$}]{S,  }\item[{int}]{window\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily short\+\_\+ed\+\_\+c} computes the {\ttfamily mono-\/dimensional Euclidean} distance. 
+
+It considers the calculation of the Euclidean distance for two mono-\/dimensional time series stored, rispectively into the vectors {\ttfamily $\ast$T} and {\ttfamily $\ast$S}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Vector containing the first time series \\
+\hline
+{\em $\ast$T} & Vector containing the second time series \\
+\hline
+{\em window\+\_\+size} & Length of the two given time series \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ED distance among the two time series 
+\end{DoxyReturn}
+
+
+Definition at line 1460 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a50ddf6d0a2561ac3cca95bbb584c8964}\label{module_8c_a50ddf6d0a2561ac3cca95bbb584c8964}} 
+\index{module.\+c@{module.\+c}!short\+\_\+md\+\_\+dtw\+\_\+c@{short\+\_\+md\+\_\+dtw\+\_\+c}}
+\index{short\+\_\+md\+\_\+dtw\+\_\+c@{short\+\_\+md\+\_\+dtw\+\_\+c}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{short\+\_\+md\+\_\+dtw\+\_\+c()}{short\_md\_dtw\_c()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ float short\+\_\+md\+\_\+dtw\+\_\+c (\begin{DoxyParamCaption}\item[{float $\ast$}]{S,  }\item[{float $\ast$}]{T,  }\item[{int}]{ns,  }\item[{int}]{nt,  }\item[{int}]{dim,  }\item[{int}]{offset }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily short\+\_\+md\+\_\+dtw\+\_\+c} computes the {\ttfamily Multi-\/\+Dimensional Dynamic Time Warping} distance (M\+D-\/\+D\+TW). 
+
+It considers the calculation of the M\+D-\/\+D\+TW distance for two multivariate time series (M\+TS) stored, rispectively into the vectors {\ttfamily $\ast$S} and {\ttfamily $\ast$T}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & instance containing the first time series \\
+\hline
+{\em $\ast$T} & Vector containing the time series to compare against {\ttfamily $\ast$instance} \\
+\hline
+{\em ns} & Length of the {\ttfamily $\ast$instance} \\
+\hline
+{\em nt} & Length of the \`{}$\ast$query \\
+\hline
+{\em dim} & Number of variables for the two M\+TS \\
+\hline
+{\em offset} & Integer used for computing the rotation invariant euclidean distance (It\textquotesingle{}s usually equal to window\+\_\+size) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Dynamic Time Warping distance among the two M\+TS 
+\end{DoxyReturn}
+
+
+Definition at line 1578 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a61a022d6eb32c5c03bac5e0dbdb86a92}\label{module_8c_a61a022d6eb32c5c03bac5e0dbdb86a92}} 
+\index{module.\+c@{module.\+c}!short\+\_\+md\+\_\+ed\+\_\+c@{short\+\_\+md\+\_\+ed\+\_\+c}}
+\index{short\+\_\+md\+\_\+ed\+\_\+c@{short\+\_\+md\+\_\+ed\+\_\+c}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{short\+\_\+md\+\_\+ed\+\_\+c()}{short\_md\_ed\_c()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ float short\+\_\+md\+\_\+ed\+\_\+c (\begin{DoxyParamCaption}\item[{float $\ast$}]{T,  }\item[{float $\ast$}]{S,  }\item[{int}]{window\+\_\+size,  }\item[{int}]{dimensions,  }\item[{int}]{offset }\end{DoxyParamCaption})}
+
+
+
+The function {\ttfamily short\+\_\+md\+\_\+ed\+\_\+c} computes the {\ttfamily Multi-\/\+Dimensional Euclidean} distance (M\+D-\/E). 
+
+It considers the calculation of the M\+D-\/E distance for two multivariate time series (M\+TS) stored, rispectively into the vectors {\ttfamily $\ast$T} and {\ttfamily $\ast$S}
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$S} & Vector containing the first time series \\
+\hline
+{\em $\ast$T} & Vector containing the second time series \\
+\hline
+{\em window\+\_\+size} & Length of the two given time series \\
+\hline
+{\em dimensions} & Number of variables for the two M\+TS \\
+\hline
+{\em offset} & Integer used for computing the rotation invariant euclidean distance (It\textquotesingle{}s usually equal to window\+\_\+size) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Euclidean distance among the two M\+TS 
+\end{DoxyReturn}
+
+
+Definition at line 1548 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_ace373a1086cdbe8c103f097cb9d91e8a}\label{module_8c_ace373a1086cdbe8c103f097cb9d91e8a}} 
+\index{module.\+c@{module.\+c}!shuffle@{shuffle}}
+\index{shuffle@{shuffle}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{shuffle()}{shuffle()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void shuffle (\begin{DoxyParamCaption}\item[{int $\ast$}]{array,  }\item[{size\+\_\+t}]{array\+\_\+size,  }\item[{size\+\_\+t}]{shuff\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily shuffle} is function for shuffling the data contained into an array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & Vector to shuffle \\
+\hline
+{\em array\+\_\+size} & Size of the vector \\
+\hline
+{\em shuff\+\_\+size} & Shuffle factor size \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1272 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a7aeaadfaafb444a37a8a4cf783994888}\label{module_8c_a7aeaadfaafb444a37a8a4cf783994888}} 
+\index{module.\+c@{module.\+c}!standard\+\_\+deviation@{standard\+\_\+deviation}}
+\index{standard\+\_\+deviation@{standard\+\_\+deviation}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{standard\+\_\+deviation()}{standard\_deviation()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ float standard\+\_\+deviation (\begin{DoxyParamCaption}\item[{float $\ast$}]{data,  }\item[{int}]{n,  }\item[{float $\ast$}]{avg }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily standard\+\_\+deviation} compute the {\ttfamily standard deviation} of a given vector. 
+
+The following function computes the {\ttfamily standard deviation} of a given input vector. 
+\begin{DoxyParams}{Parameters}
+{\em $\ast$data} & Input vector \\
+\hline
+{\em n} & Size of the vector \\
+\hline
+{\em $\ast$avg} & {\ttfamily Mean} computed on the input vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\ttfamily Standard deviation} computed on the input vector 
+\end{DoxyReturn}
+
+
+Definition at line 1409 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a525de6fb020e7414358412e4656ab008}\label{module_8c_a525de6fb020e7414358412e4656ab008}} 
+\index{module.\+c@{module.\+c}!std\+Dev@{std\+Dev}}
+\index{std\+Dev@{std\+Dev}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{std\+Dev()}{stdDev()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+device\+\_\+\+\_\+ float std\+Dev (\begin{DoxyParamCaption}\item[{float $\ast$}]{data,  }\item[{int}]{n,  }\item[{float $\ast$}]{avg }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily std\+Dev} compute the {\ttfamily standard deviation} of a given vector allocated on the C\+U\+DA device. 
+
+The following function computes the {\ttfamily standard deviation} of a given input vector. 
+\begin{DoxyParams}{Parameters}
+{\em $\ast$data} & Input vector \\
+\hline
+{\em n} & Size of the vector \\
+\hline
+{\em $\ast$avg} & {\ttfamily Mean} computed on the input vector \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+{\ttfamily Standard deviation} computed on the input vector 
+\end{DoxyReturn}
+
+
+Definition at line 46 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_ae948871df06c090286c2063ab51bb4ed}\label{module_8c_ae948871df06c090286c2063ab51bb4ed}} 
+\index{module.\+c@{module.\+c}!timedifference\+\_\+msec@{timedifference\+\_\+msec}}
+\index{timedifference\+\_\+msec@{timedifference\+\_\+msec}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{timedifference\+\_\+msec()}{timedifference\_msec()}}
+{\footnotesize\ttfamily float timedifference\+\_\+msec (\begin{DoxyParamCaption}\item[{struct timeval}]{t0,  }\item[{struct timeval}]{t1 }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily timedifference\+\_\+msec} computes the time difference among {\ttfamily t0} and {\ttfamily t1}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em t0} & structure containing time took at {\ttfamily t0} \\
+\hline
+{\em t0} & structure containing time took at {\ttfamily t1} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Elapsed time among {\ttfamily t0} and {\ttfamily t1} 
+\end{DoxyReturn}
+
+
+Definition at line 1904 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_a6b4c6d6e74eee37718947a58439dec0a}\label{module_8c_a6b4c6d6e74eee37718947a58439dec0a}} 
+\index{module.\+c@{module.\+c}!unique\+\_\+val@{unique\+\_\+val}}
+\index{unique\+\_\+val@{unique\+\_\+val}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{unique\+\_\+val()}{unique\_val()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ int unique\+\_\+val (\begin{DoxyParamCaption}\item[{int $\ast$}]{array,  }\item[{int}]{size }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily unique\+\_\+val} look for unique value into an array. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em $\ast$array} & Vector where to search into \\
+\hline
+{\em size} & Size of the vector \\
+\hline
+{\em $\ast$arrayG} & Vector to fill with incremental value \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Number of unique value found into {\ttfamily $\ast$array} 
+\end{DoxyReturn}
+
+
+Definition at line 1217 of file module.\+c.
+
+\mbox{\Hypertarget{module_8c_ac81c472b54a439047fbea65790615dbb}\label{module_8c_ac81c472b54a439047fbea65790615dbb}} 
+\index{module.\+c@{module.\+c}!z\+\_\+normalize2D@{z\+\_\+normalize2D}}
+\index{z\+\_\+normalize2D@{z\+\_\+normalize2D}!module.\+c@{module.\+c}}
+\subsubsection{\texorpdfstring{z\+\_\+normalize2\+D()}{z\_normalize2D()}}
+{\footnotesize\ttfamily \+\_\+\+\_\+host\+\_\+\+\_\+ void z\+\_\+normalize2D (\begin{DoxyParamCaption}\item[{float $\ast$}]{M,  }\item[{int}]{nrow,  }\item[{int}]{ncol }\end{DoxyParamCaption})}
+
+
+
+The callback function {\ttfamily z\+\_\+normalize2D} z-\/normalize an input vector. 
+
+The following function calculate the z score of each value into a vector, relative to the sample mean and standard deviation.
+
+The following function computes the {\ttfamily standard deviation} of a given input vector. 
+\begin{DoxyParams}{Parameters}
+{\em $\ast$M} & Input matrix \\
+\hline
+{\em nrow} & number of rows \\
+\hline
+{\em ncol} & number of columns \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line 1432 of file module.\+c.
+

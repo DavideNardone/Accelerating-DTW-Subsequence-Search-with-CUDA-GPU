@@ -2,6 +2,14 @@
 
 using namespace std;
 
+
+/**
+ * \brief The callback function `printArrayDev` print all the elements contained into `array` on the std out.
+ *
+ * The following function print all the element contained into `array` on the std out of the CUDA device.
+ * \param *array Vector of float elements to print
+ * \param n The size of the vector
+ */
 __device__ void printArrayDev(float *array, int n) {
 
   int i;
@@ -9,6 +17,13 @@ __device__ void printArrayDev(float *array, int n) {
     printf("arr[%d]: %f \n", i, array[i]);
 }
 
+/**
+ * \brief The callback function `printMatrixDev` print all the elements contained into `matrix` on the std out.
+ *
+ * The following function print all the elements contained into `matrix` on the std out of the CUDA device.
+ * \param *matrix Matrix of float elements to print
+ * \param n The size of the matrix
+ */
 __device__ void printMatrixDev(float *matrix, int M, int N) {
 
   int i, j;
@@ -19,7 +34,15 @@ __device__ void printMatrixDev(float *matrix, int M, int N) {
   }
 }
 
-// not working (must be changed)
+/**
+ * \brief The callback function `stdDev` compute the `standard deviation` of a given vector allocated on the CUDA device.
+ *
+ * The following function computes the `standard deviation` of a given input vector.
+ * \param *data Input vector
+ * \param n Size of the vector
+ * \param *avg `Mean` computed on the input vector
+ * \return `Standard deviation` computed on the input vector
+ */
 __device__ float stdDev(float *data, int n, float *avg) {
   printf("N_SAMPLE: %d\n", n);
   printf("DATA_SIZE: %d\n", sizeof(data));
@@ -36,8 +59,23 @@ __device__ float stdDev(float *data, int n, float *avg) {
   return sqrt(sum_deviation / (n - 1));
 }
 
-// http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
-// (SECOND APPROACH)
+/**
+ * \brief The kernel function `MD_ED_D` computes the `Dependent-Multi Dimensional Euclidean` distance (D-MDE).
+ *
+ * The following kernel function computes the D-MDE taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Number of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
+ * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
+ */
 __global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
                         float *data_out, int trainSize, int task, int gm) {
 
@@ -127,8 +165,22 @@ __global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
   }
 }
 
-// http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
-// (FIRST APPROACH)
+/**
+ * \brief The kernel function `MD_ED_I` computes the `Independent-Multi Dimensional Euclidean` distance (I-MDE).
+ *
+ * The following kernel function computes the I-MDE taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Nnumber of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
+ */
 __global__ void MD_ED_I(float *S, float *T, int window_size, int dimensions,
                         float *data_out, int trainSize, int task) {
 
@@ -190,6 +242,21 @@ __global__ void MD_ED_I(float *S, float *T, int window_size, int dimensions,
   }
 }
 
+/**
+ * \brief The kernel function `rMD_ED_D` computes the `Rotation Dependent-Multi Dimensional Euclidean` distance (rD-MDE).
+ *
+ * The following kernel function computes the rD-MDE taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of all the possible `punctual rotation` of the Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Number of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
+ */
 __global__ void rMD_ED_D(float *S, float *T, int window_size, int dimensions,
                          float *data_out, int trainSize, int gm) {
 
@@ -244,6 +311,23 @@ __global__ void rMD_ED_D(float *S, float *T, int window_size, int dimensions,
   }
 }
 
+/**
+ * \brief The kernel function `MD_DTW_D` computes the `Dependent-Multi Dimensional Dynamic Time Warping` distance (D-MDDTW).
+ *
+ * The following kernel function computes the D-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Number of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
+ * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
+ */
 __global__ void MD_DTW_D(float *S, float *T, int ns, int nt, int dimensions,
                          float *data_out, int trainSize, int task, int gm) {
 
@@ -409,6 +493,22 @@ __global__ void MD_DTW_D(float *S, float *T, int ns, int nt, int dimensions,
   }
 }
 
+/**
+ * \brief The kernel function `MD_ED_I` computes the `Independent Multi Dimensional-Dynamic Time Warping` distance (I-MDDTW).
+ *
+ * The following kernel function computes the I-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Number of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
+ */
 __global__ void MD_DTW_I(float *S, float *T, int ns, int nt, int dimensions,
                          float *data_out, int trainSize, int task) {
 
@@ -499,6 +599,21 @@ __global__ void MD_DTW_I(float *S, float *T, int ns, int nt, int dimensions,
   }
 }
 
+/**
+ * \brief The kernel function `rMD_DTW_D` computes the `Rotation Dependent-Multi Dimensional Dynamic Time Warping` distance (rD-MDDTW).
+ *
+ * The following kernel function computes the rD-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of all the possible `punctual rotation` of the Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Nnumber of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
+ */
 __global__ void rMD_DTW_D(float *S, float *T, int ns, int nt, int dimensions,
                           float *data_out, int trainSize, int gm) {
 
@@ -633,6 +748,17 @@ __global__ void rMD_DTW_D(float *S, float *T, int ns, int nt, int dimensions,
   }
 }
 
+/**
+ * \brief The callback function `checkFlagOpts` check out the correctness of the parameters for a given flag.
+ *
+ * The following function check out the correctness of the parameters for a given flag by counting the number of parameters.
+
+ * \param **input_args Vector containing all the command line parameters passed to the program
+ * \param num_args Vector containing the number of arguments passed to the program
+ * \param ind Current index parsed on `**input_args`
+ * \param num_opts Number of parameters to parse for the current flag stored into input_args[ind]
+ * \return Integer (0,1) indicating the corretness of the number of parameters for the current flag
+ */
 __host__ int checkFlagOpts(char **input_args, int num_args, int ind,
                            int num_opts) {
 
@@ -659,6 +785,20 @@ __host__ int checkFlagOpts(char **input_args, int num_args, int ind,
     return 1;
 }
 
+/**
+ * \brief The callback function `readFileSubSeq` allows to read several file formats for the `SUBSEQUENCE SEARCH` task.
+ *
+ * The following function allows to read several file format for the `SUBSEQUENCE SEARCH` task by providing in input several parameters.
+
+ * \param **file_name Vector containing the absolute paths for the files to read
+ * \param *ind_files  Vector containing parsed indices for the file to read
+ * \param n_file Number of file to read
+ * \param *t_series Vector that will contain the time series `*t`
+ * \param *q_series Vector that will contain the time series `*q`
+ * \param windows_size Length of both time series
+ * \param n_feat Number of variables for both time series
+ * \param read_mode Integer for handling different input file formats (for more information, refer to README)
+ */
 __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
                              float *t_series, int t_size, float *q_series,
                              int window_size, int n_feat, int read_mode) {
@@ -725,6 +865,21 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
   }
 }
 
+/**
+ * \brief The callback function `readFile` allows to read several file formats for the `CLASSIFICATION` task.
+ *
+ * The following function allows to read several file format for the `CLASSIFICATION` task by providing in input several parameters.
+
+ * \param **file_name Vector containing the absolute paths for the files to read
+ * \param *ind_files  Vector containing parsed indices for the file to read
+ * \param read_mode Integer for handling different input file formats (for more information, refer to README)
+ * \param *data Vector for storing all the data read contained in the file
+ * \param data_struct Struct containing some information about the data (e.g., dataset size, train size, ect.)
+ * \param windows_size Length for the time series to be stored into `*data`
+ * \param *dataLabels Vector for storing all the label information contained in the file
+ * \param n_feat Number of variables for both time series
+ * \param class_alg Integer for handling different reading modes which depends on the the type of algorithm picked
+ */
 __host__ void readFile(char **file_name, int *ind_files, int n_file,
                        int read_mode, float *data, struct data data_struct,
                        int window_size, int *dataLabels, int n_feat,
@@ -875,6 +1030,26 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
   free(inputFile);
 }
 
+/**
+ * \brief The callback function `createTrainingTestingSet` splits the dataset information into random train and test subsets.
+ *
+ * The following function splits the `data` and `label` information into random two different train and test subsets.
+
+ * \param *data Vector containing the data
+ * \param *dataLabels Vector containing the label
+ * \param dataSize Number of time series stored in the '*data'
+ * \param windows_size Length for the time series stored into '*data'
+ * \param n_feat Number of variables for the time series stored into '*data'
+ * \param *h_train Vector containing the data for the train set
+ * \param *trainLabels Vector containing the labels for the train set
+ * \param trainSize Number of time series to be stored in the train set
+ * \param *h_test Vector containing the data for the test set
+ * \param *testLabels Vector containing the labels for the test set
+ * \param testSize Number of time series to be stored in the test set
+ * \param *tInd Vector providing train and test indices to split data in train test sets
+ * \param k_th_fold Number of folds. Must be at least 2
+ * \param class_mode Integer for handling different reading modes which depends on the the type of algorithm picked.
+ */
 __host__ void createTrainingTestingSet(
     float *data, int *dataLabels, int dataSize, int window_size, int n_feat,
     float *h_train, int *trainLabels, int trainSize, float *h_test,
@@ -980,19 +1155,47 @@ __host__ void createTrainingTestingSet(
   }
 }
 
+/**
+ * \brief The callback function `cmpfunc` is an utiliy function for sorting vector values
+ 
+ * \param *a Integer value
+ * \param *b Integer value
+ * \return Difference betwen `*a` and `*b`
+ */
 __host__ int cmpfunc(const void *a, const void *b) {
   return (*(int *)a - *(int *)b);
 }
 
+/**
+ * \brief The callback function `generateArray` fills an input array from a desidered starting point.
+ 
+ * \param size Size of the vector
+ * \param *arrayG Vector to fill
+ * \param *offset Offset from where to start to fill `*arrayG`
+ */
 __host__ void generateArray(int size, int *arrayG, int offset) {
 
   int i, j = 0;
+
+  if(offset > size - 1){
+    printf("The offset has to be smaller than the size of the array\n");
+    exit(-1);
+  }
+
   for (i = offset; size > 0; i++) {
     arrayG[j++] = i;
     size--;
   }
 }
 
+/**
+ * \brief The callback function `findInd` fill an array with incremental value whether a desiderd value exist into an input array.
+ 
+ * \param *array Vector where to search into
+ * \param size Size of the vector
+ * \param *arrayG Vector to fill with incremental value
+ * \param g Value to find in the `*array`
+ */
 __host__ void findInd(int *array, int size, int *arrayG, int g) {
 
   int i, j = 0;
@@ -1003,6 +1206,14 @@ __host__ void findInd(int *array, int size, int *arrayG, int g) {
   }
 }
 
+/**
+ * \brief The callback function `unique_val` look for unique value into an array
+ 
+ * \param *array Vector where to search into
+ * \param size Size of the vector
+ * \param *arrayG Vector to fill with incremental value
+ * \return Number of unique value found into `*array`
+ */
 __host__ int unique_val(int *array, int size) {
 
   int i;
@@ -1023,6 +1234,14 @@ __host__ int unique_val(int *array, int size) {
   return unique;
 }
 
+/**
+ * \brief The callback function `accumarray` is an utility function for the k-fold cross validation.
+ 
+ * \param *array Vector where to search into
+ * \param size Size of the vector
+ * \param *val Value to find
+ * \return Utility array
+ */
 __host__ int *accumarray(int *array, int size, int *val) {
 
   int i, j = 0;
@@ -1043,6 +1262,13 @@ __host__ int *accumarray(int *array, int size, int *val) {
   return nS;
 }
 
+/**
+ * \brief The callback function `shuffle` is function for shuffling the data contained into an array.
+ 
+ * \param *array Vector to shuffle
+ * \param array_size Size of the vector
+ * \param shuff_size Shuffle factor size
+ */
 __host__ void shuffle(int *array, size_t array_size, size_t shuff_size) {
 
   if (array_size > 1) {
@@ -1056,6 +1282,17 @@ __host__ void shuffle(int *array, size_t array_size, size_t shuff_size) {
   }
 }
 
+/**
+ * \brief The callback function `idAssign`is an utility function for the k-fold cross validation.
+ 
+ * \param *perm Vector of permutations
+ * \param size_perm Size of the permutations
+ * \param *group Support vector
+ * \param size_group Size of the support vector
+ * \param *rand_ind Vector of random value
+ * \param *h Supprt vector
+ * \param *tInd Vector of indices values for splitting the dataset into train and test set
+ */
 __host__ void idAssign(int *perm, int size_perm, int *group, int size_group,
                        int *rand_ind, int *h, int *tInd) {
 
@@ -1067,6 +1304,11 @@ __host__ void idAssign(int *perm, int size_perm, int *group, int size_group,
   }
 }
 
+/**
+ * \brief The callback function `checkCUDAError` display on the standard output more information about a type of CUDA error.
+ 
+ * \param *msg Message to display along with the error information provided by CUDA
+ */
 __host__ void checkCUDAError(const char *msg) {
 
   cudaError_t err = cudaGetLastError();
@@ -1076,6 +1318,15 @@ __host__ void checkCUDAError(const char *msg) {
   }
 }
 
+/**
+ * \brief The callback function `crossvalind_Kfold` generates Cross-Validation indices for splitting the dataset into train and test set.
+
+ * \param *label Vector of labels
+ * \param N Size of the vector `*label`
+ * \param K Number of fold to generate
+ * \param flag_shuffle
+ * \return Vector containing 1s for observations that belong to the training set and 0s for observations that belong to the test (evaluation) set.
+ */
 __host__ int *crossvalind_Kfold(int *label, int N, int K, int flag_shuffle) {
 
   int *label_copy = (int *)malloc(N * sizeof(int));
@@ -1128,6 +1379,14 @@ __host__ int *crossvalind_Kfold(int *label, int N, int K, int flag_shuffle) {
   return tInd;
 }
 
+/**
+ * \brief The callback function `countVal` count the number of occurences found for a desidered value stored into an array.
+
+ * \param *data Vector where to search
+ * \param N Size of the vector `*data`
+ * \param key Desidered value to search into `*data`
+ * \return Number of occurences found for the `key` into `*data`
+ */
 __host__ int countVal(int *data, int N, int key) {
 
   int i, cnt = 0;
@@ -1138,6 +1397,15 @@ __host__ int countVal(int *data, int N, int key) {
   return cnt;
 }
 
+/**
+ * \brief The callback function `standard_deviation` compute the `standard deviation` of a given vector.
+ *
+ * The following function computes the `standard deviation` of a given input vector.
+ * \param *data Input vector
+ * \param n Size of the vector
+ * \param *avg `Mean` computed on the input vector
+ * \return `Standard deviation` computed on the input vector
+ */
 __host__ float standard_deviation(float *data, int n, float *avg) {
   float mean = 0.0, sum_deviation = 0.0;
   int i;
@@ -1151,6 +1419,16 @@ __host__ float standard_deviation(float *data, int n, float *avg) {
   return sqrt(sum_deviation / (n - 1));
 }
 
+/**
+ * \brief The callback function `z_normalize2D` z-normalize an input vector.
+ *
+ * The following function calculate the z score of each value into a vector, relative to the sample mean and standard deviation.
+
+ * The following function computes the `standard deviation` of a given input vector.
+ * \param *M Input matrix
+ * \param nrow number of rows
+ * \param ncol number of columns
+ */
 __host__ void z_normalize2D(float *M, int nrow, int ncol) {
 
   int i;
@@ -1168,6 +1446,17 @@ __host__ void z_normalize2D(float *M, int nrow, int ncol) {
   free(mean);
 }
 
+
+/**
+ * \brief The function `short_ed_c` computes the `mono-dimensional Euclidean` distance.
+ *
+ *  It considers the calculation of the Euclidean distance for two mono-dimensional time series stored, rispectively into the vectors `*T` and `*S`
+
+ * \param *S Vector containing the first time series
+ * \param *T Vector containing the second time series
+ * \param window_size Length of the two given time series
+ * \return ED distance among the two time series 
+ */
 __host__ float short_ed_c(float *T, float *S, int window_size) {
 
   float sumErr = 0;
@@ -1178,6 +1467,17 @@ __host__ float short_ed_c(float *T, float *S, int window_size) {
   return sqrt(sumErr);
 }
 
+/**
+ * \brief The function `short_dtw_c` computes the `mono-dimensional Dynamic Time Warping` distance (DTW).
+ *
+ *  It considers the calculation of the DTW distance for two mono-dimensional time series stored, rispectively into the vectors `*instance` and `*query`
+
+ * \param *S instance containing the first time series
+ * \param *query Vector containing the time series to compare against `*instance`
+ * \param ns Length of the `*instance`
+ * \param nt Length of the `*query`
+ * \return DTW distance among the two time series 
+ */
 __host__ float short_dtw_c(float *instance, float *query, int ns, int nt) {
 
   int k, l, g;
@@ -1233,6 +1533,18 @@ __host__ float short_dtw_c(float *instance, float *query, int ns, int nt) {
   return min;
 }
 
+/**
+ * \brief The function `short_md_ed_c` computes the `Multi-Dimensional Euclidean` distance (MD-E).
+ *
+ *  It considers the calculation of the MD-E distance for two multivariate time series (MTS) stored, rispectively into the vectors `*T` and `*S`
+
+ * \param *S Vector containing the first time series
+ * \param *T Vector containing the second time series
+ * \param window_size Length of the two given time series
+ * \param dimensions Number of variables for the two MTS
+ * \param offset Integer used for computing the rotation invariant euclidean distance (It's usually equal to window_size)
+ * \return Euclidean distance among the two MTS 
+ */
 __host__ float short_md_ed_c(float *T, float *S, int window_size,
                              int dimensions, int offset) {
 
@@ -1250,6 +1562,19 @@ __host__ float short_md_ed_c(float *T, float *S, int window_size,
   return sqrt(sumErr);
 }
 
+/**
+ * \brief The function `short_md_dtw_c` computes the `Multi-Dimensional Dynamic Time Warping` distance (MD-DTW).
+ *
+ *  It considers the calculation of the MD-DTW distance for two multivariate time series (MTS) stored, rispectively into the vectors `*S` and `*T`
+
+ * \param *S instance containing the first time series
+ * \param *T Vector containing the time series to compare against `*instance`
+ * \param ns Length of the `*instance`
+ * \param nt Length of the `*query
+ * \param dim Number of variables for the two MTS
+ * \param offset Integer used for computing the rotation invariant euclidean distance (It's usually equal to window_size)
+ * \return Dynamic Time Warping distance among the two MTS 
+ */
 __host__ float short_md_dtw_c(float *S, float *T, int ns, int nt, int dim,
                               int offset) {
 
@@ -1312,6 +1637,9 @@ __host__ float short_md_dtw_c(float *S, float *T, int ns, int nt, int dim,
   return min;
 }
 
+/**
+ * \brief The function `print_help` print on the standard output several information about the input parameters to feed to the software.
+*/
 __host__ void print_help(void) {
 
   fprintf(stderr,
@@ -1376,6 +1704,9 @@ __host__ void print_help(void) {
   exit(0);
 }
 
+/**
+ * \brief The function `print_version` print on the standard output the software version.
+*/
 __host__ void print_version(void) {
 
   fprintf(stderr, "Multivariate Time Series Software version 1.0.0\n"
@@ -1385,6 +1716,9 @@ __host__ void print_version(void) {
   exit(0);
 }
 
+/**
+ * \brief The function `infoDev` print on the standard output several information abou the available GPUs.
+*/
 __host__ void infoDev() {
 
   int deviceCount;
@@ -1418,6 +1752,11 @@ __host__ void infoDev() {
   exit(-1);
 }
 
+/**
+ * \brief The function `getDevProp` return an object `deviceProp` containing all the information about a specific GPU device.
+ 
+ * \return `deviceProp` object.
+ */
 __host__ cudaDeviceProp getDevProp(int device) {
 
   cudaDeviceProp deviceProp;
@@ -1426,12 +1765,26 @@ __host__ cudaDeviceProp getDevProp(int device) {
   return deviceProp;
 }
 
+/**
+ * \brief The callback function `initializeArray` fills an input array with a desidered value.
+ 
+ * \param *array Vector to fill
+ * \param n Size of the vector
+ * \param val Value to fill the array with
+ */
 __host__ void initializeArray(float *array, int n, float val) {
   int i;
   for (i = 0; i < n; i++)
-    array[i] = (float)i + 1;
+    array[i] = val;
 }
 
+/**
+ * \brief The callback function `initializeMatrix` fills an input matrix with random values.
+ 
+ * \param *matrix Matrix to fill
+ * \param M Number of rows
+ * \param N Number of columns
+ */
 __host__ void initializeMatrix(float *matrix, int M, int N) {
 
   int i, j;
@@ -1440,6 +1793,12 @@ __host__ void initializeMatrix(float *matrix, int M, int N) {
       matrix[i * N + j] = ((float)rand()) / (float)RAND_MAX;
 }
 
+/**
+ * \brief The callback function `printArray` print on the standard output an input array of float values.
+ 
+ * \param *array array 
+ * \param n Size of the vector
+ */
 __host__ void printArray(float *array, int n) {
 
   int i;
@@ -1448,6 +1807,12 @@ __host__ void printArray(float *array, int n) {
   printf("\n");
 }
 
+/**
+ * \brief The callback function `printArrayI` print on the standard output an input array of integer values.
+ 
+ * \param *array array 
+ * \param n Size of the vector
+ */
 __host__ void printArrayI(int *array, int n) {
 
   int i;
@@ -1456,6 +1821,13 @@ __host__ void printArrayI(int *array, int n) {
   printf("\n");
 }
 
+/**
+ * \brief The callback function `printMatrix` print on the standard output an input matrix of float values.
+ 
+ * \param *array array 
+ * \param M Number of rows
+ * \param N Number of columns
+ */
 __host__ void printMatrix(float *matrix, int M, int N) {
   int i, j;
   for (i = 0; i < M; i++) {
@@ -1465,6 +1837,13 @@ __host__ void printMatrix(float *matrix, int M, int N) {
   }
 }
 
+/**
+ * \brief The callback function `equalArray` check whether the host and device result are the same 
+ 
+ * \param *a array host
+ * \param *b array device
+ * \param n Size of the two vector
+ */
 __host__ void equalArray(float *a, float *b, int n) {
 
   int i = 0;
@@ -1478,6 +1857,13 @@ __host__ void equalArray(float *a, float *b, int n) {
     printf("I risultati dell'host e del device coincidono\n");
 }
 
+/**
+ * \brief The callback function `equalArray` print on the standard output both the host and device array
+ 
+ * \param *a array host
+ * \param *b array device
+ * \param n Size of the two vector
+ */
 __host__ void compareArray(float *a, float *b, int n) {
 
   int i = 0;
@@ -1488,14 +1874,13 @@ __host__ void compareArray(float *a, float *b, int n) {
   }
 }
 
-__host__ void fakeK_fold(int *array, int n, int m) {
-  int i, j;
-  for (i = 0; i < n; i++)
-    array[i] = 1; // train
-  for (j = i; j < m + n; j++)
-    array[i] = 0; // test
-}
-
+/**
+ * \brief The callback function `min_arr` computes the minimum value of an input array.
+ * \param *arr array
+ * \param n Size of the two vector
+ * \param *ind Index of the minimum value found into the array `*arr`
+ * \return minimum value found into the array `*arr`
+ */
 __host__ float min_arr(float *arr, int n, int *ind) {
 
   float min = FLT_MAX;
@@ -1510,6 +1895,12 @@ __host__ float min_arr(float *arr, int n, int *ind) {
   return min;
 }
 
+/**
+ * \brief The callback function `timedifference_msec` computes the time difference among `t0` and `t1`.
+ * \param t0 structure containing time took at `t0` 
+ * \param t0 structure containing time took at `t1` 
+ * \return Elapsed time among `t0` and `t1`
+ */
 float timedifference_msec(struct timeval t0, struct timeval t1) {
   return (t1.tv_sec - t0.tv_sec) * 1000.0f +
          (t1.tv_usec - t0.tv_usec) / 1000.0f;
