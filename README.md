@@ -48,7 +48,14 @@ As we said before, **MTSS** allows you to perform two tasks:
 
 1. **Classification**
 
+The *Classification* task aim to predict group membership for the MTS instances belonging to a set of data. Supposing we have already split the initial dataset into `train` and `test set`, in order to predict/assign the labels for the test test, the i-th MTS of the test set is compared against all the MTS belonging to the train set and, the predicted label assigned for it will be the one for which the comparison against all the MTS in the train set is minimum. As mentioned above, we can provide three different type of similarity measure for comparing two MTS.
+
 2. **Similarity subseq-search**
+
+The *Similarity subseq-search* aim to find the best match for a time series (known as the query) onto another time serie (known as instance). It's achieved by punctually shifting the *instance* time series and comparing it agains the *query* one (See figure below). 
+
+![alt text](img/sub-seq.PNG) 
+
 
 Each of the two tasks can be perfomed on **GPU** as well as on **CPU**.
 
