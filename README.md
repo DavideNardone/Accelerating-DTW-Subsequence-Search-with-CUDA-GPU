@@ -52,7 +52,7 @@ The *Classification* task aim to predict group membership for the MTS instances 
 
 2. **Similarity subseq-search**
 
-The *Similarity subseq-search* aim to find the best match for a time series (known as the query) onto another time series (known as instance). It's achieved by punctually shifting the *instance* time series and comparing it agains the *query* one (See figure below). 
+The *Similarity subseq-search* aim to find the best match for a time series (known as the query) onto another time series (known as instance). It's achieved by punctually shifting the *instance* time series on the *query* one and comparing it by using a similarity distance such as DTW (See figure below). 
 
 ![alt text](img/sub-seq.PNG) 
 
