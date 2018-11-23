@@ -61,7 +61,7 @@ Each of the two tasks can be perfomed on **GPU** as well as on **CPU**.
 
 The program can run with the following flag options:
 
-- **-t**: It's used to decide which task you want to perform (i.e. CLASSIFICATION, SUBSEQ_SEARCH)
+- **-t**: It's used to decide which task you want to perform (e.g., CLASSIFICATION, SUBSEQ_SEARCH)
 - **-i**: It represents the input parameters, where:
   * The version you want to use: *CPU* or *GPU*;
   * The number of dimension for the MTS;
