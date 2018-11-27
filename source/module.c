@@ -4,37 +4,6 @@ using namespace std;
 
 
 /**
- * \brief The callback function `printArrayDev` print all the elements contained into `array` on the std out.
- *
- * The following function print all the element contained into `array` on the std out of the CUDA device.
- * \param *array Vector of float elements to print
- * \param n The size of the vector
- */
-__device__ void printArrayDev(float *array, int n) {
-
-  int i;
-  for (i = 0; i < n; i++)
-    printf("arr[%d]: %f \n", i, array[i]);
-}
-
-/**
- * \brief The callback function `printMatrixDev` print all the elements contained into `matrix` on the std out.
- *
- * The following function print all the elements contained into `matrix` on the std out of the CUDA device.
- * \param *matrix Matrix of float elements to print
- * \param n The size of the matrix
- */
-__device__ void printMatrixDev(float *matrix, int M, int N) {
-
-  int i, j;
-  for (i = 0; i < M; i++) {
-    for (j = 0; j < N; j++)
-      printf("%f ", matrix[i * N + j]);
-    printf("\n");
-  }
-}
-
-/**
  * \brief The callback function `stdDev` compute the `standard deviation` of a given vector allocated on the CUDA device.
  *
  * The following function computes the `standard deviation` of a given input vector.
