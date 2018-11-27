@@ -126,7 +126,7 @@ Some examples follow:
 
 **Compiling**
 
-`nvcc -arch=sm_30 -D WS=152 MD_DTW.cu module.cu -o mdtwObj`
+`nvcc -arch=sm_30 -D WS=152 source/MD_DTW.cu source/module.cu -o mdtwObj`
 
 **Running**
 
@@ -148,7 +148,7 @@ GPU:
 
 **Compiling**
 
-`nvcc -arch=sm_30 -D WS=421 MD_DTW.cu module.cu -o mdtwObj`
+`nvcc -arch=sm_30 -D WS=421 source/MD_DTW.cu source/module.cu -o mdtwObj`
 
 **Running**
 
