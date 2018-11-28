@@ -782,7 +782,7 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
     char *curr_file = file_name[ind_files[i]];
     inputFile[i] = fopen(curr_file, "r");
 
-    if ((inputFile[i]) == NULL) {
+    if ( access(curr_file, F_OK ) == -1 ) {
       fprintf(stderr, "Failed to open file: %s\n", curr_file);
       exit(2);
     }
@@ -797,7 +797,10 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
     // reading t_series file
     for (i = 0; i < t_size; i++) {
       for (k = 0; k < n_feat; k++) {
-        fscanf(inputFile[0], "%f", &tmp[k]);
+        if( fscanf(inputFile[0], "%f", &tmp[k]) < 1 ){
+          fprintf(stderr, "File reading error!\n");
+          exit(2);
+        }
         t_series[(k * t_size) + i] = tmp[k];
       }
     }
@@ -805,7 +808,10 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
     // reading q_series file
     for (i = 0; i < window_size; i++) {
       for (k = 0; k < n_feat; k++) {
-        fscanf(inputFile[1], "%f", &tmp[k]);
+        if( fscanf(inputFile[1], "%f", &tmp[k]) < 1){
+          fprintf(stderr, "File reading error!\n");
+          exit(2);
+        }
         q_series[(k * window_size) + i] = tmp[k];
       }
     }
@@ -817,7 +823,10 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
 
     for (k = 0; k < n_feat; k++) {
       for (i = 0; i < t_size; i++) {
-        fscanf(inputFile[0], "%f", &tmp[i]);
+        if( fscanf(inputFile[0], "%f", &tmp[i]) < 0){
+          fprintf(stderr, "File reading error!\n");
+          exit(2);
+        }
         t_series[(k * window_size) + i] = tmp[i];
       }
     }
@@ -827,7 +836,10 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
 
     for (k = 0; k < n_feat; k++) {
       for (i = 0; i < window_size; i++) {
-        fscanf(inputFile[1], "%f", &tmp[i]);
+        if( fscanf(inputFile[1], "%f", &tmp[i]) < 0){
+          fprintf(stderr, "File reading error!\n");
+          exit(2);
+        }
         q_series[(k * window_size) + i] = tmp[i];
       }
     }
@@ -860,10 +872,11 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
 
   for (int i = 0; i < n_file; i++) {
     char *curr_file = file_name[ind_files[i]];
+
     inputFile[i] = fopen(curr_file, "r");
 
-    if ((inputFile + i) == NULL) {
-      fprintf(stderr, "Failed to open file: %s\n", curr_file);
+    if ( access(curr_file, F_OK ) == -1 ) {
+      fprintf(stderr, "File reading error!\n");
       exit(2);
     }
   }
@@ -900,13 +913,19 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
     // DIMENSION ON THE ROWS AND LENGTH ON COLS
     for (i = 0; i < data_struct.tot_size; i++) {
 
-      fscanf(inputFile[lab_ind], "%f", &label);
+      if( fscanf(inputFile[lab_ind], "%f", &label) < 1){
+          fprintf(stderr, "File reading error!\n");
+          exit(2);
+      }
 
       dataLabels[i] = (int)label;
 
       for (k = 0; k < n_feat; k++) {
         for (j = 0; j < window_size; j++) {
-          fscanf(inputFile[data_ind], "%f", &tmp);
+          if( fscanf(inputFile[data_ind], "%f", &tmp) < 1){
+            fprintf(stderr, "File reading error!\n");
+            exit(2);            
+          }
 
           // MDT_D or MDT_I
           if (class_alg < 2)
@@ -932,13 +951,19 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
 
       // reading labels
       for (k = 0; k < n_feat; k++)
-        fscanf(inputFile[k], "%f", &label);
+        if( fscanf(inputFile[k], "%f", &label) < 1){
+          fprintf(stderr, "File reading error!\n");
+          exit(2);
+        }
 
       dataLabels[i] = (int)label;
 
       for (j = 0; j < window_size; j++) {
         for (k = 0; k < n_feat; k++)
-          fscanf(inputFile[k], "%f", &tmp[k]);
+          if( fscanf(inputFile[k], "%f", &tmp[k]) < 1){
+            fprintf(stderr, "File reading error!\n");
+            exit(2);
+          }
 
         for (k = 0; k < n_feat; k++) {
 
@@ -968,13 +993,19 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
         for (k = 0; k < n_feat; k++) {
 
           // reading labels from either train or test set
-          fscanf(inputFile[ll], "%f", &label);
+          if( fscanf(inputFile[ll], "%f", &label) < 1){
+            fprintf(stderr, "File reading error!\n");
+            exit(2);
+          }
 
           dataLabels[i] = (int)label;
 
           for (j = 0; j < window_size; j++) {
 
-            fscanf(inputFile[ll], "%f", &tmp[j]); // fd=0 data descript
+            if( fscanf(inputFile[ll], "%f", &tmp[j]) < 1){ // fd=0 data descript
+              fprintf(stderr, "File reading error!\n");
+              exit(2);              
+            }
 
             // MDT_D or MDT_I
             if (class_alg < 2)
@@ -1449,7 +1480,7 @@ __host__ float short_ed_c(float *T, float *S, int window_size) {
  */
 __host__ float short_dtw_c(float *instance, float *query, int ns, int nt) {
 
-  int k, l, g;
+  int k = 0, l = 0, g = 0;
   long long int i, j;
   float **array;
   float min_nb;
@@ -1547,7 +1578,7 @@ __host__ float short_md_ed_c(float *T, float *S, int window_size,
 __host__ float short_md_dtw_c(float *S, float *T, int ns, int nt, int dim,
                               int offset) {
 
-  int k, l, g;
+  int k = 0, l = 0, g = 0;
   long long int i, j;
   float **array;
   float min_nb;
