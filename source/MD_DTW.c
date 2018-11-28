@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 
   int i, j, k, f, nss;
 
-  int t_size, q_size;
+  int t_size = 0, q_size = 0;
 
   int read_mode = 0;
   int window_size = 0;
@@ -36,9 +36,9 @@ int main(int argc, char **argv) {
   int verbose_mode = 1; // by default display all the outputs
   int n_file = 0;
   int class_mode = 0;
-  char *task, *compution_type, *distance_type;
+  char *task = NULL, *compution_type = NULL, *distance_type = NULL;
   const char *strategy;
-  int *arr_num_file;
+  int *arr_num_file = NULL;
   int *tInd = NULL;
   struct data data_struct;
 
@@ -229,6 +229,12 @@ int main(int argc, char **argv) {
 
           i = i + 2;
         }
+
+        if (WS != window_size){
+          printf("The 'WS' and 'window_size' variables differs in dimension!\n");
+          exit(-1);
+        }
+
       } else if (strcmp(task, "SUBSEQ_SEARCH") == 0) {
         num_opts = 2;
 

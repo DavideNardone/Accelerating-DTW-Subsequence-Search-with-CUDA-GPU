@@ -4,7 +4,7 @@ using namespace std;
 
 
 /**
- * \brief The callback function `stdDev` compute the `standard deviation` of a given vector allocated on the CUDA device.
+ * \brief The function `stdDev` compute the `standard deviation` of a given vector allocated on the CUDA device.
  *
  * The following function computes the `standard deviation` of a given input vector.
  * \param *data Input vector
@@ -718,7 +718,7 @@ __global__ void rMD_DTW_D(float *S, float *T, int ns, int nt, int dimensions,
 }
 
 /**
- * \brief The callback function `checkFlagOpts` check out the correctness of the parameters for a given flag.
+ * \brief The function `checkFlagOpts` check out the correctness of the parameters for a given flag.
  *
  * The following function check out the correctness of the parameters for a given flag by counting the number of parameters.
 
@@ -755,7 +755,7 @@ __host__ int checkFlagOpts(char **input_args, int num_args, int ind,
 }
 
 /**
- * \brief The callback function `readFileSubSeq` allows to read several file formats for the `SUBSEQUENCE SEARCH` task.
+ * \brief The function `readFileSubSeq` allows to read several file formats for the `SUBSEQUENCE SEARCH` task.
  *
  * The following function allows to read several file format for the `SUBSEQUENCE SEARCH` task by providing in input several parameters.
 
@@ -847,7 +847,7 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
 }
 
 /**
- * \brief The callback function `readFile` allows to read several file formats for the `CLASSIFICATION` task.
+ * \brief The function `readFile` allows to read several file formats for the `CLASSIFICATION` task.
  *
  * The following function allows to read several file format for the `CLASSIFICATION` task by providing in input several parameters.
 
@@ -1031,7 +1031,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
 }
 
 /**
- * \brief The callback function `createTrainingTestingSet` splits the dataset information into random train and test subsets.
+ * \brief The function `createTrainingTestingSet` splits the dataset information into random train and test subsets.
  *
  * The following function splits the `data` and `label` information into random two different train and test subsets.
 
@@ -1156,7 +1156,7 @@ __host__ void createTrainingTestingSet(
 }
 
 /**
- * \brief The callback function `cmpfunc` is an utiliy function for sorting vector values
+ * \brief The function `cmpfunc` is an utiliy function for sorting vector values
  
  * \param *a Integer value
  * \param *b Integer value
@@ -1167,7 +1167,7 @@ __host__ int cmpfunc(const void *a, const void *b) {
 }
 
 /**
- * \brief The callback function `generateArray` fills an input array from a desidered starting point.
+ * \brief The function `generateArray` fills an input array from a desidered starting point.
  
  * \param size Size of the vector
  * \param *arrayG Vector to fill
@@ -1189,7 +1189,7 @@ __host__ void generateArray(int size, int *arrayG, int offset) {
 }
 
 /**
- * \brief The callback function `findInd` fill an array with incremental value whether a desiderd value exist into an input array.
+ * \brief The function `findInd` fill an array with incremental value whether a desiderd value exist into an input array.
  
  * \param *array Vector where to search into
  * \param size Size of the vector
@@ -1207,7 +1207,7 @@ __host__ void findInd(int *array, int size, int *arrayG, int g) {
 }
 
 /**
- * \brief The callback function `unique_val` look for unique value into an array
+ * \brief The function `unique_val` look for unique value into an array
  
  * \param *array Vector where to search into
  * \param size Size of the vector
@@ -1235,7 +1235,7 @@ __host__ int unique_val(int *array, int size) {
 }
 
 /**
- * \brief The callback function `accumarray` is an utility function for the k-fold cross validation.
+ * \brief The function `accumarray` is an utility function for the k-fold cross validation.
  
  * \param *array Vector where to search into
  * \param size Size of the vector
@@ -1263,7 +1263,7 @@ __host__ int *accumarray(int *array, int size, int *val) {
 }
 
 /**
- * \brief The callback function `shuffle` is function for shuffling the data contained into an array.
+ * \brief The function `shuffle` is function for shuffling the data contained into an array.
  
  * \param *array Vector to shuffle
  * \param array_size Size of the vector
@@ -1283,7 +1283,7 @@ __host__ void shuffle(int *array, size_t array_size, size_t shuff_size) {
 }
 
 /**
- * \brief The callback function `idAssign`is an utility function for the k-fold cross validation.
+ * \brief The function `idAssign`is an utility function for the k-fold cross validation.
  
  * \param *perm Vector of permutations
  * \param size_perm Size of the permutations
@@ -1305,7 +1305,7 @@ __host__ void idAssign(int *perm, int size_perm, int *group, int size_group,
 }
 
 /**
- * \brief The callback function `checkCUDAError` display on the standard output more information about a type of CUDA error.
+ * \brief The function `checkCUDAError` display on the standard output more information about a type of CUDA error.
  
  * \param *msg Message to display along with the error information provided by CUDA
  */
@@ -1319,7 +1319,7 @@ __host__ void checkCUDAError(const char *msg) {
 }
 
 /**
- * \brief The callback function `crossvalind_Kfold` generates Cross-Validation indices for splitting the dataset into train and test set.
+ * \brief The function `crossvalind_Kfold` generates Cross-Validation indices for splitting the dataset into train and test set.
 
  * \param *label Vector of labels
  * \param N Size of the vector `*label`
@@ -1380,7 +1380,7 @@ __host__ int *crossvalind_Kfold(int *label, int N, int K, int flag_shuffle) {
 }
 
 /**
- * \brief The callback function `countVal` count the number of occurences found for a desidered value stored into an array.
+ * \brief The function `countVal` count the number of occurences found for a desidered value stored into an array.
 
  * \param *data Vector where to search
  * \param N Size of the vector `*data`
@@ -1398,7 +1398,7 @@ __host__ int countVal(int *data, int N, int key) {
 }
 
 /**
- * \brief The callback function `standard_deviation` compute the `standard deviation` of a given vector.
+ * \brief The function `standard_deviation` compute the `standard deviation` of a given vector.
  *
  * The following function computes the `standard deviation` of a given input vector.
  * \param *data Input vector
@@ -1420,7 +1420,7 @@ __host__ float standard_deviation(float *data, int n, float *avg) {
 }
 
 /**
- * \brief The callback function `z_normalize2D` z-normalize an input vector.
+ * \brief The function `z_normalize2D` z-normalize an input vector.
  *
  * The following function calculate the z score of each value into a vector, relative to the sample mean and standard deviation.
 
@@ -1766,7 +1766,7 @@ __host__ cudaDeviceProp getDevProp(int device) {
 }
 
 /**
- * \brief The callback function `initializeArray` fills an input array with a desidered value.
+ * \brief The function `initializeArray` fills an input array with a desidered value.
  
  * \param *array Vector to fill
  * \param n Size of the vector
@@ -1779,7 +1779,7 @@ __host__ void initializeArray(float *array, int n, float val) {
 }
 
 /**
- * \brief The callback function `initializeMatrix` fills an input matrix with random values.
+ * \brief The function `initializeMatrix` fills an input matrix with random values.
  
  * \param *matrix Matrix to fill
  * \param M Number of rows
@@ -1794,7 +1794,7 @@ __host__ void initializeMatrix(float *matrix, int M, int N) {
 }
 
 /**
- * \brief The callback function `printArray` print on the standard output an input array of float values.
+ * \brief The function `printArray` print on the standard output an input array of float values.
  
  * \param *array array 
  * \param n Size of the vector
@@ -1808,7 +1808,7 @@ __host__ void printArray(float *array, int n) {
 }
 
 /**
- * \brief The callback function `printArrayI` print on the standard output an input array of integer values.
+ * \brief The function `printArrayI` print on the standard output an input array of integer values.
  
  * \param *array array 
  * \param n Size of the vector
@@ -1822,7 +1822,7 @@ __host__ void printArrayI(int *array, int n) {
 }
 
 /**
- * \brief The callback function `printMatrix` print on the standard output an input matrix of float values.
+ * \brief The function `printMatrix` print on the standard output an input matrix of float values.
  
  * \param *array array 
  * \param M Number of rows
@@ -1838,7 +1838,7 @@ __host__ void printMatrix(float *matrix, int M, int N) {
 }
 
 /**
- * \brief The callback function `equalArray` check whether the host and device result are the same 
+ * \brief The function `equalArray` check whether the host and device result are the same 
  
  * \param *a array host
  * \param *b array device
@@ -1858,7 +1858,7 @@ __host__ void equalArray(float *a, float *b, int n) {
 }
 
 /**
- * \brief The callback function `equalArray` print on the standard output both the host and device array
+ * \brief The function `equalArray` print on the standard output both the host and device array
  
  * \param *a array host
  * \param *b array device
@@ -1875,7 +1875,7 @@ __host__ void compareArray(float *a, float *b, int n) {
 }
 
 /**
- * \brief The callback function `min_arr` computes the minimum value of an input array.
+ * \brief The function `min_arr` computes the minimum value of an input array.
  * \param *arr array
  * \param n Size of the two vector
  * \param *ind Index of the minimum value found into the array `*arr`
@@ -1896,7 +1896,7 @@ __host__ float min_arr(float *arr, int n, int *ind) {
 }
 
 /**
- * \brief The callback function `timedifference_msec` computes the time difference among `t0` and `t1`.
+ * \brief The function `timedifference_msec` computes the time difference among `t0` and `t1`.
  * \param t0 structure containing time took at `t0` 
  * \param t0 structure containing time took at `t1` 
  * \return Elapsed time among `t0` and `t1`

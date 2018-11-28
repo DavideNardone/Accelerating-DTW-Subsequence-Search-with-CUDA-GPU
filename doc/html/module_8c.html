@@ -72,20 +72,14 @@ $(function() {
 <div class="title">module.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;header.h&quot;</code><br />
+<div class="textblock"><code>#include &quot;../include/header.h&quot;</code><br />
 </div>
 <p><a href="module_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a0a0d2d3421728991fe288b60f1e1b705"><td class="memItemLeft" align="right" valign="top">__device__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a0a0d2d3421728991fe288b60f1e1b705">printArrayDev</a> (float *array, int n)</td></tr>
-<tr class="memdesc:a0a0d2d3421728991fe288b60f1e1b705"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>printArrayDev</code> print all the elements contained into <code>array</code> on the std out.  <a href="#a0a0d2d3421728991fe288b60f1e1b705">More...</a><br /></td></tr>
-<tr class="separator:a0a0d2d3421728991fe288b60f1e1b705"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaa8ba45baa247d1732aa6026babb6909"><td class="memItemLeft" align="right" valign="top">__device__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#aaa8ba45baa247d1732aa6026babb6909">printMatrixDev</a> (float *matrix, int M, int N)</td></tr>
-<tr class="memdesc:aaa8ba45baa247d1732aa6026babb6909"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>printMatrixDev</code> print all the elements contained into <code>matrix</code> on the std out.  <a href="#aaa8ba45baa247d1732aa6026babb6909">More...</a><br /></td></tr>
-<tr class="separator:aaa8ba45baa247d1732aa6026babb6909"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a525de6fb020e7414358412e4656ab008"><td class="memItemLeft" align="right" valign="top">__device__ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a525de6fb020e7414358412e4656ab008">stdDev</a> (float *data, int n, float *avg)</td></tr>
-<tr class="memdesc:a525de6fb020e7414358412e4656ab008"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>stdDev</code> compute the <code>standard deviation</code> of a given vector allocated on the CUDA device.  <a href="#a525de6fb020e7414358412e4656ab008">More...</a><br /></td></tr>
+<tr class="memdesc:a525de6fb020e7414358412e4656ab008"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>stdDev</code> compute the <code>standard deviation</code> of a given vector allocated on the CUDA device.  <a href="#a525de6fb020e7414358412e4656ab008">More...</a><br /></td></tr>
 <tr class="separator:a525de6fb020e7414358412e4656ab008"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59c79eb8994d5545fc3b1f46e84a396c"><td class="memItemLeft" align="right" valign="top">__global__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a59c79eb8994d5545fc3b1f46e84a396c">MD_ED_D</a> (float *S, float *T, int window_size, int dimensions, float *data_out, int trainSize, int task, int gm)</td></tr>
 <tr class="memdesc:a59c79eb8994d5545fc3b1f46e84a396c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The kernel function <code>MD_ED_D</code> computes the <code>Dependent-Multi Dimensional Euclidean</code> distance (D-MDE).  <a href="#a59c79eb8994d5545fc3b1f46e84a396c">More...</a><br /></td></tr>
@@ -106,52 +100,52 @@ Functions</h2></td></tr>
 <tr class="memdesc:a43dc540b044391a869143f128f96d39d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The kernel function <code>rMD_DTW_D</code> computes the <code>Rotation Dependent-Multi Dimensional Dynamic Time Warping</code> distance (rD-MDDTW).  <a href="#a43dc540b044391a869143f128f96d39d">More...</a><br /></td></tr>
 <tr class="separator:a43dc540b044391a869143f128f96d39d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6a94f6a7fa5bc9ef3e8a71721ef86c1"><td class="memItemLeft" align="right" valign="top">__host__ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#ac6a94f6a7fa5bc9ef3e8a71721ef86c1">checkFlagOpts</a> (char **input_args, int num_args, int ind, int num_opts)</td></tr>
-<tr class="memdesc:ac6a94f6a7fa5bc9ef3e8a71721ef86c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>checkFlagOpts</code> check out the correctness of the parameters for a given flag.  <a href="#ac6a94f6a7fa5bc9ef3e8a71721ef86c1">More...</a><br /></td></tr>
+<tr class="memdesc:ac6a94f6a7fa5bc9ef3e8a71721ef86c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>checkFlagOpts</code> check out the correctness of the parameters for a given flag.  <a href="#ac6a94f6a7fa5bc9ef3e8a71721ef86c1">More...</a><br /></td></tr>
 <tr class="separator:ac6a94f6a7fa5bc9ef3e8a71721ef86c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accb7b8dca144b3ad6827328402bb6830"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#accb7b8dca144b3ad6827328402bb6830">readFileSubSeq</a> (char **file_name, int *ind_files, int n_file, float *t_series, int t_size, float *q_series, int window_size, int n_feat, int read_mode)</td></tr>
-<tr class="memdesc:accb7b8dca144b3ad6827328402bb6830"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>readFileSubSeq</code> allows to read several file formats for the <code>SUBSEQUENCE SEARCH</code> task.  <a href="#accb7b8dca144b3ad6827328402bb6830">More...</a><br /></td></tr>
+<tr class="memdesc:accb7b8dca144b3ad6827328402bb6830"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>readFileSubSeq</code> allows to read several file formats for the <code>SUBSEQUENCE SEARCH</code> task.  <a href="#accb7b8dca144b3ad6827328402bb6830">More...</a><br /></td></tr>
 <tr class="separator:accb7b8dca144b3ad6827328402bb6830"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaf01b877bf24172d81f3abf7e8c34a1"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#adaf01b877bf24172d81f3abf7e8c34a1">readFile</a> (char **file_name, int *ind_files, int n_file, int read_mode, float *data, struct data data_struct, int window_size, int *dataLabels, int n_feat, int class_alg)</td></tr>
-<tr class="memdesc:adaf01b877bf24172d81f3abf7e8c34a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>readFile</code> allows to read several file formats for the <code>CLASSIFICATION</code> task.  <a href="#adaf01b877bf24172d81f3abf7e8c34a1">More...</a><br /></td></tr>
+<tr class="memdesc:adaf01b877bf24172d81f3abf7e8c34a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>readFile</code> allows to read several file formats for the <code>CLASSIFICATION</code> task.  <a href="#adaf01b877bf24172d81f3abf7e8c34a1">More...</a><br /></td></tr>
 <tr class="separator:adaf01b877bf24172d81f3abf7e8c34a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbc660c849067a14bf66eb8a2b038a4e"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#afbc660c849067a14bf66eb8a2b038a4e">createTrainingTestingSet</a> (float *data, int *dataLabels, int dataSize, int window_size, int n_feat, float *h_train, int *trainLabels, int trainSize, float *h_test, int *testLabels, int testSize, int *tInd, int k_th_fold, int class_mode)</td></tr>
-<tr class="memdesc:afbc660c849067a14bf66eb8a2b038a4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>createTrainingTestingSet</code> splits the dataset information into random train and test subsets.  <a href="#afbc660c849067a14bf66eb8a2b038a4e">More...</a><br /></td></tr>
+<tr class="memdesc:afbc660c849067a14bf66eb8a2b038a4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>createTrainingTestingSet</code> splits the dataset information into random train and test subsets.  <a href="#afbc660c849067a14bf66eb8a2b038a4e">More...</a><br /></td></tr>
 <tr class="separator:afbc660c849067a14bf66eb8a2b038a4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7905f9b8911967deb42ff0af1604bc34"><td class="memItemLeft" align="right" valign="top">__host__ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a7905f9b8911967deb42ff0af1604bc34">cmpfunc</a> (const void *a, const void *b)</td></tr>
-<tr class="memdesc:a7905f9b8911967deb42ff0af1604bc34"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>cmpfunc</code> is an utiliy function for sorting vector values.  <a href="#a7905f9b8911967deb42ff0af1604bc34">More...</a><br /></td></tr>
+<tr class="memdesc:a7905f9b8911967deb42ff0af1604bc34"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>cmpfunc</code> is an utiliy function for sorting vector values.  <a href="#a7905f9b8911967deb42ff0af1604bc34">More...</a><br /></td></tr>
 <tr class="separator:a7905f9b8911967deb42ff0af1604bc34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a602306ad20c7e60186329ca37fe034a8"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a602306ad20c7e60186329ca37fe034a8">generateArray</a> (int size, int *arrayG, int offset)</td></tr>
-<tr class="memdesc:a602306ad20c7e60186329ca37fe034a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>generateArray</code> fills an input array from a desidered starting point.  <a href="#a602306ad20c7e60186329ca37fe034a8">More...</a><br /></td></tr>
+<tr class="memdesc:a602306ad20c7e60186329ca37fe034a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>generateArray</code> fills an input array from a desidered starting point.  <a href="#a602306ad20c7e60186329ca37fe034a8">More...</a><br /></td></tr>
 <tr class="separator:a602306ad20c7e60186329ca37fe034a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acb04607160d5f16c463cffb694692a73"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#acb04607160d5f16c463cffb694692a73">findInd</a> (int *array, int size, int *arrayG, int g)</td></tr>
-<tr class="memdesc:acb04607160d5f16c463cffb694692a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>findInd</code> fill an array with incremental value whether a desiderd value exist into an input array.  <a href="#acb04607160d5f16c463cffb694692a73">More...</a><br /></td></tr>
+<tr class="memdesc:acb04607160d5f16c463cffb694692a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>findInd</code> fill an array with incremental value whether a desiderd value exist into an input array.  <a href="#acb04607160d5f16c463cffb694692a73">More...</a><br /></td></tr>
 <tr class="separator:acb04607160d5f16c463cffb694692a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b4c6d6e74eee37718947a58439dec0a"><td class="memItemLeft" align="right" valign="top">__host__ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a6b4c6d6e74eee37718947a58439dec0a">unique_val</a> (int *array, int size)</td></tr>
-<tr class="memdesc:a6b4c6d6e74eee37718947a58439dec0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>unique_val</code> look for unique value into an array.  <a href="#a6b4c6d6e74eee37718947a58439dec0a">More...</a><br /></td></tr>
+<tr class="memdesc:a6b4c6d6e74eee37718947a58439dec0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>unique_val</code> look for unique value into an array.  <a href="#a6b4c6d6e74eee37718947a58439dec0a">More...</a><br /></td></tr>
 <tr class="separator:a6b4c6d6e74eee37718947a58439dec0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca9f44087f35155d97dec48fcae16459"><td class="memItemLeft" align="right" valign="top">__host__ int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#aca9f44087f35155d97dec48fcae16459">accumarray</a> (int *array, int size, int *val)</td></tr>
-<tr class="memdesc:aca9f44087f35155d97dec48fcae16459"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>accumarray</code> is an utility function for the k-fold cross validation.  <a href="#aca9f44087f35155d97dec48fcae16459">More...</a><br /></td></tr>
+<tr class="memdesc:aca9f44087f35155d97dec48fcae16459"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>accumarray</code> is an utility function for the k-fold cross validation.  <a href="#aca9f44087f35155d97dec48fcae16459">More...</a><br /></td></tr>
 <tr class="separator:aca9f44087f35155d97dec48fcae16459"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace373a1086cdbe8c103f097cb9d91e8a"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#ace373a1086cdbe8c103f097cb9d91e8a">shuffle</a> (int *array, size_t array_size, size_t shuff_size)</td></tr>
-<tr class="memdesc:ace373a1086cdbe8c103f097cb9d91e8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>shuffle</code> is function for shuffling the data contained into an array.  <a href="#ace373a1086cdbe8c103f097cb9d91e8a">More...</a><br /></td></tr>
+<tr class="memdesc:ace373a1086cdbe8c103f097cb9d91e8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>shuffle</code> is function for shuffling the data contained into an array.  <a href="#ace373a1086cdbe8c103f097cb9d91e8a">More...</a><br /></td></tr>
 <tr class="separator:ace373a1086cdbe8c103f097cb9d91e8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a90d67b768fda3877457938f7178b438c"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a90d67b768fda3877457938f7178b438c">idAssign</a> (int *perm, int size_perm, int *group, int size_group, int *rand_ind, int *h, int *tInd)</td></tr>
-<tr class="memdesc:a90d67b768fda3877457938f7178b438c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>idAssign</code>is an utility function for the k-fold cross validation.  <a href="#a90d67b768fda3877457938f7178b438c">More...</a><br /></td></tr>
+<tr class="memdesc:a90d67b768fda3877457938f7178b438c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>idAssign</code>is an utility function for the k-fold cross validation.  <a href="#a90d67b768fda3877457938f7178b438c">More...</a><br /></td></tr>
 <tr class="separator:a90d67b768fda3877457938f7178b438c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb192c636a5e2befc79d33435fc9f5ad"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#aeb192c636a5e2befc79d33435fc9f5ad">checkCUDAError</a> (const char *msg)</td></tr>
-<tr class="memdesc:aeb192c636a5e2befc79d33435fc9f5ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>checkCUDAError</code> display on the standard output more information about a type of CUDA error.  <a href="#aeb192c636a5e2befc79d33435fc9f5ad">More...</a><br /></td></tr>
+<tr class="memdesc:aeb192c636a5e2befc79d33435fc9f5ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>checkCUDAError</code> display on the standard output more information about a type of CUDA error.  <a href="#aeb192c636a5e2befc79d33435fc9f5ad">More...</a><br /></td></tr>
 <tr class="separator:aeb192c636a5e2befc79d33435fc9f5ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f9f3e4749f32d757e482a6237b58bde"><td class="memItemLeft" align="right" valign="top">__host__ int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a1f9f3e4749f32d757e482a6237b58bde">crossvalind_Kfold</a> (int *label, int N, int K, int flag_shuffle)</td></tr>
-<tr class="memdesc:a1f9f3e4749f32d757e482a6237b58bde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>crossvalind_Kfold</code> generates Cross-Validation indices for splitting the dataset into train and test set.  <a href="#a1f9f3e4749f32d757e482a6237b58bde">More...</a><br /></td></tr>
+<tr class="memdesc:a1f9f3e4749f32d757e482a6237b58bde"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>crossvalind_Kfold</code> generates Cross-Validation indices for splitting the dataset into train and test set.  <a href="#a1f9f3e4749f32d757e482a6237b58bde">More...</a><br /></td></tr>
 <tr class="separator:a1f9f3e4749f32d757e482a6237b58bde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88f999c53808282db98bc3c3b172a06f"><td class="memItemLeft" align="right" valign="top">__host__ int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a88f999c53808282db98bc3c3b172a06f">countVal</a> (int *data, int N, int key)</td></tr>
-<tr class="memdesc:a88f999c53808282db98bc3c3b172a06f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>countVal</code> count the number of occurences found for a desidered value stored into an array.  <a href="#a88f999c53808282db98bc3c3b172a06f">More...</a><br /></td></tr>
+<tr class="memdesc:a88f999c53808282db98bc3c3b172a06f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>countVal</code> count the number of occurences found for a desidered value stored into an array.  <a href="#a88f999c53808282db98bc3c3b172a06f">More...</a><br /></td></tr>
 <tr class="separator:a88f999c53808282db98bc3c3b172a06f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7aeaadfaafb444a37a8a4cf783994888"><td class="memItemLeft" align="right" valign="top">__host__ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a7aeaadfaafb444a37a8a4cf783994888">standard_deviation</a> (float *data, int n, float *avg)</td></tr>
-<tr class="memdesc:a7aeaadfaafb444a37a8a4cf783994888"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>standard_deviation</code> compute the <code>standard deviation</code> of a given vector.  <a href="#a7aeaadfaafb444a37a8a4cf783994888">More...</a><br /></td></tr>
+<tr class="memdesc:a7aeaadfaafb444a37a8a4cf783994888"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>standard_deviation</code> compute the <code>standard deviation</code> of a given vector.  <a href="#a7aeaadfaafb444a37a8a4cf783994888">More...</a><br /></td></tr>
 <tr class="separator:a7aeaadfaafb444a37a8a4cf783994888"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac81c472b54a439047fbea65790615dbb"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#ac81c472b54a439047fbea65790615dbb">z_normalize2D</a> (float *M, int nrow, int ncol)</td></tr>
-<tr class="memdesc:ac81c472b54a439047fbea65790615dbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>z_normalize2D</code> z-normalize an input vector.  <a href="#ac81c472b54a439047fbea65790615dbb">More...</a><br /></td></tr>
+<tr class="memdesc:ac81c472b54a439047fbea65790615dbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>z_normalize2D</code> z-normalize an input vector.  <a href="#ac81c472b54a439047fbea65790615dbb">More...</a><br /></td></tr>
 <tr class="separator:ac81c472b54a439047fbea65790615dbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcd5a2cbd12c503083baa7fd593c1bfa"><td class="memItemLeft" align="right" valign="top">__host__ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#afcd5a2cbd12c503083baa7fd593c1bfa">short_ed_c</a> (float *T, float *S, int window_size)</td></tr>
 <tr class="memdesc:afcd5a2cbd12c503083baa7fd593c1bfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>short_ed_c</code> computes the <code>mono-dimensional Euclidean</code> distance.  <a href="#afcd5a2cbd12c503083baa7fd593c1bfa">More...</a><br /></td></tr>
@@ -178,31 +172,31 @@ Functions</h2></td></tr>
 <tr class="memdesc:a74aa1ec19079dad50197316d88e906d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>getDevProp</code> return an object <code>deviceProp</code> containing all the information about a specific GPU device.  <a href="#a74aa1ec19079dad50197316d88e906d6">More...</a><br /></td></tr>
 <tr class="separator:a74aa1ec19079dad50197316d88e906d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1331205e32e3539f76d360ae7d9c73be"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a1331205e32e3539f76d360ae7d9c73be">initializeArray</a> (float *array, int n, float val)</td></tr>
-<tr class="memdesc:a1331205e32e3539f76d360ae7d9c73be"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>initializeArray</code> fills an input array with a desidered value.  <a href="#a1331205e32e3539f76d360ae7d9c73be">More...</a><br /></td></tr>
+<tr class="memdesc:a1331205e32e3539f76d360ae7d9c73be"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>initializeArray</code> fills an input array with a desidered value.  <a href="#a1331205e32e3539f76d360ae7d9c73be">More...</a><br /></td></tr>
 <tr class="separator:a1331205e32e3539f76d360ae7d9c73be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92ee3baf858ac543f8f7bfb3eef5af7f"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a92ee3baf858ac543f8f7bfb3eef5af7f">initializeMatrix</a> (float *matrix, int M, int N)</td></tr>
-<tr class="memdesc:a92ee3baf858ac543f8f7bfb3eef5af7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>initializeMatrix</code> fills an input matrix with random values.  <a href="#a92ee3baf858ac543f8f7bfb3eef5af7f">More...</a><br /></td></tr>
+<tr class="memdesc:a92ee3baf858ac543f8f7bfb3eef5af7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>initializeMatrix</code> fills an input matrix with random values.  <a href="#a92ee3baf858ac543f8f7bfb3eef5af7f">More...</a><br /></td></tr>
 <tr class="separator:a92ee3baf858ac543f8f7bfb3eef5af7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6491f0155e8592f83344a99437af1d4e"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a6491f0155e8592f83344a99437af1d4e">printArray</a> (float *array, int n)</td></tr>
-<tr class="memdesc:a6491f0155e8592f83344a99437af1d4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>printArray</code> print on the standard output an input array of float values.  <a href="#a6491f0155e8592f83344a99437af1d4e">More...</a><br /></td></tr>
+<tr class="memdesc:a6491f0155e8592f83344a99437af1d4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>printArray</code> print on the standard output an input array of float values.  <a href="#a6491f0155e8592f83344a99437af1d4e">More...</a><br /></td></tr>
 <tr class="separator:a6491f0155e8592f83344a99437af1d4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad993151972c6f9df0e1ce571e5b08550"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#ad993151972c6f9df0e1ce571e5b08550">printArrayI</a> (int *array, int n)</td></tr>
-<tr class="memdesc:ad993151972c6f9df0e1ce571e5b08550"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>printArrayI</code> print on the standard output an input array of integer values.  <a href="#ad993151972c6f9df0e1ce571e5b08550">More...</a><br /></td></tr>
+<tr class="memdesc:ad993151972c6f9df0e1ce571e5b08550"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>printArrayI</code> print on the standard output an input array of integer values.  <a href="#ad993151972c6f9df0e1ce571e5b08550">More...</a><br /></td></tr>
 <tr class="separator:ad993151972c6f9df0e1ce571e5b08550"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31ba16e05560e68e7d3b0bbe8e7ddee6"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a31ba16e05560e68e7d3b0bbe8e7ddee6">printMatrix</a> (float *matrix, int M, int N)</td></tr>
-<tr class="memdesc:a31ba16e05560e68e7d3b0bbe8e7ddee6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>printMatrix</code> print on the standard output an input matrix of float values.  <a href="#a31ba16e05560e68e7d3b0bbe8e7ddee6">More...</a><br /></td></tr>
+<tr class="memdesc:a31ba16e05560e68e7d3b0bbe8e7ddee6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>printMatrix</code> print on the standard output an input matrix of float values.  <a href="#a31ba16e05560e68e7d3b0bbe8e7ddee6">More...</a><br /></td></tr>
 <tr class="separator:a31ba16e05560e68e7d3b0bbe8e7ddee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:affa03689738dadeeadd3af670761541b"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#affa03689738dadeeadd3af670761541b">equalArray</a> (float *a, float *b, int n)</td></tr>
-<tr class="memdesc:affa03689738dadeeadd3af670761541b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>equalArray</code> check whether the host and device result are the same.  <a href="#affa03689738dadeeadd3af670761541b">More...</a><br /></td></tr>
+<tr class="memdesc:affa03689738dadeeadd3af670761541b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>equalArray</code> check whether the host and device result are the same.  <a href="#affa03689738dadeeadd3af670761541b">More...</a><br /></td></tr>
 <tr class="separator:affa03689738dadeeadd3af670761541b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af25d530979e493fca362426f40715e1b"><td class="memItemLeft" align="right" valign="top">__host__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#af25d530979e493fca362426f40715e1b">compareArray</a> (float *a, float *b, int n)</td></tr>
-<tr class="memdesc:af25d530979e493fca362426f40715e1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>equalArray</code> print on the standard output both the host and device array.  <a href="#af25d530979e493fca362426f40715e1b">More...</a><br /></td></tr>
+<tr class="memdesc:af25d530979e493fca362426f40715e1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>equalArray</code> print on the standard output both the host and device array.  <a href="#af25d530979e493fca362426f40715e1b">More...</a><br /></td></tr>
 <tr class="separator:af25d530979e493fca362426f40715e1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5fa005881f4c0a95fdb20ac5e5e60602"><td class="memItemLeft" align="right" valign="top">__host__ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#a5fa005881f4c0a95fdb20ac5e5e60602">min_arr</a> (float *arr, int n, int *ind)</td></tr>
-<tr class="memdesc:a5fa005881f4c0a95fdb20ac5e5e60602"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>min_arr</code> computes the minimum value of an input array.  <a href="#a5fa005881f4c0a95fdb20ac5e5e60602">More...</a><br /></td></tr>
+<tr class="memdesc:a5fa005881f4c0a95fdb20ac5e5e60602"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>min_arr</code> computes the minimum value of an input array.  <a href="#a5fa005881f4c0a95fdb20ac5e5e60602">More...</a><br /></td></tr>
 <tr class="separator:a5fa005881f4c0a95fdb20ac5e5e60602"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae948871df06c090286c2063ab51bb4ed"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="module_8c.html#ae948871df06c090286c2063ab51bb4ed">timedifference_msec</a> (struct timeval t0, struct timeval t1)</td></tr>
-<tr class="memdesc:ae948871df06c090286c2063ab51bb4ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">The callback function <code>timedifference_msec</code> computes the time difference among <code>t0</code> and <code>t1</code>.  <a href="#ae948871df06c090286c2063ab51bb4ed">More...</a><br /></td></tr>
+<tr class="memdesc:ae948871df06c090286c2063ab51bb4ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">The function <code>timedifference_msec</code> computes the time difference among <code>t0</code> and <code>t1</code>.  <a href="#ae948871df06c090286c2063ab51bb4ed">More...</a><br /></td></tr>
 <tr class="separator:ae948871df06c090286c2063ab51bb4ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
@@ -238,7 +232,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>accumarray</code> is an utility function for the k-fold cross validation. </p>
+<p>The function <code>accumarray</code> is an utility function for the k-fold cross validation. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>Vector where to search into </td></tr>
@@ -269,7 +263,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>checkCUDAError</code> display on the standard output more information about a type of CUDA error. </p>
+<p>The function <code>checkCUDAError</code> display on the standard output more information about a type of CUDA error. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*msg</td><td>Message to display along with the error information provided by CUDA </td></tr>
@@ -319,7 +313,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>checkFlagOpts</code> check out the correctness of the parameters for a given flag. </p>
+<p>The function <code>checkFlagOpts</code> check out the correctness of the parameters for a given flag. </p>
 <p>The following function check out the correctness of the parameters for a given flag by counting the number of parameters.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -332,7 +326,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Integer (0,1) indicating the corretness of the number of parameters for the current flag </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00762">762</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00731">731</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -362,7 +356,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>cmpfunc</code> is an utiliy function for sorting vector values. </p>
+<p>The function <code>cmpfunc</code> is an utiliy function for sorting vector values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*a</td><td>Integer value </td></tr>
@@ -408,7 +402,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>equalArray</code> print on the standard output both the host and device array. </p>
+<p>The function <code>equalArray</code> print on the standard output both the host and device array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*a</td><td>array host </td></tr>
@@ -454,7 +448,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>countVal</code> count the number of occurences found for a desidered value stored into an array. </p>
+<p>The function <code>countVal</code> count the number of occurences found for a desidered value stored into an array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*data</td><td>Vector where to search </td></tr>
@@ -567,7 +561,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>createTrainingTestingSet</code> splits the dataset information into random train and test subsets. </p>
+<p>The function <code>createTrainingTestingSet</code> splits the dataset information into random train and test subsets. </p>
 <p>The following function splits the <code>data</code> and <code>label</code> information into random two different train and test subsets.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -631,7 +625,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>crossvalind_Kfold</code> generates Cross-Validation indices for splitting the dataset into train and test set. </p>
+<p>The function <code>crossvalind_Kfold</code> generates Cross-Validation indices for splitting the dataset into train and test set. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*label</td><td>Vector of labels </td></tr>
@@ -679,7 +673,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>equalArray</code> check whether the host and device result are the same. </p>
+<p>The function <code>equalArray</code> check whether the host and device result are the same. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*a</td><td>array host </td></tr>
@@ -731,7 +725,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>findInd</code> fill an array with incremental value whether a desiderd value exist into an input array. </p>
+<p>The function <code>findInd</code> fill an array with incremental value whether a desiderd value exist into an input array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>Vector where to search into </td></tr>
@@ -778,7 +772,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>generateArray</code> fills an input array from a desidered starting point. </p>
+<p>The function <code>generateArray</code> fills an input array from a desidered starting point. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">size</td><td>Size of the vector </td></tr>
@@ -871,7 +865,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>idAssign</code>is an utility function for the k-fold cross validation. </p>
+<p>The function <code>idAssign</code>is an utility function for the k-fold cross validation. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*perm</td><td>Vector of permutations </td></tr>
@@ -942,7 +936,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>initializeArray</code> fills an input array with a desidered value. </p>
+<p>The function <code>initializeArray</code> fills an input array with a desidered value. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>Vector to fill </td></tr>
@@ -988,7 +982,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>initializeMatrix</code> fills an input matrix with random values. </p>
+<p>The function <code>initializeMatrix</code> fills an input matrix with random values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*matrix</td><td>Matrix to fill </td></tr>
@@ -1086,7 +1080,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00331">331</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00300">300</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1167,7 +1161,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00512">512</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00481">481</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1249,7 +1243,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00079">79</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00048">48</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1324,7 +1318,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00184">184</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00153">153</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1360,7 +1354,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>min_arr</code> computes the minimum value of an input array. </p>
+<p>The function <code>min_arr</code> computes the minimum value of an input array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*arr</td><td>array </td></tr>
@@ -1445,7 +1439,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>printArray</code> print on the standard output an input array of float values. </p>
+<p>The function <code>printArray</code> print on the standard output an input array of float values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>array </td></tr>
@@ -1455,45 +1449,6 @@ Functions</h2></td></tr>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="module_8c_source.html#l01802">1802</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
-
-</div>
-</div>
-<a id="a0a0d2d3421728991fe288b60f1e1b705"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a0d2d3421728991fe288b60f1e1b705">&#9670;&nbsp;</a></span>printArrayDev()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__device__ void printArrayDev </td>
-          <td>(</td>
-          <td class="paramtype">float *&#160;</td>
-          <td class="paramname"><em>array</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>n</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The callback function <code>printArrayDev</code> print all the elements contained into <code>array</code> on the std out. </p>
-<p>The following function print all the element contained into <code>array</code> on the std out of the CUDA device. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">*array</td><td>Vector of float elements to print </td></tr>
-    <tr><td class="paramname">n</td><td>The size of the vector </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00013">13</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1523,7 +1478,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>printArrayI</code> print on the standard output an input array of integer values. </p>
+<p>The function <code>printArrayI</code> print on the standard output an input array of integer values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>array </td></tr>
@@ -1568,7 +1523,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>printMatrix</code> print on the standard output an input matrix of float values. </p>
+<p>The function <code>printMatrix</code> print on the standard output an input matrix of float values. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>array </td></tr>
@@ -1579,51 +1534,6 @@ Functions</h2></td></tr>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="module_8c_source.html#l01831">1831</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
-
-</div>
-</div>
-<a id="aaa8ba45baa247d1732aa6026babb6909"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaa8ba45baa247d1732aa6026babb6909">&#9670;&nbsp;</a></span>printMatrixDev()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__device__ void printMatrixDev </td>
-          <td>(</td>
-          <td class="paramtype">float *&#160;</td>
-          <td class="paramname"><em>matrix</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>M</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>N</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>The callback function <code>printMatrixDev</code> print all the elements contained into <code>matrix</code> on the std out. </p>
-<p>The following function print all the elements contained into <code>matrix</code> on the std out of the CUDA device. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">*matrix</td><td>Matrix of float elements to print </td></tr>
-    <tr><td class="paramname">n</td><td>The size of the matrix </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00027">27</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1701,7 +1611,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>readFile</code> allows to read several file formats for the <code>CLASSIFICATION</code> task. </p>
+<p>The function <code>readFile</code> allows to read several file formats for the <code>CLASSIFICATION</code> task. </p>
 <p>The following function allows to read several file format for the <code>CLASSIFICATION</code> task by providing in input several parameters.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1718,7 +1628,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00883">883</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00864">864</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1790,7 +1700,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>readFileSubSeq</code> allows to read several file formats for the <code>SUBSEQUENCE SEARCH</code> task. </p>
+<p>The function <code>readFileSubSeq</code> allows to read several file formats for the <code>SUBSEQUENCE SEARCH</code> task. </p>
 <p>The following function allows to read several file format for the <code>SUBSEQUENCE SEARCH</code> task by providing in input several parameters.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1806,7 +1716,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00802">802</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00771">771</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1887,7 +1797,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00617">617</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00586">586</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -1962,7 +1872,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00260">260</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00229">229</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -2232,7 +2142,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>shuffle</code> is function for shuffling the data contained into an array. </p>
+<p>The function <code>shuffle</code> is function for shuffling the data contained into an array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>Vector to shuffle </td></tr>
@@ -2278,7 +2188,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>standard_deviation</code> compute the <code>standard deviation</code> of a given vector. </p>
+<p>The function <code>standard_deviation</code> compute the <code>standard deviation</code> of a given vector. </p>
 <p>The following function computes the <code>standard deviation</code> of a given input vector. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*data</td><td>Input vector </td></tr>
@@ -2325,7 +2235,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>stdDev</code> compute the <code>standard deviation</code> of a given vector allocated on the CUDA device. </p>
+<p>The function <code>stdDev</code> compute the <code>standard deviation</code> of a given vector allocated on the CUDA device. </p>
 <p>The following function computes the <code>standard deviation</code> of a given input vector. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*data</td><td>Input vector </td></tr>
@@ -2336,7 +2246,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><code>Standard deviation</code> computed on the input vector </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00046">46</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="module_8c_source.html#l00015">15</a> of file <a class="el" href="module_8c_source.html">module.c</a>.</p>
 
 </div>
 </div>
@@ -2366,7 +2276,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>timedifference_msec</code> computes the time difference among <code>t0</code> and <code>t1</code>. </p>
+<p>The function <code>timedifference_msec</code> computes the time difference among <code>t0</code> and <code>t1</code>. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">t0</td><td>structure containing time took at <code>t0</code> </td></tr>
@@ -2406,7 +2316,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>unique_val</code> look for unique value into an array. </p>
+<p>The function <code>unique_val</code> look for unique value into an array. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">*array</td><td>Vector where to search into </td></tr>
@@ -2453,7 +2363,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>The callback function <code>z_normalize2D</code> z-normalize an input vector. </p>
+<p>The function <code>z_normalize2D</code> z-normalize an input vector. </p>
 <p>The following function calculate the z score of each value into a vector, relative to the sample mean and standard deviation.</p>
 <p>The following function computes the <code>standard deviation</code> of a given input vector. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
