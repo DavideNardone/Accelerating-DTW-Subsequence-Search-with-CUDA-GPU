@@ -633,12 +633,12 @@ int main(int argc, char **argv) {
         float *d_Out = 0;
         if (class_mode < 2) {
           cudaMalloc((void **)&d_Out, trainSize * sizeof(float));
-          cudaMemset(&d_Out, 0, trainSize * sizeof(float));
+          cudaMemset(d_Out, 0, trainSize * sizeof(float));
           h_Out = (float *)malloc(trainSize * sizeof(float));
           memset(h_Out, 0, trainSize * sizeof(float));
         } else {
           cudaMalloc((void **)&d_Out, trainSize * window_size * sizeof(float));
-          cudaMemset(&d_Out, 0, trainSize * window_size * sizeof(float));
+          cudaMemset(d_Out, 0, trainSize * window_size * sizeof(float));
           h_Out = (float *)malloc(trainSize * window_size * sizeof(float));
           memset(h_Out, 0, trainSize * window_size * sizeof(float));
         }
@@ -686,13 +686,13 @@ int main(int argc, char **argv) {
             cudaEventRecord(start_GPU, 0);
 
             for (k = 0; k < testSize; k++) {
-              cudaMemset(&d_test, 0, n_feat * window_size * sizeof(float));
+              cudaMemset(d_test, 0, n_feat * window_size * sizeof(float));
               cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
                          n_feat * window_size * sizeof(float),
                          cudaMemcpyHostToDevice);
 
               if (strcmp(distance_type, "DTW") == 0) // DTW distance
-                MD_DTW_D << <grid, threads, T2>>> (d_train, d_test, window_size,
+                MD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size,
                                                    window_size, n_feat, d_Out,
                                                    trainSize, 0, gm);
               else

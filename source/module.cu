@@ -1766,16 +1766,15 @@ __host__ cudaDeviceProp getDevProp(int device) {
 }
 
 /**
- * \brief The function `initializeArray` fills an input array with a desidered value.
+ * \brief The function `initializeArray` fills an input array with a random value.
  
  * \param *array Vector to fill
  * \param n Size of the vector
- * \param val Value to fill the array with
  */
-__host__ void initializeArray(float *array, int n, float val) {
+__host__ void initializeArray(float *array, int n) {
   int i;
   for (i = 0; i < n; i++)
-    array[i] = val;
+    array[i] = ((float)rand()) / (float)RAND_MAX;
 }
 
 /**

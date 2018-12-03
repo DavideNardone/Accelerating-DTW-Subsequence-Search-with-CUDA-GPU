@@ -56,7 +56,7 @@ __host__ void print_help(void);
 __host__ void print_version(void);
 __host__ void infoDev();
 __host__ cudaDeviceProp getDevProp(int);
-__host__ void initializeArray(float *, int, float);
+__host__ void initializeArray(float *, int);
 __host__ void initializeMatrix(float *, int, int);
 __host__ void equalArray(float *, float *, int);
 __host__ void compareArray(float *, float *, int);
