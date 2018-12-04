@@ -34,9 +34,7 @@ Runn the following command to clone the `master` repository into a *target* dire
 
 Once you are in the main folder, you must compile the **MD_DTW.cu** and **module.cu** files as illustrated below:
 
-`nvcc [options] [source files] -o output file>` (e.g., `nvcc -arch=sm_30 -D WS=<time_length> source/MD_DTW.cu source/module.cu -o mdtwObj`)
-
-where `-D option` is necessary to define a `static variable` (representing the time's length of the MTS) which is used to store the MTS's query into the *local memory* of each CUDA block.
+`nvcc [options] [source files] -o output file>` (e.g., `nvcc -arch=sm_30 source/MD_DTW.cu source/module.cu -o mdtwObj`)
 
 **NOTE:** The implementation presented here assumes that each compared MTS has the same time length.
 
@@ -126,7 +124,7 @@ Some examples follow:
 
 **Compiling**
 
-`nvcc -arch=sm_30 -D WS=152 source/MD_DTW.cu source/module.cu -o mdtwObj`
+`nvcc -arch=sm_30 source/MD_DTW.cu source/module.cu -o mdtwObj`
 
 **Running**
 
@@ -150,7 +148,7 @@ GPU:
 
 **Compiling**
 
-`nvcc -arch=sm_30 -D WS=421 source/MD_DTW.cu source/module.cu -o mdtwObj`
+`nvcc -arch=sm_30 source/MD_DTW.cu source/module.cu -o mdtwObj`
 
 **Running**
 
