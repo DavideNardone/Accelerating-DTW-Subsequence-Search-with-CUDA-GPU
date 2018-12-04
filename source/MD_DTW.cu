@@ -2,6 +2,449 @@
 
 using namespace std;
 
+/**
+ * \brief The kernel function `MD_DTW_D` computes the `Dependent-Multi Dimensional Dynamic Time Warping` distance (D-MDDTW).
+ *
+ * The following kernel function computes the D-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Number of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
+ * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
+ */
+template<int WS>
+__global__ void MD_DTW_D(float *S, float *T, int window_size, int dimensions,
+                         float *data_out, int trainSize, int task, int gm) {
+
+  long long int k, l, g;
+
+  long long int i, j, p;
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+  float min_nb = 0;
+  float array[WS][2];
+
+  if (gm == 0) {
+
+    // query timeseries
+    extern __shared__ float T2[];
+
+    int t, offset;
+    if (task == 0) {
+
+      offset = window_size;
+
+      int wind = dimensions * window_size;
+      t = idx * wind;
+      if ((idx * wind) + wind > trainSize * wind)
+        return;
+
+      if (threadIdx.x == 0) {
+        for (i = 0; i < dimensions; i++)
+          for (j = 0; j < window_size; j++)
+            T2[window_size * i + j] = T[window_size * i + j];
+      }
+      __syncthreads();
+    } else {
+
+      offset = trainSize;
+
+      t = idx;
+      if ((idx + window_size) > trainSize)
+        return;
+
+      if (threadIdx.x == 0) {
+        for (i = 0; i < dimensions; i++)
+          for (j = 0; j < window_size; j++)
+            T2[window_size * i + j] = T[window_size * i + j];
+      }
+      __syncthreads();
+    }
+
+    k = 0;
+    l = 1;
+
+    // computing first row (instace versus query)
+    for (i = 0; i < window_size; i++) {
+      array[i][k] = 0.0;
+      for (p = 0; p < dimensions; p++) {
+        if (i == 0)
+          array[i][k] += pow((S[t + p * offset] - T2[p * window_size]), 2);
+        else
+          array[i][k] += pow((S[t + p * offset] - T2[p * window_size + i]), 2);
+      }
+      if (i != 0)
+        array[i][k] += array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+
+      i = 0;
+      array[i][k] = 0.0;
+
+      for (p = 0; p < dimensions; p++)
+        array[i][k] += pow((S[t + p * offset + j] - T2[p * window_size + i]), 2);
+
+      array[i][k] += array[i][l];
+      for (i = 1; i < window_size; i++) {
+
+        array[i][k] = 0.0;
+        float a = array[i - 1][l];
+        float b = array[i][l];
+        float c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        for (p = 0; p < dimensions; p++)
+          array[i][k] += pow((S[t + p * offset + j] - T2[p * window_size + i]), 2);
+
+        array[i][k] += min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+    data_out[idx] = array[window_size - 1][g];
+  } else {
+
+    int t, offset;
+    if (task == 0) {
+
+      offset = window_size;
+
+      int wind = dimensions * window_size;
+      t = idx * wind;
+      if ((idx * wind) + wind > trainSize * wind)
+        return;
+    } else {
+
+      offset = trainSize;
+
+      t = idx;
+      if ((idx + window_size) > trainSize)
+        return;
+    }
+
+    k = 0;
+    l = 1;
+
+    // computing first row (instace versus query)
+    for (i = 0; i < window_size; i++) {
+      array[i][k] = 0.0;
+      for (p = 0; p < dimensions; p++) {
+        if (i == 0)
+          array[i][k] += pow((S[t + p * offset] - T[p * window_size]), 2);
+        else
+          array[i][k] += pow((S[t + p * offset] - T[p * window_size + i]), 2);
+      }
+      if (i != 0)
+        array[i][k] += array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+
+      i = 0;
+      array[i][k] = 0.0;
+
+      for (p = 0; p < dimensions; p++)
+        array[i][k] += pow((S[t + p * offset + j] - T[p * window_size + i]), 2);
+
+      array[i][k] += array[i][l];
+      for (i = 1; i < window_size; i++) {
+
+        array[i][k] = 0.0;
+        float a = array[i - 1][l];
+        float b = array[i][l];
+        float c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        for (p = 0; p < dimensions; p++)
+          array[i][k] += pow((S[t + p * offset + j] - T[p * window_size + i]), 2);
+
+        array[i][k] += min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+    data_out[idx] = array[window_size - 1][g];
+  }
+}
+
+/**
+ * \brief The kernel function `MD_DTW_I` computes the `Independent Multi Dimensional-Dynamic Time Warping` distance (I-MDDTW).
+ *
+ * The following kernel function computes the I-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Number of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
+ */
+template<int WS>
+__global__ void MD_DTW_I(float *S, float *T, int window_size, int dimensions,
+                         float *data_out, int trainSize, int task) {
+
+  int idx, offset_x;
+  long long int i, j;
+  long long int k, l, g;
+  float min_nb = 0;
+  float array[WS][2];
+
+  extern __shared__ float sh_mem[];
+
+  float *T2 = (float *)sh_mem;
+  float *DTW_single_dim =
+      (float *)&sh_mem[dimensions *
+                       window_size]; // offset on the shared memory for the segment T2
+
+  if (task == 0) {
+    idx = threadIdx.x * dimensions + threadIdx.y;
+    offset_x = ((blockDim.x * blockDim.y * window_size) * blockIdx.x) + idx * window_size;
+
+    if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
+        trainSize * dimensions) // 120=train_size
+      return;
+
+  } else { // SUBSEQ_SEARCH
+
+    idx = threadIdx.x * dimensions + threadIdx.y;
+    offset_x =
+        (blockDim.x * blockIdx.x) +
+        ((threadIdx.y * trainSize) +
+         threadIdx.x); // use blockIdx and other measure to set well the offset
+
+    if ((idx + window_size) > trainSize)
+      return;
+  }
+
+  if (idx == 0) {
+    for (i = 0; i < dimensions; i++)
+      for (j = 0; j < window_size; j++)
+        *(T2 + (window_size * i + j)) = T[window_size * i + j];
+  }
+  __syncthreads();
+
+  k = 0;
+  l = 1;
+  for (i = 0; i < window_size; i++) {
+    if (i == 0)
+      array[i][k] = pow((S[offset_x] - T2[window_size * threadIdx.y]), 2);
+    else
+      array[i][k] =
+          pow((S[offset_x] - T2[window_size * threadIdx.y + i]), 2) + array[i - 1][k];
+  }
+
+  k = 1;
+  l = 0;
+  for (j = 1; j < window_size; j++) {
+    i = 0;
+    array[i][k] =
+        pow((S[offset_x + j] - T2[window_size * threadIdx.y + i]), 2) + array[i][l];
+
+    for (i = 1; i < window_size; i++) {
+      double a = array[i - 1][l];
+      double b = array[i][l];
+      double c = array[i - 1][k];
+
+      min_nb = fminf(a, b);
+      min_nb = fminf(c, min_nb);
+
+      array[i][k] =
+          pow((S[offset_x + j] - T2[window_size * threadIdx.y + i]), 2) + min_nb;
+    }
+    g = k;
+    k = l;
+    l = g;
+  }
+  DTW_single_dim[idx] = array[window_size - 1][g];
+
+  __syncthreads();
+
+  if (idx == 0) {
+    for (i = 0; i < blockDim.x; i++) {
+      data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
+      for (j = 0; j < blockDim.y; j++) {
+        data_out[(blockIdx.x * blockDim.x) + i] +=
+            DTW_single_dim[i * dimensions + j];
+      }
+    }
+  }
+}
+
+/**
+ * \brief The kernel function `rMD_DTW_D` computes the `Rotation Dependent-Multi Dimensional Dynamic Time Warping` distance (rD-MDDTW).
+ *
+ * The following kernel function computes the rD-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
+    It considers the comparison of all the possible `punctual rotation` of the Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
+    By exploiting the CUDA threads, this computation can be done very fast.
+
+ * \param *S Unrolled vector containing `trainSize` number of MTS 
+ * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param window_size Length of the two given MTS
+ * \param dimensions Nnumber of variables for the two MTS
+ * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
+ * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
+ */
+template<int WS>
+__global__ void rMD_DTW_D(float *S, float *T, int window_size, int dimensions,
+                          float *data_out, int trainSize, int gm) {
+
+  long long int k, l, g;
+  long long int i, j, p;
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  float min_nb = 0;
+  float array[WS][2];
+
+  if (gm == 0) {
+
+    extern __shared__ float T2[];
+
+    // offset training set
+    int s = dimensions * 2 * window_size * (idx / window_size);
+    int t = s + idx % window_size;
+
+    if (idx >= (trainSize * window_size)) //
+      return;
+
+    if (threadIdx.x == 0) {
+      for (i = 0; i < dimensions; i++)
+        for (j = 0; j < window_size; j++)
+          T2[window_size * i + j] = T[window_size * i + j];
+    }
+    __syncthreads();
+
+    k = 0;
+    l = 1;
+    for (i = 0; i < window_size; i++) {
+      array[i][k] = 0.0;
+      for (p = 0; p < dimensions; p++) {
+        if (i == 0)
+          array[i][k] += pow((S[t + p * 2 * window_size] - T2[p * window_size]), 2);
+        else
+          array[i][k] += pow((S[t + p * 2 * window_size] - T2[p * window_size + i]), 2);
+      }
+      if (i != 0)
+        array[i][k] += array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+      i = 0;
+      array[i][k] = 0.0;
+
+      for (p = 0; p < dimensions; p++) {
+        array[i][k] += pow((S[t + p * 2 * window_size + j] - T2[p * window_size + i]), 2);
+      }
+
+      array[i][k] += array[i][l];
+
+      for (i = 1; i < window_size; i++) {
+        array[i][k] = 0.0;
+        float a = array[i - 1][l];
+        float b = array[i][l];
+        float c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        for (p = 0; p < dimensions; p++)
+          array[i][k] += pow((S[t + p * 2 * window_size + j] - T2[p * window_size + i]), 2);
+
+        array[i][k] += min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+
+    data_out[idx] = array[window_size - 1][g];
+  } else {
+
+    // offset training set
+    int s = dimensions * 2 * window_size * (idx / window_size);
+    int t = s + idx % window_size;
+
+    if (idx >= (trainSize * window_size)) //
+      return;
+
+    k = 0;
+    l = 1;
+
+    // computing first row (instace versus query)
+    for (i = 0; i < window_size; i++) {
+      array[i][k] = 0.0;
+      for (p = 0; p < dimensions; p++) {
+        if (i == 0)
+          array[i][k] += pow((S[t + p * 2 * window_size] - T[p * window_size]), 2);
+        else
+          array[i][k] += pow((S[t + p * 2 * window_size] - T[p * window_size + i]), 2);
+      }
+      if (i != 0)
+        array[i][k] += array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+
+      i = 0;
+      array[i][k] = 0.0;
+
+      for (p = 0; p < dimensions; p++) {
+        array[i][k] += pow((S[t + p * 2 * window_size + j] - T[p * window_size + i]), 2);
+      }
+
+      array[i][k] += array[i][l];
+
+      for (i = 1; i < window_size; i++) {
+
+        array[i][k] = 0.0;
+        float a = array[i - 1][l];
+        float b = array[i][l];
+        float c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        for (p = 0; p < dimensions; p++)
+          array[i][k] += pow((S[t + p * 2 * window_size + j] - T[p * window_size + i]), 2);
+
+        array[i][k] += min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+    data_out[idx] = array[window_size - 1][g];
+  }
+}
+
+
+/* ******************************************* MAIN
+ * ******************************************* */
 int main(int argc, char **argv) {
   struct timeval stop_CPU, start_CPU;
   cudaEvent_t start_GPU, stop_GPU;
@@ -230,10 +673,10 @@ int main(int argc, char **argv) {
           i = i + 2;
         }
 
-        if (WS != window_size){
-          printf("The 'WS' and 'window_size' variables differs in dimension!\n");
-          exit(-1);
-        }
+        // if (WS != window_size){
+        //   printf("The 'WS' and 'window_size' variables differs in dimension!\n");
+        //   exit(-1);
+        // }
 
       } else if (strcmp(task, "SUBSEQ_SEARCH") == 0) {
         num_opts = 2;
@@ -337,8 +780,6 @@ int main(int argc, char **argv) {
   }
   /* ******************************************* ARGUMENT PARSING
    * ******************************************* */
-
-  // settingGPUenv()
 
   if(verbose_mode == 0){
     printf("\nThe number of iteration is greater than testSize! "
@@ -691,10 +1132,50 @@ int main(int argc, char **argv) {
                          n_feat * window_size * sizeof(float),
                          cudaMemcpyHostToDevice);
 
-              if (strcmp(distance_type, "DTW") == 0) // DTW distance
-                MD_DTW_D <<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                   window_size, n_feat, d_Out,
-                                                   trainSize, 0, gm);
+              if (strcmp(distance_type, "DTW") == 0){ // DTW distance
+
+
+                switch (foldit(window_size)) {
+                  case 0: MD_DTW_D<64><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 1: MD_DTW_D<128><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 2: MD_DTW_D<256><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 3: MD_DTW_D<512><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 4: MD_DTW_D<1024><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 5: MD_DTW_D<2048><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 6: MD_DTW_D<4096><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 7: MD_DTW_D<8192><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+                  case 8: MD_DTW_D<16384><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                            n_feat, d_Out,
+                                                            trainSize, 0, gm);
+                  break;
+
+                  default: printf("No kernel exists for %d window_size\n", window_size); break;
+                }
+              }
               else
                 MD_ED_D << <grid, threads, T2>>> (d_train, d_test, window_size,
                                                   n_feat, d_Out, trainSize, 0,
@@ -774,10 +1255,39 @@ int main(int argc, char **argv) {
                          n_feat * window_size * sizeof(float),
                          cudaMemcpyHostToDevice);
 
-              if (strcmp(distance_type, "DTW") == 0) // DTW distance
-                MD_DTW_I << <grid, threads, sh_mem>>>
-                    (d_train, d_test, window_size, window_size, n_feat, d_Out,
-                     trainSize, 0);
+              if (strcmp(distance_type, "DTW") == 0){ // DTW distance
+
+                switch (foldit(window_size)) {
+
+                  case 0: MD_DTW_I<64><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 1: MD_DTW_I<128><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 2: MD_DTW_I<256><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 3: MD_DTW_I<512><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 4: MD_DTW_I<1024><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 5: MD_DTW_I<2048><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 6: MD_DTW_I<4096><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 7: MD_DTW_I<8192><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                  case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
+                                                                  n_feat, d_Out, trainSize, 0);
+                  break;
+                }
+              }
               else
                 MD_ED_I << <grid, threads, sh_mem>>>
                     (d_train, d_test, window_size, n_feat, d_Out, trainSize, 0);
@@ -860,10 +1370,48 @@ int main(int argc, char **argv) {
                          n_feat * window_size * sizeof(float),
                          cudaMemcpyHostToDevice);
 
-              if (strcmp(distance_type, "DTW") == 0) // DTW distance
-                rMD_DTW_D << <grid, threads, T2>>> (d_train, d_test, window_size,
-                                                    window_size, n_feat, d_Out,
+              if (strcmp(distance_type, "DTW") == 0){ // DTW distance
+
+                switch (foldit(window_size)) {
+
+                  case 0: rMD_DTW_D<64><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
                                                     trainSize, gm);
+                  break;
+                  case 1: rMD_DTW_D<128><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                  case 2: rMD_DTW_D<256><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                  case 3: rMD_DTW_D<512><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                  case 4: rMD_DTW_D<1024><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                  case 5: rMD_DTW_D<2048><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                  case 6: rMD_DTW_D<4096><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                  case 7: rMD_DTW_D<8192><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                  case 8: rMD_DTW_D<16384><<<grid, threads, T2>>> (d_train, d_test, window_size,
+                                                    n_feat, d_Out,
+                                                    trainSize, gm);
+                  break;
+                }
+              }
               else
                 rMD_ED_D << <grid, threads, T2>>>
                     (d_train, d_test, window_size, n_feat, d_Out, trainSize, gm);
@@ -1129,10 +1677,48 @@ int main(int argc, char **argv) {
           cudaEventCreate(&stop_GPU);
           cudaEventRecord(start_GPU, 0);
 
-          if (strcmp(distance_type, "DTW") == 0) // DTW distance
-            MD_DTW_D << <grid, threads, T2>>> (d_t_series, d_q_series,
-                                               window_size, window_size, n_feat,
-                                               d_owp, t_size, 1, gm);
+          if (strcmp(distance_type, "DTW") == 0){ // DTW distance
+
+            switch (foldit(window_size)) {
+
+              case 0: MD_DTW_D<64><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                          window_size, n_feat,
+                                                          d_owp, t_size, 1, gm);
+              break;
+              case 1: MD_DTW_D<128><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                          window_size, n_feat,
+                                                          d_owp, t_size, 1, gm);
+              break;
+              case 2: MD_DTW_D<256><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                           window_size, n_feat,
+                                                           d_owp, t_size, 1, gm);
+              break;
+              case 3: MD_DTW_D<512><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                           window_size, n_feat,
+                                                           d_owp, t_size, 1, gm);
+              break;
+              case 4: MD_DTW_D<1024><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                           window_size, n_feat,
+                                                           d_owp, t_size, 1, gm);
+              break;
+              case 5: MD_DTW_D<2048><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                           window_size, n_feat,
+                                                           d_owp, t_size, 1, gm);
+              break;
+              case 6: MD_DTW_D<4096><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                           window_size, n_feat,
+                                                           d_owp, t_size, 1, gm);
+              break;
+              case 7: MD_DTW_D<8192><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                           window_size, n_feat,
+                                                           d_owp, t_size, 1, gm);
+              break;
+              case 8: MD_DTW_D<16384><<<grid, threads, T2>>>(d_t_series, d_q_series,
+                                                             window_size, n_feat,
+                                                             d_owp, t_size, 1, gm);
+              break;
+            }
+          }
           else
             MD_ED_D << <grid, threads, T2>>> (d_t_series, d_q_series, window_size,
                                               n_feat, d_owp, t_size, 1, gm);
@@ -1192,10 +1778,48 @@ int main(int argc, char **argv) {
 
           float sh_mem =
               ((threads.x * threads.y) + (n_feat * t_size)) * sizeof(float);
-          if (strcmp(distance_type, "DTW") == 0) // DTW distance
-            MD_DTW_I << <grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                                   window_size, window_size,
+          if (strcmp(distance_type, "DTW") == 0){ // DTW distance
+
+            switch (foldit(window_size)) {
+
+              case 0: MD_DTW_I<64><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
                                                    n_feat, d_owp, t_size, 1);
+              break;
+              case 1: MD_DTW_I<128><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+              case 2: MD_DTW_I<256><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+              case 3: MD_DTW_I<512><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+              case 4: MD_DTW_I<1024><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+              case 5: MD_DTW_I<2048><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+              case 6: MD_DTW_I<4096><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+              case 7: MD_DTW_I<8192><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+              case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                                   window_size,
+                                                   n_feat, d_owp, t_size, 1);
+              break;
+            }
+          }
           else
             MD_ED_I << <grid, threads, sh_mem>>>
                 (d_t_series, d_q_series, window_size, n_feat, d_owp, t_size, 1);

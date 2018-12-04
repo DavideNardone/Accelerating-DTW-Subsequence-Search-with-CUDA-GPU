@@ -15,10 +15,6 @@ struct data {
   int test_size;
 };
 
-#if defined W_SIZE
-static const int WS = W_SIZE;
-#endif
-
 #ifndef HEADER_H
 #define HEADER_H
 
@@ -28,12 +24,8 @@ extern "C" {
 
 // device
 __global__ void MD_ED_D(float *, float *, int, int, float *, int, int, int);
-__global__ void MD_DTW_D(float *, float *, int, int, int, float *, int, int,
-                         int);
 __global__ void MD_ED_I(float *, float *, int, int, float *, int, int);
-__global__ void MD_DTW_I(float *, float *, int, int, int, float *, int, int);
 __global__ void rMD_ED_D(float *, float *, int, int, float *, int, int);
-__global__ void rMD_DTW_D(float *, float *, int, int, int, float *, int, int);
 __device__ float stdDev(float *, int, float *);
 
 // host
@@ -56,7 +48,7 @@ __host__ void print_help(void);
 __host__ void print_version(void);
 __host__ void infoDev();
 __host__ cudaDeviceProp getDevProp(int);
-__host__ void initializeArray(float *, int);
+__host__ void initializeArray(float *, int, float);
 __host__ void initializeMatrix(float *, int, int);
 __host__ void equalArray(float *, float *, int);
 __host__ void compareArray(float *, float *, int);
@@ -75,6 +67,7 @@ __host__ void idAssign(int *, int, int *, int, int *, int *, int *);
 __host__ int *crossvalind_Kfold(int *, int, int, int);
 __host__ int countVal(int *, int, int);
 __host__ void fakeK_fold(int *array, int n, int m);
+__host__ int foldit (int);
 
 #ifdef __cplusplus
 }

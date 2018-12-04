@@ -60,7 +60,7 @@ __global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
 
       offset = window_size;
 
-      int wind = dimensions * WS;
+      int wind = dimensions * window_size;
       t = idx * wind;
       if ((idx * wind) + wind >
           trainSize * wind) // CHANGE FORMULA 120=train_size
@@ -80,7 +80,7 @@ __global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
       offset = trainSize;
 
       t = idx;
-      if ((idx + WS) > trainSize)
+      if ((idx + window_size) > trainSize)
         return;
 
       if (threadIdx.x == 0) {
@@ -107,7 +107,7 @@ __global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
 
       offset = window_size;
 
-      int wind = dimensions * WS;
+      int wind = dimensions * window_size;
       t = idx * wind;
       if ((idx * wind) + wind > trainSize * wind)
         return;
@@ -118,7 +118,7 @@ __global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
       offset = trainSize;
 
       t = idx;
-      if ((idx + WS) > trainSize)
+      if ((idx + window_size) > trainSize)
         return;
     }
 
@@ -181,7 +181,7 @@ __global__ void MD_ED_I(float *S, float *T, int window_size, int dimensions,
         ((threadIdx.y * trainSize) +
          threadIdx.x); // use blockIdx and other measure to set well the offset
 
-    if ((idx + WS) > trainSize)
+    if ((idx + window_size) > trainSize)
       return;
   }
 
@@ -238,8 +238,8 @@ __global__ void rMD_ED_D(float *S, float *T, int window_size, int dimensions,
     extern __shared__ float T2[];
 
     // offset training set
-    int s = dimensions * 2 * WS * (idx / WS);
-    int t = s + idx % WS;
+    int s = dimensions * 2 * window_size * (idx / window_size);
+    int t = s + idx % window_size;
 
     if (idx >= (trainSize * window_size)) //
       return;
@@ -262,8 +262,8 @@ __global__ void rMD_ED_D(float *S, float *T, int window_size, int dimensions,
     data_out[idx] = sqrt(sumErr);
   } else {
 
-    int s = dimensions * 2 * WS * (idx / WS);
-    int t = s + idx % WS;
+    int s = dimensions * 2 * window_size * (idx / window_size);
+    int t = s + idx % window_size;
 
     if (idx >= (trainSize * window_size))
       return;
@@ -280,442 +280,6 @@ __global__ void rMD_ED_D(float *S, float *T, int window_size, int dimensions,
   }
 }
 
-/**
- * \brief The kernel function `MD_DTW_D` computes the `Dependent-Multi Dimensional Dynamic Time Warping` distance (D-MDDTW).
- *
- * The following kernel function computes the D-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
-    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
-    By exploiting the CUDA threads, this computation can be done very fast.
-    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
-
- * \param *S Unrolled vector containing `trainSize` number of MTS 
- * \param *T Unrolled vector representing the second time Series to compare against `*S`
- * \param window_size Length of the two given MTS
- * \param dimensions Number of variables for the two MTS
- * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
- * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
- * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
- */
-__global__ void MD_DTW_D(float *S, float *T, int ns, int nt, int dimensions,
-                         float *data_out, int trainSize, int task, int gm) {
-
-  long long int k, l, g;
-
-  long long int i, j, p;
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-  float min_nb = 0;
-  float array[WS][2];
-
-  if (gm == 0) {
-
-    // query timeseries
-    extern __shared__ float T2[];
-
-    int t, offset;
-    if (task == 0) {
-
-      offset = ns;
-
-      int wind = dimensions * WS;
-      t = idx * wind;
-      if ((idx * wind) + wind > trainSize * wind)
-        return;
-
-      if (threadIdx.x == 0) {
-        for (i = 0; i < dimensions; i++)
-          for (j = 0; j < nt; j++)
-            T2[nt * i + j] = T[nt * i + j];
-      }
-      __syncthreads();
-    } else {
-
-      offset = trainSize;
-
-      t = idx;
-      if ((idx + WS) > trainSize)
-        return;
-
-      if (threadIdx.x == 0) {
-        for (i = 0; i < dimensions; i++)
-          for (j = 0; j < nt; j++)
-            T2[nt * i + j] = T[nt * i + j];
-      }
-      __syncthreads();
-    }
-
-    k = 0;
-    l = 1;
-
-    // computing first row (instace versus query)
-    for (i = 0; i < nt; i++) {
-      array[i][k] = 0.0;
-      for (p = 0; p < dimensions; p++) {
-        if (i == 0)
-          array[i][k] += pow((S[t + p * offset] - T2[p * nt]), 2);
-        else
-          array[i][k] += pow((S[t + p * offset] - T2[p * nt + i]), 2);
-      }
-      if (i != 0)
-        array[i][k] += array[i - 1][k];
-    }
-
-    k = 1;
-    l = 0;
-    for (j = 1; j < ns; j++) {
-
-      i = 0;
-      array[i][k] = 0.0;
-
-      for (p = 0; p < dimensions; p++)
-        array[i][k] += pow((S[t + p * offset + j] - T2[p * nt + i]), 2);
-
-      array[i][k] += array[i][l];
-      for (i = 1; i < nt; i++) {
-
-        array[i][k] = 0.0;
-        float a = array[i - 1][l];
-        float b = array[i][l];
-        float c = array[i - 1][k];
-
-        min_nb = fminf(a, b);
-        min_nb = fminf(c, min_nb);
-
-        for (p = 0; p < dimensions; p++)
-          array[i][k] += pow((S[t + p * offset + j] - T2[p * nt + i]), 2);
-
-        array[i][k] += min_nb;
-      }
-      g = k;
-      k = l;
-      l = g;
-    }
-    data_out[idx] = array[nt - 1][g];
-  } else {
-
-    int t, offset;
-    if (task == 0) {
-
-      offset = ns;
-
-      int wind = dimensions * WS;
-      t = idx * wind;
-      if ((idx * wind) + wind > trainSize * wind)
-        return;
-    } else {
-
-      offset = trainSize;
-
-      t = idx;
-      if ((idx + WS) > trainSize)
-        return;
-    }
-
-    k = 0;
-    l = 1;
-
-    // computing first row (instace versus query)
-    for (i = 0; i < nt; i++) {
-      array[i][k] = 0.0;
-      for (p = 0; p < dimensions; p++) {
-        if (i == 0)
-          array[i][k] += pow((S[t + p * offset] - T[p * nt]), 2);
-        else
-          array[i][k] += pow((S[t + p * offset] - T[p * nt + i]), 2);
-      }
-      if (i != 0)
-        array[i][k] += array[i - 1][k];
-    }
-
-    k = 1;
-    l = 0;
-    for (j = 1; j < ns; j++) {
-
-      i = 0;
-      array[i][k] = 0.0;
-
-      for (p = 0; p < dimensions; p++)
-        array[i][k] += pow((S[t + p * offset + j] - T[p * nt + i]), 2);
-
-      array[i][k] += array[i][l];
-      for (i = 1; i < nt; i++) {
-
-        array[i][k] = 0.0;
-        float a = array[i - 1][l];
-        float b = array[i][l];
-        float c = array[i - 1][k];
-
-        min_nb = fminf(a, b);
-        min_nb = fminf(c, min_nb);
-
-        for (p = 0; p < dimensions; p++)
-          array[i][k] += pow((S[t + p * offset + j] - T[p * nt + i]), 2);
-
-        array[i][k] += min_nb;
-      }
-      g = k;
-      k = l;
-      l = g;
-    }
-    data_out[idx] = array[nt - 1][g];
-  }
-}
-
-/**
- * \brief The kernel function `MD_ED_I` computes the `Independent Multi Dimensional-Dynamic Time Warping` distance (I-MDDTW).
- *
- * The following kernel function computes the I-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
-    It considers the comparison of many Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
-    By exploiting the CUDA threads, this computation can be done very fast.
-    For more information about how it's computed, refer to the following link: http://stats.stackexchange.com/questions/184977/multivariate-time-series-euclidean-distance
-
- * \param *S Unrolled vector containing `trainSize` number of MTS 
- * \param *T Unrolled vector representing the second time Series to compare against `*S`
- * \param window_size Length of the two given MTS
- * \param dimensions Number of variables for the two MTS
- * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
- * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
- */
-__global__ void MD_DTW_I(float *S, float *T, int ns, int nt, int dimensions,
-                         float *data_out, int trainSize, int task) {
-
-  int idx, offset_x;
-  long long int i, j;
-  long long int k, l, g;
-  float min_nb = 0;
-  float array[WS][2];
-
-  extern __shared__ float sh_mem[];
-
-  float *T2 = (float *)sh_mem;
-  float *DTW_single_dim =
-      (float *)&sh_mem[dimensions *
-                       nt]; // offset on the shared memory for the segment T2
-
-  if (task == 0) {
-    idx = threadIdx.x * dimensions + threadIdx.y;
-    offset_x = ((blockDim.x * blockDim.y * ns) * blockIdx.x) + idx * ns;
-
-    if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
-        trainSize * dimensions) // 120=train_size
-      return;
-
-  } else { // SUBSEQ_SEARCH
-
-    idx = threadIdx.x * dimensions + threadIdx.y;
-    offset_x =
-        (blockDim.x * blockIdx.x) +
-        ((threadIdx.y * trainSize) +
-         threadIdx.x); // use blockIdx and other measure to set well the offset
-
-    if ((idx + WS) > trainSize)
-      return;
-  }
-
-  if (idx == 0) {
-    for (i = 0; i < dimensions; i++)
-      for (j = 0; j < nt; j++)
-        *(T2 + (nt * i + j)) = T[nt * i + j];
-  }
-  __syncthreads();
-
-  k = 0;
-  l = 1;
-  for (i = 0; i < nt; i++) {
-    if (i == 0)
-      array[i][k] = pow((S[offset_x] - T2[nt * threadIdx.y]), 2);
-    else
-      array[i][k] =
-          pow((S[offset_x] - T2[nt * threadIdx.y + i]), 2) + array[i - 1][k];
-  }
-
-  k = 1;
-  l = 0;
-  for (j = 1; j < ns; j++) {
-    i = 0;
-    array[i][k] =
-        pow((S[offset_x + j] - T2[nt * threadIdx.y + i]), 2) + array[i][l];
-
-    for (i = 1; i < nt; i++) {
-      double a = array[i - 1][l];
-      double b = array[i][l];
-      double c = array[i - 1][k];
-
-      min_nb = fminf(a, b);
-      min_nb = fminf(c, min_nb);
-
-      array[i][k] =
-          pow((S[offset_x + j] - T2[nt * threadIdx.y + i]), 2) + min_nb;
-    }
-    g = k;
-    k = l;
-    l = g;
-  }
-  DTW_single_dim[idx] = array[WS - 1][g];
-
-  __syncthreads();
-
-  if (idx == 0) {
-    for (i = 0; i < blockDim.x; i++) {
-      data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
-      for (j = 0; j < blockDim.y; j++) {
-        data_out[(blockIdx.x * blockDim.x) + i] +=
-            DTW_single_dim[i * dimensions + j];
-      }
-    }
-  }
-}
-
-/**
- * \brief The kernel function `rMD_DTW_D` computes the `Rotation Dependent-Multi Dimensional Dynamic Time Warping` distance (rD-MDDTW).
- *
- * The following kernel function computes the rD-MDDTW taking advantage of the GPU, by using a specific number of threads for block.
-    It considers the comparison of all the possible `punctual rotation` of the Multivariate Time Series (MTS) stored into the unrolled vector `*S` against the only unrolled vector `*T`.
-    By exploiting the CUDA threads, this computation can be done very fast.
-
- * \param *S Unrolled vector containing `trainSize` number of MTS 
- * \param *T Unrolled vector representing the second time Series to compare against `*S`
- * \param window_size Length of the two given MTS
- * \param dimensions Nnumber of variables for the two MTS
- * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
- * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
- */
-__global__ void rMD_DTW_D(float *S, float *T, int ns, int nt, int dimensions,
-                          float *data_out, int trainSize, int gm) {
-
-  long long int k, l, g;
-  long long int i, j, p;
-  int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  float min_nb = 0;
-  float array[WS][2];
-
-  if (gm == 0) {
-
-    extern __shared__ float T2[];
-
-    // offset training set
-    int s = dimensions * 2 * WS * (idx / WS);
-    int t = s + idx % WS;
-
-    if (idx >= (trainSize * ns)) //
-      return;
-
-    if (threadIdx.x == 0) {
-      for (i = 0; i < dimensions; i++)
-        for (j = 0; j < nt; j++)
-          T2[nt * i + j] = T[nt * i + j];
-    }
-    __syncthreads();
-
-    k = 0;
-    l = 1;
-    for (i = 0; i < nt; i++) {
-      array[i][k] = 0.0;
-      for (p = 0; p < dimensions; p++) {
-        if (i == 0)
-          array[i][k] += pow((S[t + p * 2 * ns] - T2[p * nt]), 2);
-        else
-          array[i][k] += pow((S[t + p * 2 * ns] - T2[p * nt + i]), 2);
-      }
-      if (i != 0)
-        array[i][k] += array[i - 1][k];
-    }
-
-    k = 1;
-    l = 0;
-    for (j = 1; j < ns; j++) {
-      i = 0;
-      array[i][k] = 0.0;
-
-      for (p = 0; p < dimensions; p++) {
-        array[i][k] += pow((S[t + p * 2 * ns + j] - T2[p * nt + i]), 2);
-      }
-
-      array[i][k] += array[i][l];
-
-      for (i = 1; i < nt; i++) {
-        array[i][k] = 0.0;
-        float a = array[i - 1][l];
-        float b = array[i][l];
-        float c = array[i - 1][k];
-
-        min_nb = fminf(a, b);
-        min_nb = fminf(c, min_nb);
-
-        for (p = 0; p < dimensions; p++)
-          array[i][k] += pow((S[t + p * 2 * ns + j] - T2[p * nt + i]), 2);
-
-        array[i][k] += min_nb;
-      }
-      g = k;
-      k = l;
-      l = g;
-    }
-
-    data_out[idx] = array[nt - 1][g];
-  } else {
-
-    // offset training set
-    int s = dimensions * 2 * WS * (idx / WS);
-    int t = s + idx % WS;
-
-    if (idx >= (trainSize * ns)) //
-      return;
-
-    k = 0;
-    l = 1;
-
-    // computing first row (instace versus query)
-    for (i = 0; i < nt; i++) {
-      array[i][k] = 0.0;
-      for (p = 0; p < dimensions; p++) {
-        if (i == 0)
-          array[i][k] += pow((S[t + p * 2 * ns] - T[p * nt]), 2);
-        else
-          array[i][k] += pow((S[t + p * 2 * ns] - T[p * nt + i]), 2);
-      }
-      if (i != 0)
-        array[i][k] += array[i - 1][k];
-    }
-
-    k = 1;
-    l = 0;
-    for (j = 1; j < ns; j++) {
-
-      i = 0;
-      array[i][k] = 0.0;
-
-      for (p = 0; p < dimensions; p++) {
-        array[i][k] += pow((S[t + p * 2 * ns + j] - T[p * nt + i]), 2);
-      }
-
-      array[i][k] += array[i][l];
-
-      for (i = 1; i < nt; i++) {
-
-        array[i][k] = 0.0;
-        float a = array[i - 1][l];
-        float b = array[i][l];
-        float c = array[i - 1][k];
-
-        min_nb = fminf(a, b);
-        min_nb = fminf(c, min_nb);
-
-        for (p = 0; p < dimensions; p++)
-          array[i][k] += pow((S[t + p * 2 * ns + j] - T[p * nt + i]), 2);
-
-        array[i][k] += min_nb;
-      }
-      g = k;
-      k = l;
-      l = g;
-    }
-    data_out[idx] = array[nt - 1][g];
-  }
-}
 
 /**
  * \brief The function `checkFlagOpts` check out the correctness of the parameters for a given flag.
@@ -1766,12 +1330,13 @@ __host__ cudaDeviceProp getDevProp(int device) {
 }
 
 /**
- * \brief The function `initializeArray` fills an input array with a random value.
+ * \brief The function `initializeArray` fills an input array with a desidered value.
  
  * \param *array Vector to fill
  * \param n Size of the vector
+ * \param val Value to fill the array with
  */
-__host__ void initializeArray(float *array, int n) {
+__host__ void initializeArray(float *array, int n, float val) {
   int i;
   for (i = 0; i < n; i++)
     array[i] = ((float)rand()) / (float)RAND_MAX;
@@ -1903,4 +1468,23 @@ __host__ float min_arr(float *arr, int n, int *ind) {
 float timedifference_msec(struct timeval t0, struct timeval t1) {
   return (t1.tv_sec - t0.tv_sec) * 1000.0f +
          (t1.tv_usec - t0.tv_usec) / 1000.0f;
+}
+
+/**
+ * \brief The function `foldit` implements the switch statement for a range of values.
+ * \param ws Length for both the time series 
+ */
+__host__ int foldit (int ws) {
+  
+    if (ws <= 0) return -1;
+    else if (ws > 0 and ws <= 64) return 0;
+    else if (ws > 64 and ws <= 128) return 1;
+    else if (ws > 128 and ws <= 256) return 2;
+    else if (ws > 256 and ws <= 512) return 3;
+    else if (ws > 512 and ws <= 1024) return 4;
+    else if (ws > 1024 and ws <= 2048) return 5;
+    else if (ws > 2048 and ws <= 4096) return 6;
+    else if (ws > 4096 and ws <= 8192) return 7;
+    else if (ws > 8192 and ws <= 16384) return 8;
+    else return 999;   // triggers the default part of the switch
 }
