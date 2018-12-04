@@ -136,7 +136,7 @@ CPU:
 
 `./mdtwObj -t CLASSIFICATION -i CPU 3 1 -f data/classification/rm_1/X_MAT data/classification/rm_1/Y_MAT data/classification/rm_1/Z_MAT -k 10 0 -o 1000 152 -m 0 DTW -v 0`
 
-`./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 500 1000 152 -m 0 DTW -v 0`
+`./mdtwObj -t CLASSIFICATION -i CPU 3 2 -f data/classification/rm_2/TRAIN data/classification/rm_2/TEST -o 150 850 152 -k 10 0 -m 0 DTW -v 0`
 
 GPU:
 
