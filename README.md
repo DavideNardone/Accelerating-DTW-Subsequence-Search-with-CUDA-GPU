@@ -4,11 +4,13 @@ A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multi
 
 ## What MTSS is?
 
-MTSS is a GPU/CPU software designed for the **_classification_** and the **_sub-sequence similarity search_** of MTS. Originally inspired by [1], MTSS aims to improve the *time performance* and *accuracy* for classifying and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**. Each of the two tasks can be perfomed both on **GPU** and **CPU**.
+MTSS is a GPU/CPU software designed for the **_classification_** and the **_sub-sequence similarity search_** of MTS. Originally inspired by [1], MTSS aims to improve the *time performance* and *accuracy* for classifying and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**.
 
 **Classification**
 
 The *Classification* task aims to predict group membership for MTS instances belonging to set of data. Supposing we have already split the initial data set into `train set` and `test set`, the membership group for each MTS of the test set is assigned by comparing the *i*-th MTS of the latter over all the MTS belonging to the train set and, then select the membership group for which the comparison against all the MTS in the train set is minimum in term of DTW similarity measure. As mentioned above, we can provide three different type of similarity measure for comparing two MTS.
+
+![alt text](img/classification.png) 
 
 **Sub-sequence similarity search**
 
@@ -16,7 +18,7 @@ The *Similarity subseq-search* aims to find the best match for a time series (kn
 
 ![alt text](img/sub-seq.PNG) 
 
-MTSS presents a **GP-GPU** implementation which improves *speed-up* and *accuracy* of the the above citated tasks when compared to single-threaded CPU implementation. It's important to stress out that the software's speed=-up performace gets better when the variables ruling the speed complexity of those two tasks drastically increase. 
+Although each of the two tasks can be perfomed both on **CPU** ans **GPU**, the latter implementation improves *speed-up* and *accuracy* of the the above citated tasks when compared to single-threaded CPU implementation. It's important to stress out that the software's speed=-up performace gets better when the variables ruling the speed complexity of those two tasks drastically increase. 
 
 The software allow to uses three different types of DTW, namely:
 
