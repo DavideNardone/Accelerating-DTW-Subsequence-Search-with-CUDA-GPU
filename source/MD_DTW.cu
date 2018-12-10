@@ -93,12 +93,6 @@ int main(int argc, char **argv) {
         blockSize = atoi(argv[i + 2]);
         read_mode = atoi(argv[i + 3]);
 
-        if (blockSize > 1024 || blockSize < 0) {
-          printf("Irregular number of threads for block. The number of threads "
-                 "for block has to be included in [0, 1024]\n");
-          exit(-1);
-        }
-
         i = i + 3;
       } else if ((strcmp(compution_type, "CPU") == 0)) {
         num_opts = 2;
@@ -229,11 +223,6 @@ int main(int argc, char **argv) {
           i = i + 2;
         }
 
-        // if (WS != window_size){
-        //   printf("The 'WS' and 'window_size' variables differs in dimension!\n");
-        //   exit(-1);
-        // }
-
       } else if (strcmp(task, "SUBSEQ_SEARCH") == 0) {
         num_opts = 2;
 
@@ -290,6 +279,8 @@ int main(int argc, char **argv) {
 
       device = atoi(argv[i]);
 
+      cudaSetDevice(device);
+
       flag_device = 0;
     } else if (flag_verbose) {
       num_opts = 1;
@@ -336,6 +327,9 @@ int main(int argc, char **argv) {
   }
   /* ******************************************* ARGUMENT PARSING
    * ******************************************* */
+
+  cudaDeviceProp deviceProp = getDevProp(device);
+  checkGPU_prop(compution_type, deviceProp, "maxThreadsPerBlock", blockSize);
 
   if(verbose_mode == 0){
     printf("\nThe number of iteration is greater than testSize! "
@@ -488,11 +482,6 @@ int main(int argc, char **argv) {
         }
       } else if (strcmp(compution_type, "GPU") == 0) {
 
-        cudaSetDevice(device);
-        cudaDeviceProp deviceProp;
-        deviceProp = getDevProp(device);
-        //TODO: insert check for `number of thread` available for its own device
-
         /* *************** DEVICE MEMORY ALLOCATION *************** */
         float *d_train = 0;
         cudaMalloc((void **)&d_train, trainBytes);
@@ -600,10 +589,13 @@ int main(int argc, char **argv) {
           }
           default: printf("Error algorithm choice\n");
         }
+        cudaFree(d_train);
+        cudaFree(d_Out);
+        cudaFree(d_Out);
+      }
       free(h_train);
       free(h_test);
       free(h_Out);
-      }
     }
     if (class_mode < 2) {
       mean_RA /= k_fold;
@@ -656,7 +648,6 @@ int main(int argc, char **argv) {
 
           printf("\tMin2. index value %d, min2. value: %f\n\n", ind_min_val, min);
           printf("\n\tExecution time: %f ms\n", elapsed);
-
         } break;
 
         case 1: // MD_DTW_I
@@ -676,8 +667,7 @@ int main(int argc, char **argv) {
       }
     } else { // GPU computation
 
-      ////////////////////////////////DTW GPU_GM
-      ///ALGORITHM////////////////////////////////
+      /* *************** DEVICE MEMORY ALLOCATION *************** */
       float *d_t_series = 0, *d_owp = 0, *d_q_series = 0;
       cudaMalloc((void **)&d_t_series, t_bytes);
       cudaMemcpy(d_t_series, t_series, t_bytes, cudaMemcpyHostToDevice);
@@ -687,6 +677,7 @@ int main(int argc, char **argv) {
 
       cudaMalloc((void **)&d_owp, nss * sizeof(float));
       cudaMemset(d_owp, 0, nss * sizeof(float));
+      /* *************** DEVICE MEMORY ALLOCATION *************** */
 
       cudaSetDevice(device);
 
@@ -719,7 +710,7 @@ int main(int argc, char **argv) {
           cudaEventCreate(&stop_GPU);
           cudaEventRecord(start_GPU, 0);
 
-          min = MDI_SIM_MES_CPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, blockSize, deviceProp, distance_type,  verbose_mode, owp, d_owp, &ind_min_val);
+          min = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, blockSize, deviceProp, distance_type,  verbose_mode, owp, d_owp, &ind_min_val);
 
           cudaThreadSynchronize();
           cudaEventRecord(stop_GPU, 0);

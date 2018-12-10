@@ -1759,7 +1759,7 @@ __host__ void infoDev() {
 /**
  * \brief The function `getDevProp` return an object `deviceProp` containing all the information about a specific GPU device.
  
- * \return `deviceProp` object.
+ * \return `deviceProp` CUDA object containing several information about its own device.
  */
 __host__ cudaDeviceProp getDevProp(int device) {
 
@@ -1767,6 +1767,27 @@ __host__ cudaDeviceProp getDevProp(int device) {
   cudaGetDeviceProperties(&deviceProp, device);
 
   return deviceProp;
+}
+
+/**
+ * \brief The function `checkGPU_prop` check whether a GPU property for its own device is correct.
+
+  * \param *compution_type vector used for trigger the check only on for GPU execution
+  * \param *deviceProp CUDA object containing several information about its own device
+  * \param *prop_in GPU property to check
+  * \param *prop_GPU_in GPU property value to check
+ */
+__host__ void checkGPU_prop(char *compution_type, cudaDeviceProp deviceProp, const char *prop_in, int prop_GPU_in){
+
+  if (strcmp(compution_type, "GPU") == 0) {
+
+    if ( (strcmp(prop_in, "maxThreadsPerBlock") == 0) && (prop_GPU_in < 0 || prop_GPU_in > deviceProp.maxThreadsPerBlock) ) {
+
+      printf(" %d is an irregular #threads for block for the device %s.\n The number of threads "
+         "for block has to be included in [0, %d]\n", prop_GPU_in, deviceProp.name, deviceProp.maxThreadsPerBlock);
+      exit(-2);
+    }
+  }
 }
 
 /**
@@ -1780,6 +1801,12 @@ __host__ void initializeArray(float *array, int n) {
   int i;
   for (i = 0; i < n; i++)
     array[i] = ((float)rand()) / (float)RAND_MAX;
+}
+
+__host__ void initializeArray(int *array, int n) {
+  int i;
+  for (i = 0; i < n; i++)
+    array[i] = ((int)rand()) / (int)RAND_MAX;
 }
 
 /**
@@ -2454,7 +2481,7 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   return err;
 }
 
-__host__ float MDI_SIM_MES_CPU(int nss, float *d_t_series, float *d_q_series, int window_size, int n_feat, int t_size, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, float *owp, float *d_owp, int *ind_min_val){
+__host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, int window_size, int n_feat, int t_size, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, float *owp, float *d_owp, int *ind_min_val){
 
   float grid_size, min = 9999.99;
   dim3 grid;
