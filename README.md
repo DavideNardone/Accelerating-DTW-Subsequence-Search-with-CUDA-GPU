@@ -159,6 +159,12 @@ GPU:
 
 `./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f data/subseq_search/T_series data/subseq_search/Q_series -o 3907 421 -m 0 DTW -d 0 -v 0`
 
+# TESTS
+
+In order to validate the software, some unit tests are provided in the `tests` folder. These units can be exectuted by installing the [check framework](https://libcheck.github.io/check/) and executing from the project root folder the following `makefile`:
+
+`make -f tests/make_unit_test`
+
 # AUTHORS
 
   Davide Nardone, University of Naples Parthenope, Science and Techonlogies Departement, Msc Applied Computer Science
