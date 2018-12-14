@@ -38,16 +38,16 @@ __device__ float stdDev(float *data, int n, float *avg) {
 
  * \param *S Unrolled vector containing `trainSize` number of MTS 
  * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
  * \param window_size Length of the two given MTS
  * \param dimensions Number of variables for the two MTS
  * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
  * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
  * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
  */
 template<int WS>
-__global__ void MD_DTW_D(float *S, float *T, int window_size, int dimensions,
-                         float *data_out, int trainSize, int task, int gm) {
+__global__ void MD_DTW_D(float *S, float *T, int trainSize, int window_size, int dimensions,
+                         float *data_out, int task, int gm) {
 
   long long int k, l, g;
 
@@ -221,15 +221,15 @@ __global__ void MD_DTW_D(float *S, float *T, int window_size, int dimensions,
 
  * \param *S Unrolled vector containing `trainSize` number of MTS 
  * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
  * \param window_size Length of the two given MTS
  * \param dimensions Number of variables for the two MTS
  * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
  * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
  */
 template<int WS>
-__global__ void MD_DTW_I(float *S, float *T, int window_size, int dimensions,
-                         float *data_out, int trainSize, int task) {
+__global__ void MD_DTW_I(float *S, float *T, int trainSize, int window_size, int dimensions,
+                         float *data_out, int task) {
 
   int idx, offset_x;
   long long int i, j;
@@ -327,15 +327,15 @@ __global__ void MD_DTW_I(float *S, float *T, int window_size, int dimensions,
 
  * \param *S Unrolled vector containing `trainSize` number of MTS 
  * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
  * \param window_size Length of the two given MTS
  * \param dimensions Nnumber of variables for the two MTS
  * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
  * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
  */
 template<int WS>
-__global__ void rMD_DTW_D(float *S, float *T, int window_size, int dimensions,
-                          float *data_out, int trainSize, int gm) {
+__global__ void rMD_DTW_D(float *S, float *T, int trainSize, int window_size, int dimensions,
+                          float *data_out, int gm) {
 
   long long int k, l, g;
   long long int i, j, p;
@@ -478,15 +478,15 @@ __global__ void rMD_DTW_D(float *S, float *T, int window_size, int dimensions,
 
  * \param *S Unrolled vector containing `trainSize` number of MTS 
  * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
  * \param window_size Length of the two given MTS
  * \param dimensions Number of variables for the two MTS
  * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
  * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
  * \param gm Integer indicating where to store the unrolled vector `*T` (e.g., 0:shared memory, 1: global memory)
  */
-__global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
-                        float *data_out, int trainSize, int task, int gm) {
+__global__ void MD_ED_D(float *S, float *T, int trainSize, int window_size, int dimensions,
+                        float *data_out, int task, int gm) {
 
   long long int i, j, p;
   float sumErr = 0, dd = 0;
@@ -584,14 +584,14 @@ __global__ void MD_ED_D(float *S, float *T, int window_size, int dimensions,
 
  * \param *S Unrolled vector containing `trainSize` number of MTS 
  * \param *T Unrolled vector representing the second time Series to compare against `*S`
+ * \param *trainSize Number of MTS contained in the vector `T`
  * \param window_size Length of the two given MTS
  * \param dimensions Nnumber of variables for the two MTS
  * \param *data_out Vector containing the results achieved by comparing `*T` against `*S`
- * \param *trainSize Number of MTS contained in the vector `T`
  * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
  */
-__global__ void MD_ED_I(float *S, float *T, int window_size, int dimensions,
-                        float *data_out, int trainSize, int task) {
+__global__ void MD_ED_I(float *S, float *T, int trainSize, int window_size, int dimensions,
+                        float *data_out, int task) {
 
   int idx, offset_x;
   float sumErr = 0;
@@ -860,7 +860,7 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
  * \param read_mode Integer for handling different input file formats (for more information, refer to README)
  * \param *data Vector for storing all the data read contained in the file
  * \param data_struct Struct containing some information about the data (e.g., dataset size, train size, ect.)
- * \param windows_size Length for the time series to be stored into `*data`
+ * \param window_size Length for the time series to be stored into `*data`
  * \param *dataLabels Vector for storing all the label information contained in the file
  * \param n_feat Number of variables for both time series
  * \param class_alg Integer for handling different reading modes which depends on the the type of algorithm picked
@@ -1956,9 +1956,21 @@ __host__ int foldit (int ws) {
     else return 999;   // triggers the default part of the switch
 }
 
+/**
+ * \brief The function `MDD_SIM_MES_CPU` is a wrapper function used for computing the CPU dependent multidimensional similary measure for the classification task.
 
-
-
+ * \param trainSize Number of MTS contained into the train set
+ * \param testSize Number of MTS contained into the test set
+ * \param *trainLabels Vector containing the labels for the train set
+ * \param *testLabels Vector containing the labels for the test set
+ * \param *h_train Vector containing the data for the train set
+ * \param *h_test Vector containing the data for the test set
+ * \param window_size Length for the time series to be stored into `*data`
+ * \param n_feat Number of variables for the time series stored into both train and test set
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \return the number of misclassification  
+ */
 __host__ float MDD_SIM_MES_CPU(int trainSize, int testSize, int *trainLabels, int *testLabels, float *h_train, float *h_test, int window_size, int n_feat, char *distance_type, int verbose_mode){
 
   int *minI = (int *)malloc(sizeof(int));
@@ -1997,19 +2009,33 @@ __host__ float MDD_SIM_MES_CPU(int trainSize, int testSize, int *trainLabels, in
   return err;
 }
 
-__host__ float MDD_SIM_MES_CPU(int nss, float *t_series, float *q_series, int window_size, int n_feat, int t_size, char *distance_type, int verbose_mode, float *owp, int *ind_min_val){
+/**
+ * \brief The function `MDD_SIM_MES_CPU` is a wrapper function used for computing the CPU multidimensional similary measure for the sub-sequence similarity search task.
+
+ * \param nss Number of sub-sequences to search
+ * \param *t_series Vector containing the first time series
+ * \param *q_series Vector containing the time series to compare against `*instance`
+ * \param t_size Length of the time series `*t_series`
+ * \param q_size Length of the time series `*q_series`
+ * \param n_feat Number of variables for the two MTS
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \param *owp Support vector containing all the comparing
+ * \param *ind_min_val Index containing the minimum value obtained by comparing `*q_series` over `*t_series`
+ * \return minimum value obtained by comparing `*q_series` over `*t_series`
+ */
+__host__ float MDD_SIM_MES_CPU(int nss, float *t_series, float *q_series, int t_size, int q_size, int n_feat, char *distance_type, int verbose_mode, float *owp, int *ind_min_val){
 
   float min = 9999.99, dist;
-  // int *ind_min_val = (int *)malloc(sizeof(int));
 
   for (int i = 0; i < nss; i++) {
 
     dist = 0.0;
     if (strcmp(distance_type, "DTW") == 0) // DTW distance
-      dist = short_md_dtw_c(&t_series[i], q_series, window_size,
-                            window_size, n_feat, t_size);
+      dist = short_md_dtw_c(&t_series[i], q_series, q_size,
+                            q_size, n_feat, t_size);
     else
-      dist = short_md_ed_c(&t_series[i], q_series, window_size, n_feat,
+      dist = short_md_ed_c(&t_series[i], q_series, q_size, n_feat,
                            t_size);
 
     owp[i] = dist;
@@ -2028,6 +2054,21 @@ __host__ float MDD_SIM_MES_CPU(int nss, float *t_series, float *q_series, int wi
   return min;
 }
 
+/**
+ * \brief The function `MDI_SIM_MES_CPU` is a wrapper function used for computing the CPU independent multidimensional similary measure for the classification task.
+
+ * \param trainSize Number of MTS contained into the train set
+ * \param testSize Number of MTS contained into the test set
+ * \param *trainLabels Vector containing the labels for the train set
+ * \param *testLabels Vector containing the labels for the test set
+ * \param *h_train Vector containing the data for the train set
+ * \param *h_test Vector containing the data for the test set
+ * \param window_size Length for the time series to be stored into `*data`
+ * \param n_feat Number of variables for the time series stored into both train and test set
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \return the number of misclassification
+ */
 __host__ float MDI_SIM_MES_CPU(int trainSize, int testSize, int *trainLabels, int *testLabels, float *h_train, float *h_test, int window_size, int n_feat, char *distance_type, int verbose_mode){
 
   int *minI = (int *)malloc(sizeof(int));
@@ -2073,7 +2114,22 @@ __host__ float MDI_SIM_MES_CPU(int trainSize, int testSize, int *trainLabels, in
   return err;
 }
 
-__host__ float MDI_SIM_MES_CPU(int nss, float *t_series, float *q_series, int window_size, int n_feat, int t_size, char *distance_type, int verbose_mode, float *owp, int *ind_min_val){
+/**
+ * \brief The function `MDI_SIM_MES_CPU` is a wrapper function used for computing the CPU multidimensional similary measure for the sub-sequence similarity search task.
+
+ * \param nss Number of sub-sequences to search
+ * \param *t_series Vector containing the first time series
+ * \param *q_series Vector containing the time series to compare against `*instance`
+ * \param t_size Length of the time series `*t_series`
+ * \param q_size Length of the time series `*q_series`
+ * \param n_feat Number of variables for the two MTS
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \param *owp Support vector containing all the comparing
+ * \param *ind_min_val Index containing the minimum value obtained by comparing `*q_series` over `*t_series`
+ * \return minimum value obtained by comparing `*q_series` over `*t_series`
+ */
+__host__ float MDI_SIM_MES_CPU(int nss, float *t_series, float *q_series, int t_size, int q_size, int n_feat, char *distance_type, int verbose_mode, float *owp, int *ind_min_val){
 
   float min = 9999.99, dist, val_curr;
 
@@ -2082,11 +2138,11 @@ __host__ float MDI_SIM_MES_CPU(int nss, float *t_series, float *q_series, int wi
     for (int k = 0; k < n_feat; k++) {
       if (strcmp(distance_type, "DTW") == 0) // DTW distance
         val_curr = short_dtw_c(&t_series[(k * t_size) + i],
-                               &q_series[(k * window_size)], window_size,
-                               window_size);
+                               &q_series[(k * q_size)], q_size,
+                               q_size);
       else
         val_curr = short_ed_c(&t_series[(k * t_size) + i],
-                              &q_series[(k * window_size)], window_size);
+                              &q_series[(k * q_size)], q_size);
 
       dist += val_curr;
     }
@@ -2106,6 +2162,22 @@ __host__ float MDI_SIM_MES_CPU(int nss, float *t_series, float *q_series, int wi
 
 }
 
+/**
+ * \brief The function `MDR_SIM_MES_CPU` is a wrapper function used for computing the CPU multidimensional rotation similary measure for the classification task.
+
+ * \param trainSize Number of MTS contained into the train set
+ * \param testSize Number of MTS contained into the test set
+ * \param *trainLabels Vector containing the labels for the train set
+ * \param *testLabels Vector containing the labels for the test set
+ * \param *h_train Vector containing the data for the train set
+ * \param *h_test Vector containing the data for the test set
+ * \param window_size Length for the time series to be stored into `*data`
+ * \param n_feat Number of variables for the time series stored into both train and test set
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \param *err The number of misclassification using the basic similarity measure
+ * \param *errNR The number of misclassification using the rotation similary measure
+ */
 __host__ void MDR_SIM_MES_CPU(int trainSize, int testSize, int *trainLabels, int *testLabels, float *h_train, float *h_test, int window_size, int n_feat, char *distance_type, int verbose_mode, int *err, int *errNR){
 
   float *h_Out = (float *)malloc(trainSize * window_size * sizeof(float));
@@ -2166,6 +2238,27 @@ __host__ void MDR_SIM_MES_CPU(int trainSize, int testSize, int *trainLabels, int
   }
 }
 
+/**
+ * \brief The function `MDD_SIM_MES_GPU` is a wrapper function used for computing the GPU dependent multidimensional similary measure for the classification task.
+
+ * \param trainSize Number of MTS contained into the train set
+ * \param testSize Number of MTS contained into the test set
+ * \param *trainLabels Vector containing the labels for the train set
+ * \param *testLabels Vector containing the labels for the test set
+ * \param *h_train Vector containing the data for the train set
+ * \param *h_test Vector containing the data for the test set
+ * \param *d_train Vector containing the data for the train set stored in the GPU device
+ * \param *d_test Vector containing the data for the test set stored in the GPU device
+ * \param *d_Out Vector containing temporary result for the host
+ * \param *h_Out Vector containing temporary result for the device
+ * \param window_size Length for the time series to be stored into `*data`
+ * \param n_feat Number of variables for the time series stored into both train and test set
+ * \param blockSize Number of threads to use for comparing the MTS
+ * \param deviceProp CUDA object containing several information about its own device 
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \return the number of misclassification  
+ */
 __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int *testLabels, float *h_train, float *h_test, float *d_train, float *d_test, float *d_Out, float *h_Out, int window_size, int n_feat, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode){
 
   float grid_size, min = 9999.99;
@@ -2214,55 +2307,45 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
 
     if (strcmp(distance_type, "DTW") == 0){ // DTW distance
 
-
       switch (foldit(window_size)) {
-        case 0: MD_DTW_D<64><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 0: MD_DTW_D<64><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 1: MD_DTW_D<128><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 1: MD_DTW_D<128><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 2: MD_DTW_D<256><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 2: MD_DTW_D<256><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 3: MD_DTW_D<512><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 3: MD_DTW_D<512><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 4: MD_DTW_D<1024><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 4: MD_DTW_D<1024><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 5: MD_DTW_D<2048><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 5: MD_DTW_D<2048><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 6: MD_DTW_D<4096><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 6: MD_DTW_D<4096><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 7: MD_DTW_D<8192><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 7: MD_DTW_D<8192><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
-        case 8: MD_DTW_D<16384><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                                  n_feat, d_Out,
-                                                  trainSize, 0, gm);
+        case 8: MD_DTW_D<16384><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
         break;
 
         default: printf("No kernel exists for %d window_size\n", window_size); break;
       }
     }
     else
-      MD_ED_D <<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                        n_feat, d_Out, trainSize, 0,
-                                        gm);
+      MD_ED_D <<<grid, threads, T2>>> (d_train, d_test, trainSize, window_size,
+                                        n_feat, d_Out, 0, gm);
 
-    cudaDeviceSynchronize(); // it may be avoided if there's not printf
+    // cudaDeviceSynchronize(); // it may be avoided if there's not printf
                              // in the kernel function
+    
     cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
                cudaMemcpyDeviceToHost);
 
@@ -2285,7 +2368,25 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   return err;
 }
 
-__host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, int window_size, int n_feat, int t_size, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, float *owp, float *d_owp, int *ind_min_val){
+/**
+ * \brief The function `MDD_SIM_MES_GPU` is a wrapper function used for computing the GPU dependent multidimensional similary measure for the sub-sequence similarity search task.
+
+ * \param nss Number of sub-sequences to search
+ * \param *d_t_series Device vector containing the first time series
+ * \param *d_q_series Device vector containing the time series to compare against `*instance`
+ * \param t_size Length of the time series `*t_series`
+ * \param q_size Length of the time series `*q_series`
+ * \param n_feat Number of variables for the two MTS
+ * \param blockSize Number of threads to use for comparing the MTS
+ * \param deviceProp CUDA object containing several information about its own device 
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \param *owp Support vector containing all the comparing
+ * \param *d_owp Device support vector containing all the comparing
+ * \param *ind_min_val Index containing the minimum value obtained by comparing `*q_series` over `*t_series`
+ * \return minimum value obtained by comparing `*q_series` over `*t_series`
+ */
+__host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, int t_size, int q_size, int n_feat, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, float *owp, float *d_owp, int *ind_min_val){
 
   float grid_size, min = 9999.99;
   dim3 grid;
@@ -2302,7 +2403,7 @@ __host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
   threads.x = blockSize;
   threads.y = 1;
 
-  float T2 = (n_feat * window_size) * sizeof(float);
+  float T2 = (n_feat * q_size) * sizeof(float);
   int gm = 0;
 
   if (T2 > deviceProp.sharedMemPerBlock) {
@@ -2325,49 +2426,40 @@ __host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
 
   if (strcmp(distance_type, "DTW") == 0){ // DTW distance
 
-    switch (foldit(window_size)) {
+    switch (foldit(q_size)) {
 
-      case 0: MD_DTW_D<64><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                  window_size, n_feat,
-                                                  d_owp, t_size, 1, gm);
+      case 0: MD_DTW_D<64><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 1: MD_DTW_D<128><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                  window_size, n_feat,
-                                                  d_owp, t_size, 1, gm);
+      case 1: MD_DTW_D<128><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 2: MD_DTW_D<256><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                   window_size, n_feat,
-                                                   d_owp, t_size, 1, gm);
+      case 2: MD_DTW_D<256><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 3: MD_DTW_D<512><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                   window_size, n_feat,
-                                                   d_owp, t_size, 1, gm);
+      case 3: MD_DTW_D<512><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 4: MD_DTW_D<1024><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                   window_size, n_feat,
-                                                   d_owp, t_size, 1, gm);
+      case 4: MD_DTW_D<1024><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 5: MD_DTW_D<2048><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                   window_size, n_feat,
-                                                   d_owp, t_size, 1, gm);
+      case 5: MD_DTW_D<2048><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 6: MD_DTW_D<4096><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                   window_size, n_feat,
-                                                   d_owp, t_size, 1, gm);
+      case 6: MD_DTW_D<4096><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 7: MD_DTW_D<8192><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                   window_size, n_feat,
-                                                   d_owp, t_size, 1, gm);
+      case 7: MD_DTW_D<8192><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
-      case 8: MD_DTW_D<16384><<<grid, threads, T2>>>(d_t_series, d_q_series,
-                                                     window_size, n_feat,
-                                                     d_owp, t_size, 1, gm);
+      case 8: MD_DTW_D<16384><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
       break;
     }
   }
   else
-    MD_ED_D << <grid, threads, T2>>> (d_t_series, d_q_series, window_size,
-                                      n_feat, d_owp, t_size, 1, gm);
+    MD_ED_D << <grid, threads, T2>>> (d_t_series, d_q_series, t_size, q_size,
+                                      n_feat, d_owp, 1, gm);
 
   cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -2385,6 +2477,27 @@ __host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
   return min;
 }
 
+/**
+ * \brief The function `MDI_SIM_MES_GPU` is a wrapper function used for computing the GPU independent multidimensional similary measure for the classification task.
+
+ * \param trainSize Number of MTS contained into the train set
+ * \param testSize Number of MTS contained into the test set
+ * \param *trainLabels Vector containing the labels for the train set
+ * \param *testLabels Vector containing the labels for the test set
+ * \param *h_train Vector containing the data for the train set
+ * \param *h_test Vector containing the data for the test set
+ * \param *d_train Vector containing the data for the train set stored in the GPU device
+ * \param *d_test Vector containing the data for the test set stored in the GPU device
+ * \param *d_Out Vector containing temporary result for the host
+ * \param *h_Out Vector containing temporary result for the device
+ * \param window_size Length for the time series to be stored into `*data`
+ * \param n_feat Number of variables for the time series stored into both train and test set
+ * \param blockSize Number of threads to use for comparing the MTS
+ * \param deviceProp CUDA object containing several information about its own device 
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \return the number of misclassification  
+ */
 __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int *testLabels, float *h_train, float *h_test, float *d_train, float *d_test, float *d_Out, float *h_Out, int window_size, int n_feat, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode){
 
 
@@ -2425,38 +2538,38 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
 
       switch (foldit(window_size)) {
 
-        case 0: MD_DTW_I<64><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 0: MD_DTW_I<64><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 1: MD_DTW_I<128><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 1: MD_DTW_I<128><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 2: MD_DTW_I<256><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 2: MD_DTW_I<256><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 3: MD_DTW_I<512><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 3: MD_DTW_I<512><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 4: MD_DTW_I<1024><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 4: MD_DTW_I<1024><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 5: MD_DTW_I<2048><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 5: MD_DTW_I<2048><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 6: MD_DTW_I<4096><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 6: MD_DTW_I<4096><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 7: MD_DTW_I<8192><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 7: MD_DTW_I<8192><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
-        case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>>(d_train, d_test, window_size, 
-                                                        n_feat, d_Out, trainSize, 0);
+        case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0);
         break;
       }
     }
     else
       MD_ED_I << <grid, threads, sh_mem>>>
-          (d_train, d_test, window_size, n_feat, d_Out, trainSize, 0);
+          (d_train, d_test, trainSize, window_size, n_feat, d_Out, 0);
 
     cudaThreadSynchronize();
     cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
@@ -2481,7 +2594,25 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   return err;
 }
 
-__host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, int window_size, int n_feat, int t_size, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, float *owp, float *d_owp, int *ind_min_val){
+/**
+ * \brief The function `MDD_SIM_MES_GPU` is a wrapper function used for computing the GPU independent multidimensional similary measure for the sub-sequence similarity search task.
+
+ * \param nss Number of sub-sequences to search
+ * \param *d_t_series Device vector containing the first time series
+ * \param *d_q_series Device vector containing the time series to compare against `*instance`
+ * \param t_size Length of the time series `*t_series`
+ * \param q_size Length of the time series `*q_series`
+ * \param n_feat Number of variables for the two MTS
+ * \param blockSize Number of threads to use for comparing the MTS
+ * \param deviceProp CUDA object containing several information about its own device 
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \param *owp Support vector containing all the comparing
+ * \param *d_owp Device support vector containing all the comparing
+ * \param *ind_min_val Index containing the minimum value obtained by comparing `*q_series` over `*t_series`
+ * \return minimum value obtained by comparing `*q_series` over `*t_series`
+ */
+__host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, int t_size, int q_size, int n_feat, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, float *owp, float *d_owp, int *ind_min_val){
 
   float grid_size, min = 9999.99;
   dim3 grid;
@@ -2509,49 +2640,40 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
 
   if (strcmp(distance_type, "DTW") == 0){ // DTW distance
 
-    switch (foldit(window_size)) {
+    switch (foldit(q_size)) {
 
       case 0: MD_DTW_I<64><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 1: MD_DTW_I<128><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 2: MD_DTW_I<256><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 3: MD_DTW_I<512><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 4: MD_DTW_I<1024><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 5: MD_DTW_I<2048><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 6: MD_DTW_I<4096><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 7: MD_DTW_I<8192><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
       case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           window_size,
-                                           n_feat, d_owp, t_size, 1);
+                                           t_size, q_size, n_feat, d_owp, 1);
       break;
     }
   }
   else
     MD_ED_I << <grid, threads, sh_mem>>>
-        (d_t_series, d_q_series, window_size, n_feat, d_owp, t_size, 1);
+        (d_t_series, d_q_series, t_size, q_size, n_feat, d_owp, 1);
 
   cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -2569,6 +2691,29 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
   return min;
 }
 
+/**
+ * \brief The function `MDR_SIM_MES_GPU` is a wrapper function used for computing the CPU multidimensional rotation similary measure for the classification task.
+
+ * \param trainSize Number of MTS contained into the train set
+ * \param testSize Number of MTS contained into the test set
+ * \param *trainLabels Vector containing the labels for the train set
+ * \param *testLabels Vector containing the labels for the test set
+ * \param *h_train Vector containing the data for the train set
+ * \param *h_test Vector containing the data for the test set
+ * \param *d_train Vector containing the data for the train set stored in the GPU device
+ * \param *d_test Vector containing the data for the test set stored in the GPU device
+ * \param *d_Out Vector containing temporary result for the host
+ * \param *h_Out Vector containing temporary result for the device
+ * \param window_size Length for the time series to be stored into `*data`
+ * \param n_feat Number of variables for the time series stored into both train and test set
+ * \param blockSize Number of threads to use for comparing the MTS
+ * \param deviceProp CUDA object containing several information about its own device 
+ * \param *distance_type Type of similarity measure to adopt for performing the classification task
+ * \param verbose_mode Flag used to increase/reduce the verbosity of the output results
+ * \param *err The number of misclassification using the basic similarity measure
+ * \param *errNR The number of misclassification using the rotation similary measure
+ * \return the number of misclassification  
+ */
 __host__ void MDR_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int *testLabels, float *h_train, float *h_test, float *d_train, float *d_test, float *d_Out, float *h_Out, int window_size, int n_feat, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, int *err, int *errNR){
 
   float grid_size, min = 9999.99,minNR = 99999.99;
@@ -2617,41 +2762,32 @@ __host__ void MDR_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int
 
       switch (foldit(window_size)) {
 
-        case 0: rMD_DTW_D<64><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 0: rMD_DTW_D<64><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                     window_size, n_feat, d_Out, gm);
         break;
-        case 1: rMD_DTW_D<128><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 1: rMD_DTW_D<128><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                     window_size, n_feat, d_Out, gm);
         break;
-        case 2: rMD_DTW_D<256><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 2: rMD_DTW_D<256><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                     window_size, n_feat, d_Out, gm);
         break;
-        case 3: rMD_DTW_D<512><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 3: rMD_DTW_D<512><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                     window_size, n_feat, d_Out, gm);
         break;
-        case 4: rMD_DTW_D<1024><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 4: rMD_DTW_D<1024><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                       window_size, n_feat, d_Out, gm);
         break;
-        case 5: rMD_DTW_D<2048><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 5: rMD_DTW_D<2048><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                       window_size, n_feat, d_Out, gm);
         break;
-        case 6: rMD_DTW_D<4096><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 6: rMD_DTW_D<4096><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                       window_size, n_feat, d_Out, gm);
         break;
-        case 7: rMD_DTW_D<8192><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 7: rMD_DTW_D<8192><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                       window_size, n_feat, d_Out, gm);
         break;
-        case 8: rMD_DTW_D<16384><<<grid, threads, T2>>> (d_train, d_test, window_size,
-                                          n_feat, d_Out,
-                                          trainSize, gm);
+        case 8: rMD_DTW_D<16384><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                        window_size, n_feat, d_Out, gm);
         break;
       }
     }

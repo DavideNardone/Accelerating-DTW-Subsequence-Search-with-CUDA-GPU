@@ -374,7 +374,6 @@ int main(int argc, char **argv) {
       }
 
       /* *************** HOST MEMORY ALLOCATION *************** */
-      // Some of shese operations (malloc) might be placed out from the `k_fold` loop!!! Check if there's consistency among the results
       unsigned long long int testBytes =
           testSize * window_size * n_feat * sizeof(float);
       unsigned long long int trainBytes;
@@ -386,10 +385,10 @@ int main(int argc, char **argv) {
 
       float *h_train = (float *)malloc(trainBytes);
       float *h_test = (float *)malloc(testBytes);
+      float *h_Out = 0;
 
       int *trainLabels = (int *)malloc(trainSize * sizeof(int));
       int *testLabels = (int *)malloc(testSize * sizeof(int));
-      // Some of shese operations (malloc) might be placed out from the `k_fold` loop!!! Check if there's consistency among the results
 
       createTrainingTestingSet(data, dataLabels, dataSize, window_size, n_feat,
                                h_train, trainLabels, trainSize, h_test,
@@ -488,7 +487,6 @@ int main(int argc, char **argv) {
         cudaMemcpy(d_train, h_train, trainBytes, cudaMemcpyHostToDevice);
 
         float *d_test = 0;
-        float *h_Out = 0;
         cudaMalloc((void **)&d_test, n_feat * window_size * sizeof(float));
 
         float *d_Out = 0;
@@ -509,6 +507,7 @@ int main(int argc, char **argv) {
 
           case 0: // MD_DTW_D
           {
+            cudaProfilerStart();
             cudaEventCreate(&start_GPU);
             cudaEventCreate(&stop_GPU);
             cudaEventRecord(start_GPU, 0);
@@ -520,6 +519,7 @@ int main(int argc, char **argv) {
             cudaEventElapsedTime(&time_GPU_MD_DTW_D, start_GPU, stop_GPU);
             cudaEventDestroy(start_GPU);
             cudaEventDestroy(stop_GPU);
+            cudaProfilerStop();
 
             RA = (float)(testSize - err) * (100.0 / testSize);
             ER_RA = (float)(testSize - (testSize - err)) / (testSize);
@@ -611,7 +611,7 @@ int main(int argc, char **argv) {
   } else if (strcmp(task, "SUBSEQ_SEARCH") == 0) {
 
     nss = t_size - q_size + 1;
-    window_size = q_size;
+    // window_size = q_size;
 
     unsigned long long int t_bytes = t_size * n_feat * sizeof(float);
     unsigned long long int q_bytes = q_size * n_feat * sizeof(float);
@@ -629,7 +629,7 @@ int main(int argc, char **argv) {
     printf("Subsequence Search w/ %s-%s using " "%s\n\n", strategy, distance_type, compution_type);
 
     readFileSubSeq(argv, arr_num_file, n_file, t_series, t_size, q_series,
-                   window_size, n_feat, read_mode);
+                   q_size, n_feat, read_mode);
 
     float min = 9999.99;
     int ind_min_val = 0;
@@ -644,7 +644,7 @@ int main(int argc, char **argv) {
 
           elapsed = timedifference_msec(start_CPU, stop_CPU);
 
-          min = MDD_SIM_MES_CPU(nss, t_series, q_series, window_size, n_feat, t_size, distance_type, verbose_mode, owp, &ind_min_val);
+          min = MDD_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, distance_type, verbose_mode, owp, &ind_min_val);
 
           printf("\tMin2. index value %d, min2. value: %f\n\n", ind_min_val, min);
           printf("\n\tExecution time: %f ms\n", elapsed);
@@ -654,7 +654,7 @@ int main(int argc, char **argv) {
         {
           gettimeofday(&start_CPU, NULL);
 
-          min =  MDI_SIM_MES_CPU(nss, t_series, q_series, window_size, n_feat, t_size, distance_type, verbose_mode, owp, &ind_min_val);
+          min =  MDI_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, distance_type, verbose_mode, owp, &ind_min_val);
 
           gettimeofday(&stop_CPU, NULL);
 
@@ -692,7 +692,7 @@ int main(int argc, char **argv) {
           cudaEventCreate(&stop_GPU);
           cudaEventRecord(start_GPU, 0);
 
-          min = MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, blockSize, deviceProp, distance_type, verbose_mode, owp, d_owp, &ind_min_val);
+          min = MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, distance_type, verbose_mode, owp, d_owp, &ind_min_val);
 
           cudaEventRecord(stop_GPU, 0);
           cudaEventSynchronize(stop_GPU);
@@ -710,7 +710,8 @@ int main(int argc, char **argv) {
           cudaEventCreate(&stop_GPU);
           cudaEventRecord(start_GPU, 0);
 
-          min = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, blockSize, deviceProp, distance_type,  verbose_mode, owp, d_owp, &ind_min_val);
+          //TODO: change the order of the parameters: ..... d_q_series, t_size, q_size, n_feat ...
+          min = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, distance_type,  verbose_mode, owp, d_owp, &ind_min_val);
 
           cudaThreadSynchronize();
           cudaEventRecord(stop_GPU, 0);

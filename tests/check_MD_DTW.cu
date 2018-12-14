@@ -120,8 +120,6 @@ START_TEST(test_classification_task) {
     test_cls++;
 } END_TEST
 
-
-
 START_TEST(test_sub_seq_task) {
 
     int t_size = 1000;
@@ -129,7 +127,6 @@ START_TEST(test_sub_seq_task) {
     int n_feat = 3;
 
     int nss = t_size - q_size + 1;
-    int window_size = q_size;
 
     unsigned long long int t_bytes = t_size * n_feat * sizeof(float);
     unsigned long long int q_bytes = q_size * n_feat * sizeof(float);
@@ -166,21 +163,21 @@ START_TEST(test_sub_seq_task) {
 
       case 0:{
 
-        ED_MIN_CPU = MDD_SIM_MES_CPU(nss, t_series, q_series, window_size, n_feat, t_size, distance_type_1, 0, owp, &ED_IND_MIN_VAL_CPU);
-        ED_MIN_GPU = MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, 512, deviceProp, distance_type_1, 0, owp, d_owp, &ED_IND_MIN_VAL_GPU);
+        ED_MIN_CPU = MDD_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, distance_type_1, 0, owp, &ED_IND_MIN_VAL_CPU);
+        ED_MIN_GPU = MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, 512, deviceProp, distance_type_1, 0, owp, d_owp, &ED_IND_MIN_VAL_GPU);
 
-        DTW_MIN_CPU = MDD_SIM_MES_CPU(nss, t_series, q_series, window_size, n_feat, t_size, distance_type_2, 0, owp, &DTW_IND_MIN_VAL_CPU);
-        DTW_MIN_GPU = MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, 512, deviceProp, distance_type_2, 0, owp, d_owp, &DTW_IND_MIN_VAL_GPU);
+        DTW_MIN_CPU = MDD_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, distance_type_2, 0, owp, &DTW_IND_MIN_VAL_CPU);
+        DTW_MIN_GPU = MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, 512, deviceProp, distance_type_2, 0, owp, d_owp, &DTW_IND_MIN_VAL_GPU);
 
       }break;
 
       case 1:{
 
-        ED_MIN_CPU = MDI_SIM_MES_CPU(nss, t_series, q_series, window_size, n_feat, t_size, distance_type_1, 0, owp, &ED_IND_MIN_VAL_CPU);
-        ED_MIN_GPU = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, 512, deviceProp, distance_type_1, 0, owp, d_owp, &ED_IND_MIN_VAL_GPU);
+        ED_MIN_CPU = MDI_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, distance_type_1, 0, owp, &ED_IND_MIN_VAL_CPU);
+        ED_MIN_GPU = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, 512, deviceProp, distance_type_1, 0, owp, d_owp, &ED_IND_MIN_VAL_GPU);
 
-        DTW_MIN_CPU = MDI_SIM_MES_CPU(nss, t_series, q_series, window_size, n_feat, t_size, distance_type_2, 0, owp, &ED_IND_MIN_VAL_CPU);
-        DTW_MIN_GPU = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, window_size, n_feat, t_size, 512, deviceProp, distance_type_2, 0, owp, d_owp, &ED_IND_MIN_VAL_GPU);
+        DTW_MIN_CPU = MDI_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, distance_type_2, 0, owp, &ED_IND_MIN_VAL_CPU);
+        DTW_MIN_GPU = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, 512, deviceProp, distance_type_2, 0, owp, d_owp, &ED_IND_MIN_VAL_GPU);
 
       }break;
 
@@ -189,7 +186,6 @@ START_TEST(test_sub_seq_task) {
 
     ck_assert_int_eq(ED_MIN_CPU, ED_MIN_GPU);
     ck_assert_int_eq(DTW_MIN_CPU, DTW_MIN_GPU);
-
 
     free(t_series);
     free(q_series);
@@ -212,7 +208,6 @@ Suite *classification_task(void) {
   tcase_add_test(tc_core, test_classification_task);
   tcase_add_test(tc_core, test_classification_task);
   suite_add_tcase(s, tc_core);
-
 
   return s;
 }
@@ -244,10 +239,12 @@ int main(void) {
   s2 = sub_sequence_task();          
   runner2 = srunner_create(s2); 
 
+  //runner_1
   srunner_run_all(runner1, CK_NORMAL);  
   no_failed = srunner_ntests_failed(runner1); 
   srunner_free(runner1);
 
+  //runner_2
   srunner_run_all(runner2, CK_NORMAL);  
   no_failed = srunner_ntests_failed(runner2); 
   srunner_free(runner2);
