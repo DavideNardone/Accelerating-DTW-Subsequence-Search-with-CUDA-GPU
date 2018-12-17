@@ -161,9 +161,13 @@ GPU:
 
 # TESTS
 
-In order to validate the software, some unit tests are provided in the `tests` folder. These units can be exectuted by installing the [check framework](https://libcheck.github.io/check/) and executing from the project root folder the following `makefile`:
+In order to validate the software, some _unit tests_ are provided in the `tests` folder. These units can be exectuted by installing the [check framework](https://libcheck.github.io/check/) and executing from the project root folder the following `makefile`:
 
 `make -f tests/make_unit_test`
+
+# BENCHMARK
+
+In order to compare the time performance between the CPU and GPU implementations when the keys task parameters change, we provided a benchmark test for exploring a range of all combined parameters. The benchmark run may take awhile to get done, so in case the user is interested in test only some parameters combination, he/she can modify the `benchmark.cu` code ad-hoc.  
 
 # AUTHORS
 
