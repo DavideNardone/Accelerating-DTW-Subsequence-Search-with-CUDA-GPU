@@ -18,7 +18,7 @@ The *Similarity subseq-search* aims to find the best match for a time series (kn
 
 ![alt text](img/sub-seq.PNG) 
 
-Although each of the two tasks can be perfomed both on **CPU** ans **GPU**, the latter implementation improves *speed-up* and *accuracy* of the the above citated tasks when compared to single-threaded CPU implementation. It's important to stress out that the software's speed=-up performace gets better when the variables ruling the speed complexity of those two tasks drastically increase. 
+Although each of the two tasks can be perfomed both on **CPU** ans **GPU**, the latter implementation improves *speed-up* and *accuracy* of the the above citated tasks when compared to single-threaded CPU implementation. It's important to stress out that the software's speed-up performace gets better when the variables ruling the speed complexity of those two tasks drastically increase. 
 
 The software allow to uses three different types of DTW, namely:
 
@@ -30,11 +30,13 @@ For more information, please refer to [1-2].
 
 ## Dependecies
 
-The software is purely written in CUDA, using the C language as support. In order to use it you must have installed:
+The software is purely written in CUDA, using the C/C++ language as support. In order to use it you must have installed:
 
 1. A working gcc compiler.
 
 2. A CUDA version 5.0 or greater. For installing, please refer to the [official CUDA documention](http://docs.nvidia.com/cuda/#axzz4al7PKeAs).
+
+3. Check library unit testing framework. For installing, please refer to the [official documentation](https://libcheck.github.io/check/index.html)
 
 
 ## Usage
@@ -113,7 +115,7 @@ For this task, MTSS takes in input two files `[T_SERIES, Q_SERIES]`. The `T_SERI
 
 ## Dataset 
 
-All the information about the template data set [3] can be retrieved from the following source: https://sites.google.com/site/dtwadaptive/home
+All the information about the template data set [3] can be retrieved at the following source: https://sites.google.com/site/dtwadaptive/home
 
 # Examples
 
