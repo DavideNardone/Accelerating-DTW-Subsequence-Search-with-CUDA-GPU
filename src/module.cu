@@ -1250,8 +1250,8 @@ __host__ int *accumarray(int *array, int size, int *val) {
 
   int i, j = 0;
   int u_val = unique_val(array, size);
-  int *nS = (int *)malloc(u_val * sizeof(int));
-  memset(nS, 0, u_val * sizeof(int));
+  int *nS = (int *)calloc(u_val, sizeof(int));
+  // memset(nS, 0, u_val * sizeof(int));
 
   for (i = 0; i < size; i++) {
     if (array[i] == array[i + 1]) {
@@ -1337,8 +1337,8 @@ __host__ int *crossvalind_Kfold(int *label, int N, int K, int flag_shuffle) {
   memcpy(label_copy, label, N * sizeof(int));
 
   // output
-  int *tInd = (int *)malloc(N * sizeof(int));
-  memset(tInd, 0, N * sizeof(int));
+  int *tInd = (int *)calloc(N, sizeof(int));
+  // memset(tInd, 0, N * sizeof(int));
 
   int ul = unique_val(label_copy, N);
 
