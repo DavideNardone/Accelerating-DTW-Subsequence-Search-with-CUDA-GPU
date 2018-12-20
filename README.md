@@ -46,11 +46,13 @@ Runn the following command to clone the `master` repository into a *target* dire
 
 ### Compiling
 
-Once you are in the main folder, you must compile the **MD_DTW.cu** and **module.cu** files as illustrated below:
+Once you are ont the top folder, you can install the software by running the following commands:
 
-`nvcc [options] [source files] -o <output_file>` (e.g., `nvcc -arch=sm_30 source/MD_DTW.cu source/module.cu -o mdtwObj`)
+`autoreconf -i && automake --add-missing`
 
-**NOTE:** The implementation presented here assumes that each compared MTS has the same time length.
+`./configure && make && make install`
+
+These two commands will ensure that you'd have all the compiled files you need for using the software. 
 
 ### Running
 
@@ -161,20 +163,24 @@ GPU:
 
 `./mdtwObj -t SUBSEQ_SEARCH -i GPU 3 512 0 -f data/subseq_search/T_series data/subseq_search/Q_series -o 3907 421 -m 0 DTW -d 0 -v 0`
 
+**NOTE:** The implementation presented here assumes that each compared MTS has the same time length.
+
 # TESTS
 
-In order to validate the software, some _unit tests_ are provided in the `tests` folder. These units can be exectuted by installing the [check framework](https://libcheck.github.io/check/) and executing from the project root folder the following `makefile`:
+In order to validate the software, some _unit tests_ are provided in the `tests` folder. These units can be exectuted by installing the [check framework](https://libcheck.github.io/check/) and by running the following executable file:
 
-`make -f tests/make_unit_test`
+`/tests/unit_test`
 
 # BENCHMARK
 
-In order to compare the time performance between the CPU and GPU implementations when the keys task parameters change, we provided a benchmark test for exploring a range of all combined parameters. The benchmark run may take awhile to get done, so in case the user is interested in test only some parameters combination, he/she can modify the `benchmark.cu` code ad-hoc.  
+In order to compare the time performance between the CPU and GPU implementations when the keys task parameters change, we provided a benchmark test for exploring a range of all combined parameters. The benchmark run may take awhile to get completed, so in case the user is interested in testing only some parameters combination, he/she can modify the file `benchmark.cu` code ad-hoc and the run the executable file:
+
+`/tests/benchmark`
 
 # AUTHORS
 
-  Davide Nardone, University of Naples Parthenope, Science and Techonlogies Departement, Msc Applied Computer Science
-  https://www.linkedin.com/in/davide-nardone-127428102/
+Davide Nardone, University of Naples Parthenope, Science and Techonlogies Departement, Msc Applied Computer Science
+https://www.linkedin.com/in/davide-nardone-127428102/
   
 # CONTACTS
 
