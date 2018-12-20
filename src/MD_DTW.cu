@@ -507,7 +507,6 @@ int main(int argc, char **argv) {
 
           case 0: // MD_DTW_D
           {
-            cudaProfilerStart();
             cudaEventCreate(&start_GPU);
             cudaEventCreate(&stop_GPU);
             cudaEventRecord(start_GPU, 0);
@@ -519,7 +518,6 @@ int main(int argc, char **argv) {
             cudaEventElapsedTime(&time_GPU_MD_DTW_D, start_GPU, stop_GPU);
             cudaEventDestroy(start_GPU);
             cudaEventDestroy(stop_GPU);
-            cudaProfilerStop();
 
             RA = (float)(testSize - err) * (100.0 / testSize);
             ER_RA = (float)(testSize - (testSize - err)) / (testSize);

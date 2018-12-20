@@ -1,7 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src/
+ACLOCAL_AMFLAGS = -I m4
+
+SUBDIRS = src
 EXTRA_DIST = autogen.sh
-
-bin_PROGRAMS = mdtwObj
-
-mdtwObj_SOURCES = module.cu MD_DTW.cu ../include/header.h
