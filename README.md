@@ -46,7 +46,7 @@ Runn the following command to clone the `master` repository into a *target* dire
 
 ### Compiling
 
-Once you are ont the top folder, you can install the software by running the following commands:
+Once you are on the top folder, you can install the software by running the following commands:
 
 `autoreconf -i && automake --add-missing`
 
