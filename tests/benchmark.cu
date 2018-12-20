@@ -39,7 +39,7 @@ void h_malloc(int t_size, int q_size, int n_feat, float **t_series, float **q_se
     *t_series = (float *)malloc(t_bytes);
     *q_series = (float *)malloc(q_bytes);
     *owp = (float *)malloc(nss * sizeof(float));
-    memset(owp, 0, nss * sizeof(float));
+    memset(*owp, 0, nss * sizeof(float));
 
     // random initialization the two sequences
     initializeArray(*t_series, t_size * n_feat);
@@ -66,7 +66,6 @@ void h_free(float **q_series, float **t_series, float **owp){
 void run_benchmark(int nss, int t_size, int q_size, int blockSize, int n_feat, cudaDeviceProp deviceProp,  
   float *t_series, float *q_series, float *d_t_series, float *d_q_series, float *d_owp, float *owp, int task){
 
-    float min = 9999.99;
     int ind_min_val = 0;
     struct timeval stop_CPU, start_CPU;
     cudaEvent_t start_GPU, stop_GPU;
@@ -103,6 +102,7 @@ void run_benchmark(int nss, int t_size, int q_size, int blockSize, int n_feat, c
         gettimeofday(&start_CPU, NULL);
         MDI_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, *(distance_type + i), 0, owp, &ind_min_val);
         gettimeofday(&stop_CPU, NULL);
+        time_cpu = timedifference_msec(start_CPU, stop_CPU);
 
         cudaEventCreate(&start_GPU);
         cudaEventCreate(&stop_GPU);
