@@ -69,7 +69,7 @@ The program can run with the following flag options:
   **NOTE:** For more information about the *read mode*, please refer to the section **_Data Format_**.
 - **-f**: It's used to specify the file path of the data (refer to the section **_Data Format_**).
 - **-k (optional)**: In the **CLASSIFICATION** task is possible to perform *k-fold cross validation* by specifying the number of folders (e.g., -k 10 0). An additional flag(0-1) is used for performing the shuffling among the folders generated. <br>
-**NB:** Setting the flag to `1` does not allow the reproducibility of the results on the same dataset among the GPU and CPU versions.
+**NB:** Setting the flag to `1` does not allow the reproducibility of the results on the same data set among the GPU and CPU versions.
 - **-o**: Depending on the *task* and *read mode*, the following parameters represents:
   * **CLASSIFICATION (read-mode=0 oppure 1):**
   1. The number of MTS samples;
@@ -120,7 +120,7 @@ For this task, MTSS takes in input two files `[T_SERIES, Q_SERIES]`. The `T_SERI
 All the information about the template data set [3] can be retrieved at the following source: https://sites.google.com/site/dtwadaptive/home
 
 ## Examples
-In this section we provide some basic examples with the aim of showing the usage of the software. The datasets used are thoese referred in the previous section. For each task mentioned, we list both the CPU and GPU solution.
+In this section we provide some basic examples with the aim of showing the usage of the software. The data set used are thoese referred in the previous section. For each task mentioned, we list both the CPU and GPU solution.
 
 **CLASSIFICATION**
 
