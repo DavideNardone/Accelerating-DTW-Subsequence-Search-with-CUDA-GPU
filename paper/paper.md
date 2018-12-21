@@ -1,5 +1,27 @@
+---
+title: 'MTSS: A CUDA software for the analysis of Multivariate Time Series'
+tags:
+- machine learning
+- time series
+- multivariate analysis
+- big data
+- classification
+- subsequence similarity search
+- GPU
+- CUDA
+authors:
+ - name: Davide Nardone
+   orcid: 0000-0003-0486-1791
+   affiliation: "1"
+affiliations:
+ - name: Dept. of Science and Technology, University of Naples Parthenope
+   index: 1
+date: 14 September 2018
+bibliography: paper.bib
+---
+
 # Summary
-Nowadays the alignment of multidimensional sequences is required in many fields such as bio-informatics, image and audio analysis, business, etc. The comparison of time series is involved in several tasks for discovering similarities and patterns in data. To name a few, we cite: 1) *indexing* is the process of identifying the most similar time series in a dataset given a query time series; 2) *classification* is the supervised categorization process of data into predefined groups [@wei2006semi]; 3) *clustering* is the process of partitioning a set of data into a set of meaningful sub-classes [@alon2003discovering]-[@liao2005clustering]; 4) *anomaly detection* is the identification process of abnormal or unique data items in a dataset given a reference pattern [@chin2005symbolic].
+Nowadays the alignment of multidimensional sequences is required in many fields such as bio-informatics, image and audio analysis, business, etc. The comparison of time series is involved in several tasks for discovering similarities and patterns in data. To name a few, we cite: 1) *indexing* is the process of identifying the most similar time series in a dataset given a query time series; 2) *classification* is the supervised categorization process of data into predefined groups [@wei2006semi]; 3) *clustering* is the process of partitioning a set of data into a set of meaningful sub-classes [@alon2003discovering][@liao2005clustering]; 4) *anomaly detection* is the identification process of abnormal or unique data items in a dataset given a reference pattern [@chin2005symbolic].
 For such tasks it is necessary to compare time series using an appropriate similarity measure, which cannot be handled very efficiently by using the traditional Dynamic Time Warping (DTW), since it makes each pairwise alignment independently and causes each dimension to be compared separately. Existing approaches [@sart2010accelerating]-[@shokoohi2015non]-[@tapinos2013method]-[@sanguansat2012multiple] face the problem of handling large amounts of data on just one dimension or propose methodology for addressing either the problem of multivariate or the multiple multidimensional sequence alignment. To our knowledge nobody mentions in the state of the art the problem to efficiently process high dimensional (multivariate variables) problems on large amounts of data. In this work, we propose a GP-GPU Multivariate Time Series Software (MTSS) for addressing this problem.
 
 The DTW is known as a distance measure used for comparing two time signals. In particular, the characteristic of these signals can vary both in dimension and time, the latter known in the literature as the *time warping problem* (e.g., two equal sentences spoken at different rates). The DTW is mainly used to align pairs of monodimensional signals which is an important issue when dealing with signals represented by more than just one single attribute at a time (e.g., set of audio/video features, gesture signals components, etc.). This problem has been addressed in [@sanguansat2012multiple] which allows the alignment of multidimensional time signals by simply extending the concept behind the DTW but showing *low-speed performance* when applied on high dimensional problems, which so far has not been investigated yet. The reason why such task is so time consuming is due to the alignment process of the several dimensions of two time series.
