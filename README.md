@@ -6,13 +6,13 @@ A GP-GPU/CPU Dynamic Time Warping (DTW) implementation for the analysis of Multi
 
 MTSS is a GPU/CPU software designed for the **_classification_** and the **_sub-sequence similarity search_** of MTS. Originally inspired by [1], MTSS aims to improve the *time performance* and *accuracy* for classifying and sub-searching any kind of MTS by using the well known similarity measure: **_Dynamic Time Warping (DTW)_**.
 
-**Classification**
+### Classification
 
 The *Classification* task aims to predict group membership for MTS instances belonging to set of data. Supposing we have already split the initial data set into `train set` and `test set`, the membership group for each MTS of the test set is assigned by comparing the *i*-th MTS of the latter over all the MTS belonging to the train set and, then select the membership group for which the comparison against all the MTS in the train set is minimum in term of DTW similarity measure. As mentioned above, we can provide three different type of similarity measure for comparing two MTS.
 
 ![alt text](img/classification.png) 
 
-**Sub-sequence similarity search**
+### Sub-sequence similarity search
 
 The *Similarity subseq-search* aims to find the best match for a time series (known as the query) onto another time series (known as instance). That's achieved by punctually shifting the *instance* time series on the *query* one and comparing it by using a similarity distance such as DTW (See figure below). 
 
@@ -44,7 +44,7 @@ Runn the following command to clone the `master` repository into a *target* dire
 
 `git clone https://github.com/DavideNardone/MTSS-Multivariate-Time-Series-Sofwtare.git <target>`
 
-### Compiling
+## Compiling
 
 Once you are on the top folder, you can install the software by running the following commands:
 
@@ -54,7 +54,7 @@ Once you are on the top folder, you can install the software by running the foll
 
 These two commands will ensure that you'd have all the compiled files you need for using the software. 
 
-### Running
+## Running
 
 The software can be used as a **standard command line tool** with a list of options that are explained as follows. 
 
@@ -95,7 +95,7 @@ The program can run with the following flag options:
 - **--help**: It quickly explain how the MTSS software works.
 - **--version**: It shows the info version about the sofware.
 
-### Data format
+## Data format
 
 At the moment, MTSS works only with `txt` file format. Depending on the type of task to perform, the data file must be adequayely formatted.
 
@@ -119,9 +119,8 @@ For this task, MTSS takes in input two files `[T_SERIES, Q_SERIES]`. The `T_SERI
 
 All the information about the template data set [3] can be retrieved at the following source: https://sites.google.com/site/dtwadaptive/home
 
-# Examples
-
-Some examples follow:
+## Examples
+In this section we provide some basic examples with the aim of showing the usage of the software. The datasets used are thoese referred in the previous section. For each task mentioned, we list both the CPU and GPU solution.
 
 **CLASSIFICATION**
 
@@ -165,24 +164,24 @@ GPU:
 
 **NOTE:** The implementation presented here assumes that each compared MTS has the same time length.
 
-# TESTS
+## TESTS
 
 In order to validate the software, some _unit tests_ are provided in the `tests` folder. These units can be exectuted by installing the [check framework](https://libcheck.github.io/check/) and by running the following executable file:
 
 `/tests/unit_test`
 
-# BENCHMARK
+## BENCHMARK
 
 In order to compare the time performance between the CPU and GPU implementations when the keys task parameters change, we provided a benchmark test for exploring a range of all combined parameters. The benchmark run may take awhile to get completed, so in case the user is interested in testing only some parameters combination, he/she can modify the file `benchmark.cu` code ad-hoc and the run the executable file:
 
 `/tests/benchmark`
 
-# AUTHORS
+## AUTHORS
 
 Davide Nardone, University of Naples Parthenope, Science and Techonlogies Departement, Msc Applied Computer Science
 https://www.linkedin.com/in/davide-nardone-127428102/
   
-# CONTACTS
+## CONTACTS
 
 For any kind of problem, questions, ideas or suggestions, please don't esitate to contact me at: 
 - **davide.nardone@live.it**
@@ -200,6 +199,6 @@ APA
 
 [MIT LICENSE](LICENSE)
 
-# Paper
+## Paper
 
 The following software is under review for the [The Journal of Open Source Software](https://joss.theoj.org/papers/0a9f9006cebb80198e0ad5448cc1fc10).
