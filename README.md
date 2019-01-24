@@ -126,7 +126,7 @@ In this section we provide some basic examples with the aim of showing the usage
 
 **Compiling**
 
-`nvcc -arch=sm_30 source/MD_DTW.cu source/module.cu -o mdtwObj`
+`nvcc -arch=sm_30 src/MD_DTW.cu src/module.cu -o mdtwObj`
 
 **Running**
 
@@ -150,7 +150,7 @@ GPU:
 
 **Compiling**
 
-`nvcc -arch=sm_30 source/MD_DTW.cu source/module.cu -o mdtwObj`
+`nvcc -arch=sm_30 src/MD_DTW.cu src/module.cu -o mdtwObj`
 
 **Running**
 
