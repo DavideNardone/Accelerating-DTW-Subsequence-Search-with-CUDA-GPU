@@ -2273,9 +2273,9 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
 
   if (T2 > deviceProp.sharedMemPerBlock) {
 
-    printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
-           "memory: %lu, so it will be allocated into the global "
-           "memory\n",
+    printf("\tWarning: The T2 test timeseries: %f doesn't fit into the shared "
+           "memory: %lu, therefore it will be allocated into the global "
+           "memory!\n",
            T2, deviceProp.sharedMemPerBlock);
     gm = 1;
     T2 = 0;
