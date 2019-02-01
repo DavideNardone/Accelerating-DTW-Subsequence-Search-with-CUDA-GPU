@@ -220,18 +220,18 @@ int main(int argc, char **argv) {
 
   int grid_params[12][5] = {  
 
-     {10, 100, 15, 1,2},   
-     {30, 200, 30, 3,4},   
-     {50, 250, 50, 5,8},
-     {70, 300, 100, 7,16},
-     {100, 350, 170, 10,32},
-     {150, 400, 200, 13,64},
-     {200, 500, 250, 15,128},
-     {250, 700, 300, 17,256},
-     {300, 1000, 350, 20,512},
-     {350, 1300, 400, 25,1024},
-     {400, 1500, 500, 30,1024},
-     {500, 2000, 1000, 50,1024}   
+     {10, 100, 15, 1, 2},   
+     {30, 200, 30, 3, 4},   
+     {50, 250, 50, 5, 8},
+     {70, 300, 100, 7, 16},
+     {100, 350, 170, 10, 32},
+     {150, 400, 200, 13, 64},
+     {200, 500, 250, 20, 128},
+     {250, 700, 300, 50, 256},
+     {300, 1000, 350, 100, 512},
+     {350, 1300, 400, 150, 1024},
+     {400, 1500, 500, 500, 1024},
+     {500, 2000, 1000, 1000, 1024}    
   };
 
   cudaDeviceProp deviceProp = getDevProp(0);
@@ -258,7 +258,7 @@ int main(int argc, char **argv) {
 
             blockSize = grid_params[p][4];
 
-            printf("\nRunning benchmarks on classification task with trainSize[%d], testSize[%d], window_size[%d], n_feat[%d] \n", trainSize, testSize, window_size, n_feat);
+            printf("\nRunning benchmarks on classification task with: blockSize[%d], trainSize[%d], testSize[%d], window_size[%d], n_feat[%d] \n",blockSize, trainSize, testSize, window_size, n_feat);
 
             /* HOST MEMORY ALLOCATION */
             h_malloc(&train_set, &test_set, &trainLabels, &testLabels, trainSize, testSize, window_size, n_feat, 1);
