@@ -420,7 +420,7 @@ int main(int argc, char **argv) {
             if(verbose_mode > 0){
               printf("\n\tExecution time: %f ms\n", elapsed);
               printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate is %f\n\n", ER_RA);
+              printf("\tThe Error rate is %f\n\n", ER_RA*100);
             }
             mean_RA += RA;
             mean_ER_RA += ER_RA;
@@ -441,7 +441,7 @@ int main(int argc, char **argv) {
             if(verbose_mode > 0){
               printf("\n\tExecution time: %f ms\n", elapsed);
               printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate is %f\n\n", ER_RA);
+              printf("\tThe Error rate is %f\n\n", ER_RA*100);
             }
             mean_RA += RA;
             mean_ER_RA += ER_RA;
@@ -462,7 +462,7 @@ int main(int argc, char **argv) {
             if(verbose_mode > 0){
               printf("\n\tExecution time: %f ms\n", elapsed);
               printf("\tRotation Invariant Accuracy is %f\n", RIA);
-              printf("\tThe Error rate of RI is %f\n\n", ER_RIA);
+              printf("\tThe Error rate of RI is %f\n\n", ER_RIA*100);
             }
             mean_RIA += RIA;
             mean_ER_RIA += ER_RIA;
@@ -471,7 +471,7 @@ int main(int argc, char **argv) {
             ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
             if(verbose_mode > 0){
               printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate of NR is %f\n\n", ER_RA);
+              printf("\tThe Error rate of NR is %f\n\n", ER_RA*100);
             }
             mean_RA += RA;
             mean_ER_RA += ER_RA;   
@@ -525,7 +525,7 @@ int main(int argc, char **argv) {
             if(verbose_mode > 0){
               printf("\n\tExecution time: %f ms\n", time_GPU_MD_DTW_D);
               printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate is %f\n\n", ER_RA);
+              printf("\tThe Error rate is %f\n\n", ER_RA*100);
             }
             mean_RA += RA;
             mean_ER_RA += ER_RA;
@@ -549,7 +549,7 @@ int main(int argc, char **argv) {
             RA = (float)(testSize - err) * (100.0 / testSize);
             ER_RA = (float)(testSize - (testSize - err)) / (testSize);
             printf("\tRegular Accuracy is %f\n", RA);
-            printf("\tThe Error rate is %f\n\n", ER_RA);
+            printf("\tThe Error rate is %f\n\n", ER_RA*100);
             mean_RA += RA;
             mean_ER_RA += ER_RA;
           } break;
@@ -572,14 +572,14 @@ int main(int argc, char **argv) {
             RIA = (float)(testSize - err) * (100.0 / testSize);
             ER_RIA = (float)(testSize - (testSize - err)) / (testSize);
             printf("\tRotation Invariant Accuracy is %f\n", RIA);
-            printf("\tThe Error rate of RI is %f\n\n", ER_RIA);
+            printf("\tThe Error rate of RI is %f\n\n", ER_RIA*100);
             mean_RIA += RIA;
             mean_ER_RIA += ER_RIA;
 
             RA = (float)(testSize - errNR) * (100.0 / testSize);
             ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
             printf("\tRegular Accuracy is %f\n", RA);
-            printf("\tThe Error rate of NR is %f\n\n", ER_RA);
+            printf("\tThe Error rate of NR is %f\n\n", ER_RA*100);
             mean_RA += RA;
             mean_ER_RA += ER_RA;
 
@@ -599,12 +599,12 @@ int main(int argc, char **argv) {
       mean_RA /= k_fold;
       mean_ER_RA /= k_fold;
       printf("Regular Accuracy mean is %f\n", mean_RA);
-      printf("The Error rate mean of NR is %f\n\n", mean_ER_RA);
+      printf("The Error rate mean of NR is %f\n\n", mean_ER_RA*100);
     } else {
       mean_RIA /= k_fold;
       mean_ER_RIA /= k_fold;
       printf("Rotation Invariant Accuracy mean is %f\n", mean_RIA);
-      printf("The Error rate mean of RI is %f\n\n", mean_ER_RIA);
+      printf("The Error rate mean of RI is %f\n\n", mean_ER_RIA*100);
     }
   } else if (strcmp(task, "SUBSEQ_SEARCH") == 0) {
 

@@ -12,3 +12,5 @@ UCR Time Series Classification Archive.csv
 
 Reminder MD_DTW.rtf
 UCR Time Series Classification Archive.xls
+*.o
+instr_run_unit_test

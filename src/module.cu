@@ -229,7 +229,7 @@ __global__ void MD_DTW_D(float *S, float *T, int trainSize, int window_size, int
  */
 template<int WS>
 __global__ void MD_DTW_I(float *S, float *T, int trainSize, int window_size, int dimensions,
-                         float *data_out, int task) {
+                         float *data_out, int task, int gm) {
 
   int idx, offset_x;
   long long int i, j;
@@ -237,86 +237,163 @@ __global__ void MD_DTW_I(float *S, float *T, int trainSize, int window_size, int
   float min_nb = 0;
   float array[WS][2];
 
-  extern __shared__ float sh_mem[];
+  // float *T2 = 0;
+  // float *DTW_single_dim = 0;
 
-  float *T2 = (float *)sh_mem;
-  float *DTW_single_dim =
+  if(gm == 0){
+
+    extern __shared__ float sh_mem[];
+    float *T2 = (float *)sh_mem;
+    float *DTW_single_dim =
       (float *)&sh_mem[dimensions *
                        window_size]; // offset on the shared memory for the segment T2
 
-  if (task == 0) {
-    idx = threadIdx.x * dimensions + threadIdx.y;
-    offset_x = ((blockDim.x * blockDim.y * window_size) * blockIdx.x) + idx * window_size;
+    if (task == 0) {
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x = ((blockDim.x * blockDim.y * window_size) * blockIdx.x) + idx * window_size;
 
-    if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
-        trainSize * dimensions) // 120=train_size
-      return;
+      if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
+          trainSize * dimensions) // 120=train_size
+        return;
 
-  } else { // SUBSEQ_SEARCH
+    } else { // SUBSEQ_SEARCH
 
-    idx = threadIdx.x * dimensions + threadIdx.y;
-    offset_x =
-        (blockDim.x * blockIdx.x) +
-        ((threadIdx.y * trainSize) +
-         threadIdx.x); // use blockIdx and other measure to set well the offset
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x =
+          (blockDim.x * blockIdx.x) +
+          ((threadIdx.y * trainSize) +
+           threadIdx.x); // use blockIdx and other measure to set well the offset
 
-    if ((idx + window_size) > trainSize)
-      return;
-  }
-
-  if (idx == 0) {
-    for (i = 0; i < dimensions; i++)
-      for (j = 0; j < window_size; j++)
-        *(T2 + (window_size * i + j)) = T[window_size * i + j];
-  }
-  __syncthreads();
-
-  k = 0;
-  l = 1;
-  for (i = 0; i < window_size; i++) {
-    if (i == 0)
-      array[i][k] = pow((S[offset_x] - T2[window_size * threadIdx.y]), 2);
-    else
-      array[i][k] =
-          pow((S[offset_x] - T2[window_size * threadIdx.y + i]), 2) + array[i - 1][k];
-  }
-
-  k = 1;
-  l = 0;
-  for (j = 1; j < window_size; j++) {
-    i = 0;
-    array[i][k] =
-        pow((S[offset_x + j] - T2[window_size * threadIdx.y + i]), 2) + array[i][l];
-
-    for (i = 1; i < window_size; i++) {
-      double a = array[i - 1][l];
-      double b = array[i][l];
-      double c = array[i - 1][k];
-
-      min_nb = fminf(a, b);
-      min_nb = fminf(c, min_nb);
-
-      array[i][k] =
-          pow((S[offset_x + j] - T2[window_size * threadIdx.y + i]), 2) + min_nb;
+      if ((idx + window_size) > trainSize)
+        return;
     }
-    g = k;
-    k = l;
-    l = g;
+
+    if (idx == 0) {
+      for (i = 0; i < dimensions; i++)
+        for (j = 0; j < window_size; j++)
+          *(T2 + (window_size * i + j)) = T[window_size * i + j];
+    }
+    __syncthreads();
+
+    k = 0;
+    l = 1;
+    for (i = 0; i < window_size; i++) {
+      if (i == 0)
+        array[i][k] = pow((S[offset_x] - T2[window_size * threadIdx.y]), 2);
+      else
+        array[i][k] =
+            pow((S[offset_x] - T2[window_size * threadIdx.y + i]), 2) + array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+      i = 0;
+      array[i][k] =
+          pow((S[offset_x + j] - T2[window_size * threadIdx.y + i]), 2) + array[i][l];
+
+      for (i = 1; i < window_size; i++) {
+        double a = array[i - 1][l];
+        double b = array[i][l];
+        double c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        array[i][k] =
+            pow((S[offset_x + j] - T2[window_size * threadIdx.y + i]), 2) + min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+    DTW_single_dim[idx] = array[window_size - 1][g];
+
+    __syncthreads();
+
+    if (idx == 0) {
+      for (i = 0; i < blockDim.x; i++) {
+        data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
+        for (j = 0; j < blockDim.y; j++) {
+          data_out[(blockIdx.x * blockDim.x) + i] +=
+              DTW_single_dim[i * dimensions + j];
+        }
+      }
+    }
+
   }
-  DTW_single_dim[idx] = array[window_size - 1][g];
+  else
+  {
+    extern __shared__ float DTW_single_dim[];
 
-  __syncthreads();
+    if (task == 0) {
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x = ((blockDim.x * blockDim.y * window_size) * blockIdx.x) + idx * window_size;
 
-  if (idx == 0) {
-    for (i = 0; i < blockDim.x; i++) {
-      data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
-      for (j = 0; j < blockDim.y; j++) {
-        data_out[(blockIdx.x * blockDim.x) + i] +=
-            DTW_single_dim[i * dimensions + j];
+      if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
+          trainSize * dimensions) // 120=train_size
+        return;
+
+    } else { // SUBSEQ_SEARCH
+
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x =
+          (blockDim.x * blockIdx.x) +
+          ((threadIdx.y * trainSize) +
+           threadIdx.x); // use blockIdx and other measure to set well the offset
+
+      if ((idx + window_size) > trainSize)
+        return;
+    }
+    k = 0;
+    l = 1;
+    for (i = 0; i < window_size; i++) {
+      if (i == 0)
+        array[i][k] = pow((S[offset_x] - T[window_size * threadIdx.y]), 2);
+      else
+        array[i][k] =
+            pow((S[offset_x] - T[window_size * threadIdx.y + i]), 2) + array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+      i = 0;
+      array[i][k] =
+          pow((S[offset_x + j] - T[window_size * threadIdx.y + i]), 2) + array[i][l];
+
+      for (i = 1; i < window_size; i++) {
+        double a = array[i - 1][l];
+        double b = array[i][l];
+        double c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        array[i][k] =
+            pow((S[offset_x + j] - T[window_size * threadIdx.y + i]), 2) + min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+    DTW_single_dim[idx] = array[window_size - 1][g];
+
+    __syncthreads();
+
+    if (idx == 0) {
+      for (i = 0; i < blockDim.x; i++) {
+        data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
+        for (j = 0; j < blockDim.y; j++) {
+          data_out[(blockIdx.x * blockDim.x) + i] +=
+              DTW_single_dim[i * dimensions + j];
+        }
       }
     }
   }
 }
+
+
 
 /**
  * \brief The kernel function `rMD_DTW_D` computes the `Rotation Dependent-Multi Dimensional Dynamic Time Warping` distance (rD-MDDTW).
@@ -591,64 +668,121 @@ __global__ void MD_ED_D(float *S, float *T, int trainSize, int window_size, int 
  * \param task Integer discriminating the task to perform (e.g., 0: CLASSIFICATION, 1:SUBSEQUENCE SEARCH)
  */
 __global__ void MD_ED_I(float *S, float *T, int trainSize, int window_size, int dimensions,
-                        float *data_out, int task) {
+                        float *data_out, int task, int gm) {
 
   int idx, offset_x;
   float sumErr = 0;
   long long int i, j;
 
-  extern __shared__ float sh_mem[];
 
-  float *T2 = (float *)sh_mem;
-  float *DTW_single_dim =
-      (float *)&sh_mem[dimensions * window_size]; // offset on the shared memory
-                                                  // for the segment T2
+  if(gm == 0){
 
-  if (task == 0) {
-    idx = threadIdx.x * dimensions + threadIdx.y;
-    offset_x = ((blockDim.x * blockDim.y * window_size) * blockIdx.x) +
-               idx * window_size;
+    extern __shared__ float sh_mem[];
 
-    if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
-        trainSize * dimensions) // 120=train_size
-      return;
+    float *T2 = (float *)sh_mem;
+    float *DTW_single_dim =
+        (float *)&sh_mem[dimensions * window_size]; // offset on the shared memory
+                                                    // for the segment T2
 
-  } else { // SUBSEQ_SEARCH
+    if (task == 0) {
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x = ((blockDim.x * blockDim.y * window_size) * blockIdx.x) +
+                 idx * window_size;
 
-    idx = threadIdx.x * dimensions + threadIdx.y;
-    offset_x =
-        (blockDim.x * blockIdx.x) +
-        ((threadIdx.y * trainSize) +
-         threadIdx.x); // use blockIdx and other measure to set well the offset
+      if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
+          trainSize * dimensions) // 120=train_size
+        return;
 
-    if ((idx + window_size) > trainSize)
-      return;
-  }
+    } else { // SUBSEQ_SEARCH
 
-  if (idx == 0) {
-    for (i = 0; i < dimensions; i++)
-      for (j = 0; j < window_size; j++)
-        *(T2 + (window_size * i + j)) = T[window_size * i + j];
-  }
-  __syncthreads();
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x =
+          (blockDim.x * blockIdx.x) +
+          ((threadIdx.y * trainSize) +
+           threadIdx.x); // use blockIdx and other measure to set well the offset
 
-  for (j = 0; j < window_size; j++)
-    sumErr += (S[offset_x + j] - T2[window_size * threadIdx.y + j]) *
-              (S[offset_x + j] - T2[window_size * threadIdx.y + j]);
+      if ((idx + window_size) > trainSize)
+        return;
+    }
 
-  DTW_single_dim[idx] = sqrt(sumErr);
+    if (idx == 0) {
+      for (i = 0; i < dimensions; i++)
+        for (j = 0; j < window_size; j++)
+          *(T2 + (window_size * i + j)) = T[window_size * i + j];
+    }
+    __syncthreads();
 
-  __syncthreads();
+    for (j = 0; j < window_size; j++)
+      sumErr += (S[offset_x + j] - T2[window_size * threadIdx.y + j]) *
+                (S[offset_x + j] - T2[window_size * threadIdx.y + j]);
 
-  if (idx == 0) {
-    for (i = 0; i < blockDim.x; i++) {
-      data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
-      for (j = 0; j < blockDim.y; j++) {
-        data_out[(blockIdx.x * blockDim.x) + i] +=
-            DTW_single_dim[i * dimensions + j]; // rivedere formula!
+    DTW_single_dim[idx] = sqrt(sumErr);
+
+    __syncthreads();
+
+    if (idx == 0) {
+      for (i = 0; i < blockDim.x; i++) {
+        data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
+        for (j = 0; j < blockDim.y; j++) {
+          data_out[(blockIdx.x * blockDim.x) + i] +=
+              DTW_single_dim[i * dimensions + j]; // rivedere formula!
+        }
       }
     }
+
   }
+  else {
+
+    extern __shared__ float DTW_single_dim[];
+
+    if (task == 0) {
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x = ((blockDim.x * blockDim.y * window_size) * blockIdx.x) +
+                 idx * window_size;
+
+      if (((blockDim.x * blockDim.y * blockIdx.x) + idx) >=
+          trainSize * dimensions) // 120=train_size
+        return;
+
+    } else { // SUBSEQ_SEARCH
+
+      idx = threadIdx.x * dimensions + threadIdx.y;
+      offset_x =
+          (blockDim.x * blockIdx.x) +
+          ((threadIdx.y * trainSize) +
+           threadIdx.x); // use blockIdx and other measure to set well the offset
+
+      if ((idx + window_size) > trainSize)
+        return;
+    }
+
+    // if (idx == 0) {
+    //   for (i = 0; i < dimensions; i++)
+    //     for (j = 0; j < window_size; j++)
+    //       *(T2 + (window_size * i + j)) = T[window_size * i + j];
+    // }
+    // __syncthreads();
+
+    for (j = 0; j < window_size; j++)
+      sumErr += (S[offset_x + j] - T[window_size * threadIdx.y + j]) *
+                (S[offset_x + j] - T[window_size * threadIdx.y + j]);
+
+    DTW_single_dim[idx] = sqrt(sumErr);
+
+    __syncthreads();
+
+    if (idx == 0) {
+      for (i = 0; i < blockDim.x; i++) {
+        data_out[(blockIdx.x * blockDim.x) + i] = 0.0;
+        for (j = 0; j < blockDim.y; j++) {
+          data_out[(blockIdx.x * blockDim.x) + i] +=
+              DTW_single_dim[i * dimensions + j]; // rivedere formula!
+        }
+      }
+    }
+
+  }
+
 }
 
 /**
@@ -2273,9 +2407,9 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
 
   if (T2 > deviceProp.sharedMemPerBlock) {
 
-    printf("\tWarning: The T2 test timeseries: %f doesn't fit into the shared "
-           "memory: %lu, therefore it will be allocated into the global "
-           "memory!\n",
+    printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+           "memory: %lu, so it will be allocated into the global "
+           "memory\n",
            T2, deviceProp.sharedMemPerBlock);
     gm = 1;
     T2 = 0;
@@ -2512,6 +2646,13 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   float dim_row = floor((float)blockSize / n_feat);
   float dim_col = n_feat;
 
+
+  if (dim_row == 0){
+
+    printf("Warning: The number of threads for each grid is %f! Note: the number of threads for grid has been set at 1 by default to let the execution don't fail. Please increase the number of threads!\n", dim_row);
+    dim_row = 1;
+  }
+
   // number of blocks (x,y) for a grid
   grid.x = grid_size;
   grid.y = 1;
@@ -2519,15 +2660,32 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   threads.x = dim_row;
   threads.y = dim_col;
 
+  float T2 = ((threads.x * threads.y) + (n_feat * window_size)) *
+             sizeof(float);
+  int gm = 0;
+
+  if (T2 > deviceProp.sharedMemPerBlock) {
+
+    printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+           "memory: %lu, so it will be allocated into the global "
+           "memory\n",
+           T2, deviceProp.sharedMemPerBlock);
+    gm = 1;
+    T2 = 0;
+    T2 = (threads.x * threads.y) * sizeof(float);
+  } else
+    gm = 0;
+
+
   if(verbose_mode > 0){
     printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
            threads.x);
     printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
            threads.y);
   }
-
+/*
   float sh_mem = ((threads.x * threads.y) + (n_feat * window_size)) *
-                 sizeof(float);
+                 sizeof(float);*/
 
   for (int k = 0; k < testSize; k++) {
     cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
@@ -2538,38 +2696,38 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
 
       switch (foldit(window_size)) {
 
-        case 0: MD_DTW_I<64><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 0: MD_DTW_I<64><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 1: MD_DTW_I<128><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 1: MD_DTW_I<128><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 2: MD_DTW_I<256><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 2: MD_DTW_I<256><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 3: MD_DTW_I<512><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 3: MD_DTW_I<512><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 4: MD_DTW_I<1024><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 4: MD_DTW_I<1024><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 5: MD_DTW_I<2048><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 5: MD_DTW_I<2048><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 6: MD_DTW_I<4096><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 6: MD_DTW_I<4096><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 7: MD_DTW_I<8192><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 7: MD_DTW_I<8192><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
-        case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>>(d_train, d_test, trainSize, 
-                                                        window_size, n_feat, d_Out, 0);
+        case 8: MD_DTW_I<16384><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
         break;
       }
     }
     else
-      MD_ED_I << <grid, threads, sh_mem>>>
-          (d_train, d_test, trainSize, window_size, n_feat, d_Out, 0);
+      MD_ED_I << <grid, threads, T2>>>
+          (d_train, d_test, trainSize, window_size, n_feat, d_Out, 0, gm);
 
     cudaThreadSynchronize();
     cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
@@ -2631,6 +2789,8 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
   threads.x = dim_row;
   threads.y = dim_col;
 
+  int gm = 0;
+
   printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
          threads.x);
   printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
@@ -2643,37 +2803,37 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
     switch (foldit(q_size)) {
 
       case 0: MD_DTW_I<64><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 1: MD_DTW_I<128><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 2: MD_DTW_I<256><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 3: MD_DTW_I<512><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 4: MD_DTW_I<1024><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 5: MD_DTW_I<2048><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 6: MD_DTW_I<4096><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 7: MD_DTW_I<8192><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
-                                           t_size, q_size, n_feat, d_owp, 1);
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
       break;
     }
   }
   else
     MD_ED_I << <grid, threads, sh_mem>>>
-        (d_t_series, d_q_series, t_size, q_size, n_feat, d_owp, 1);
+        (d_t_series, d_q_series, t_size, q_size, n_feat, d_owp, 1, gm);
 
   cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
 
