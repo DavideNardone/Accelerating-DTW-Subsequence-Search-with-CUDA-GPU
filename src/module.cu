@@ -2061,6 +2061,27 @@ __host__ float min_arr(float *arr, int n, int *ind) {
 }
 
 /**
+ * \brief The function `max_arr` computes the maximum value of an input array.
+ * \param *arr array
+ * \param n Size of the two vector
+ * \param *ind Index of the maximum value found into the array `*arr`
+ * \return maximum value found into the array `*arr`
+ */
+__host__ float max_arr(float *arr, int n, int *ind) {
+
+  float max = FLT_MIN;
+  *ind = -1;
+  for (int i = 0; i < n; ++i) {
+    if (arr[i] > max) {
+      max = arr[i];
+      *ind = i;
+    }
+  }
+
+  return max;
+}
+
+/**
  * \brief The function `timedifference_msec` computes the time difference among `t0` and `t1`.
  * \param t0 structure containing time took at `t0` 
  * \param t0 structure containing time took at `t1` 
@@ -2643,12 +2664,13 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   int err = 0;
 
   grid_size = ceil((float)(trainSize * n_feat) / blockSize);
-  float dim_row = floor((float)blockSize / n_feat);
+  //the way to compute this measure can be envetually changed
+  //according with the logic implemented in the MD_DTW_I function
+  float dim_row = floor((float)blockSize / n_feat); 
   float dim_col = n_feat;
 
-
+  //block_size < n_feat
   if (dim_row == 0){
-
     printf("Warning: The number of threads for each grid is %f! Note: the number of threads for grid has been set at 1 by default to let the execution don't fail. Please increase the number of threads!\n", dim_row);
     dim_row = 1;
   }

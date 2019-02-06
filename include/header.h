@@ -54,6 +54,7 @@ __host__ void printArray(float *, int);
 __host__ void printArrayI(int *, int);
 __host__ void printMatrix(float *, int, int);
 __host__ float min_arr(float *, int, int *);
+__host__ float max_arr(float *, int , int *);
 __host__ int cmpfunc(const void *, const void *);
 __host__ void generateArray(int, int *, int);
 __host__ void findInd(int *, int, int *, int);
