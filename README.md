@@ -36,7 +36,9 @@ The software is purely written in CUDA, using the C/C++ language as support. In 
 
 2. A CUDA version 5.0 or greater. For installing, please refer to the [official documention](http://docs.nvidia.com/cuda/#axzz4al7PKeAs).
 
-3. Check library unit testing framework. For installing, please refer to the [official documentation](https://libcheck.github.io/check/index.html)
+3. gnuplot (optional - required for the benchmark)
+
+4. Check library unit testing framework. For installing, please refer to the [official documentation](https://libcheck.github.io/check/index.html)
 
 
 ## Usage
