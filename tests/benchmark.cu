@@ -2,31 +2,36 @@
 
 using namespace std;
 
-int num_fig = 1;
-
-void plot(float* cpu_D_MDTW, float* gpu_D_MDTW, float* cpu_I_MDTW, float* gpu_I_MDTW, int n_threads, float scf, char title[500], char dir_res[10], char suff_img_name[10]){
+void plot(float* gpu_D_MDTW, float* gpu_I_MDTW, int n_threads, int arr_block_size[], char title[500], char dir_res[10], char suff_img_name[10]){
 
   // open persistent gnuplot window
   FILE* gnuplot_pipe = popen("gnuplot -persistent", "w");
   // basic settings
-  float arr_min_max[4];
+  float arr_min_max[2];
   int ind;
-  arr_min_max[0] = max_arr(cpu_D_MDTW, n_threads, &ind);
-  arr_min_max[1] = max_arr(gpu_D_MDTW, n_threads, &ind);
-  arr_min_max[2] = max_arr(cpu_I_MDTW, n_threads, &ind);
-  arr_min_max[3] = max_arr(gpu_I_MDTW, n_threads, &ind);  
-  float max = max_arr(arr_min_max, 4, &ind);
-  arr_min_max[0] = min_arr(cpu_D_MDTW, n_threads, &ind);
-  arr_min_max[1] = min_arr(gpu_D_MDTW, n_threads, &ind);
-  arr_min_max[2] = min_arr(cpu_I_MDTW, n_threads, &ind);
-  arr_min_max[3] = min_arr(gpu_I_MDTW, n_threads, &ind); 
-  float min = min_arr(arr_min_max, 4, &ind);
+  arr_min_max[0] = max_arr(gpu_D_MDTW, n_threads, &ind);
+  arr_min_max[1] = max_arr(gpu_I_MDTW, n_threads, &ind);
+  float max = max_arr(arr_min_max, 2, &ind);
+  arr_min_max[0] = min_arr(gpu_D_MDTW, n_threads, &ind);
+  arr_min_max[1] = min_arr(gpu_I_MDTW, n_threads, &ind); 
+  float min = min_arr(arr_min_max, 2, &ind);
+
+  //SETTINGS
   fprintf(gnuplot_pipe, "set xrange [0:%d]\n", n_threads-1);
   fprintf(gnuplot_pipe, "set yrange [%f:%f]\n",min/2, 1.3*max);
   fprintf(gnuplot_pipe, "set log y\n");
   fprintf(gnuplot_pipe, "set title '%s'\n", title);
-  fprintf(gnuplot_pipe, "set xtics ('2' 0, '4' 1, '8' 2,  '16' 3,  '32' 4,  '64' 5,  '128' 6,  '256' 7,  '512' 8,  '1024' 9)\n");
-  fprintf(gnuplot_pipe, "set autoscale fix\n");
+
+  //xtics
+  char xtics[100] = "(";
+  char tmp[20];
+  for (int i = 0; i < n_threads; ++i)
+  {
+    sprintf(tmp, "'%d' %d,",arr_block_size[i], i);
+    strcat(xtics, tmp);
+  }
+  xtics[strlen(xtics)-1] = ')';
+  fprintf(gnuplot_pipe, "set xtics %s\n", xtics);
 
   //SAVE graph
   char append[5];
@@ -39,27 +44,11 @@ void plot(float* cpu_D_MDTW, float* gpu_D_MDTW, float* cpu_I_MDTW, float* gpu_I_
   fprintf(gnuplot_pipe, "set ylabel 'msec'\n");
 
   // fill it with data
-  fprintf(gnuplot_pipe, "set multiplot\n");
-  fprintf(gnuplot_pipe, "set key at %d,%f\n",n_threads-1, max - (1.5 + scf)*(max/4));
-  fprintf(gnuplot_pipe, "plot '-' with linespoints title 'cpu_D_MDTW' pt 2 lt -1\n"); //black
-  for(int i=0; i<n_threads; ++i)
-    fprintf(gnuplot_pipe, "%d %f\n", i, cpu_D_MDTW[i]);
-  fprintf(gnuplot_pipe, "e\n");
-
-  fprintf(gnuplot_pipe, "set key at %d,%f\n",n_threads-1, max - (1.7 + scf)*(max/4));
-  fprintf(gnuplot_pipe, "plot '-' with linespoints title 'gpu_D_MDTW' pt 3 lt 2\n");
+  fprintf(gnuplot_pipe, "plot '-' with linespoints title 'gpu_D_MDTW' pt 2 lt -1, '-' with linespoints title 'gpu_I_MDTW' pt 3 lt 2\n"); //black
   for(int i=0; i<n_threads; ++i)
     fprintf(gnuplot_pipe, "%d %f\n", i, gpu_D_MDTW[i]);
   fprintf(gnuplot_pipe, "e\n");
 
-  fprintf(gnuplot_pipe, "set key at %d,%f\n",n_threads-1, max - (1.9 + scf)*(max/4));
-  fprintf(gnuplot_pipe, "plot '-' with linespoints title 'cpu_I_MDTW' pt 4 lt 3\n");
-  for(int i=0; i<n_threads; ++i)
-    fprintf(gnuplot_pipe, "%d %f\n", i, cpu_I_MDTW[i]);
-  fprintf(gnuplot_pipe, "e\n");
-
-  fprintf(gnuplot_pipe, "set key at %d,%f\n",n_threads-1, max - (2.1 + scf)*(max/4));
-  fprintf(gnuplot_pipe, "plot '-' with linespoints title 'gpu_I_MDTW' pt 5 lt 4\n");
   for(int i=0; i<n_threads; ++i)
     fprintf(gnuplot_pipe, "%d %f\n", i, gpu_I_MDTW[i]);
   fprintf(gnuplot_pipe, "e\n");
@@ -71,11 +60,9 @@ void plot(float* cpu_D_MDTW, float* gpu_D_MDTW, float* cpu_I_MDTW, float* gpu_I_
   pclose(gnuplot_pipe);
 }
 
-
 void h_malloc(float **train_set, float **test_set, int **trainLabels, int **testLabels, int trainSize, int testSize, int window_size, int n_feat, int cls){
 
   unsigned long long int trainBytes, testBytes;
-
 
   if (cls < 2)
     trainBytes = trainSize * window_size * n_feat * sizeof(float);
@@ -90,6 +77,7 @@ void h_malloc(float **train_set, float **test_set, int **trainLabels, int **test
 
   *trainLabels = (int *)malloc(trainSize * sizeof(int));
   *testLabels = (int *)malloc(testSize * sizeof(int));
+
   // random initialization of train data and label set
   initializeArray(*train_set, trainSize * window_size * n_feat);
   initializeArray(*test_set, testSize * window_size * n_feat);
@@ -125,7 +113,6 @@ void h_free(float **train_set, float **test_set, int **trainLabels, int **testLa
   free(h_Out);
 }
 
-
 void h_free(float **q_series, float **t_series, float **owp){
 
   free(*q_series);
@@ -133,111 +120,165 @@ void h_free(float **q_series, float **t_series, float **owp){
   free(*owp);
 }
 
-void run_benchmark(int nss, int t_size, int q_size, int blockSize, int n_feat, cudaDeviceProp deviceProp,  
-  float *t_series, float *q_series, float *d_t_series, float *d_q_series, float *d_owp, float *owp, int task, float *time_cpu_ED, float *time_gpu_ED, float *time_cpu_MDTW, float *time_gpu_MDTW){
+//CPU BASED
+void run_benchmark(int nss, int t_size, int q_size, int n_feat, 
+  float *t_series, float *q_series, float *owp, int task, float *time_cpu_ED, float *time_cpu_MDTW){
 
     int ind_min_val = 0;
     struct timeval stop_CPU, start_CPU;
-    cudaEvent_t start_GPU, stop_GPU;
     char *distance_type[] = {"ED","DTW"};
-    float time_cpu[2], time_gpu[2];
+    float time_cpu[2];
 
   switch(task){
 
     case 0:
       for (int i = 0; i < 2; ++i)
       {
-        // printf("RUNNING BENCHMARK ON MD_D-%s...\n", *(distance_type + i));
         gettimeofday(&start_CPU, NULL);
         MDD_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, *(distance_type + i), 0, owp, &ind_min_val);
         gettimeofday(&stop_CPU, NULL);
         time_cpu[i] = timedifference_msec(start_CPU, stop_CPU);
-
-        cudaEventCreate(&start_GPU);
-        cudaEventCreate(&stop_GPU);
-        cudaEventRecord(start_GPU, 0);
-        MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, *(distance_type + i), 0, owp, d_owp, &ind_min_val);
-        cudaEventRecord(stop_GPU, 0);
-        cudaEventSynchronize(stop_GPU);
-        cudaEventElapsedTime(&time_gpu[i], start_GPU, stop_GPU);
-        cudaEventDestroy(start_GPU);
-        cudaEventDestroy(stop_GPU);
-        // printf("CPU %f ms vs GPU  %f ms\n", time_cpu, time_gpu);
       }
     break;
     case 1:
       for (int i = 0; i < 2; ++i)
       {
-        // printf("RUNNING BENCHMARK ON MD_I-%s...\n", *(distance_type + i));
         gettimeofday(&start_CPU, NULL);
         MDI_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, *(distance_type + i), 0, owp, &ind_min_val);
         gettimeofday(&stop_CPU, NULL);
         time_cpu[i] = timedifference_msec(start_CPU, stop_CPU);
-
-        cudaEventCreate(&start_GPU);
-        cudaEventCreate(&stop_GPU);
-        cudaEventRecord(start_GPU, 0);
-        MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, *(distance_type + i), 0, owp, d_owp, &ind_min_val);
-        cudaEventRecord(stop_GPU, 0);
-        cudaEventSynchronize(stop_GPU);
-        cudaEventElapsedTime(&time_gpu[i], start_GPU, stop_GPU);
-        cudaEventDestroy(start_GPU);
-        cudaEventDestroy(stop_GPU);
-        // printf("CPU %f ms vs GPU  %f ms\n", time_cpu, time_gpu);
       }
     break;
   }
 
   *time_cpu_ED = time_cpu[0];
-  *time_gpu_ED = time_gpu[0];
   *time_cpu_MDTW = time_cpu[1];
-  *time_gpu_MDTW = time_gpu[1];
 }
 
-void run_benchmark(int trainSize, int testSize, int blockSize, int window_size, int n_feat, cudaDeviceProp deviceProp,  
-  int *trainLabels, int *testLabels, float *train_set, float *test_set, float *d_train, float *d_test, float *d_Out, float *h_Out, int task, float *time_cpu_ED, float *time_gpu_ED, float *time_cpu_MDTW, float *time_gpu_MDTW){
+//GPU BASED
+void run_benchmark(int nss, int t_size, int q_size, int blockSize, int n_feat, cudaDeviceProp deviceProp,  
+  float *d_t_series, float *d_q_series, float *d_owp, float *owp, int task, float *time_gpu_ED, float *time_gpu_MDTW){
 
-  int ERR_CPU, ERR_GPU,ERR_NR_CPU,ERR_NR_GPU;
-  struct timeval stop_CPU, start_CPU;
-  cudaEvent_t start_GPU, stop_GPU;
-  char *distance_type[] = {"ED","DTW"};
-  float time_cpu[2], time_gpu[2];
+    int ind_min_val = 0;
+    cudaEvent_t start_GPU, stop_GPU;
+    char *distance_type[] = {"ED","DTW"};
+    float time_gpu[2];
 
   switch(task){
 
-    //benchmark for Dependent-Similarity Measure Distance among CPU and GPU version
     case 0:
       for (int i = 0; i < 2; ++i)
       {
-        // printf("RUNNING BENCHMARK ON MD_D-%s...\n", *(distance_type + i));
-        gettimeofday(&start_CPU, NULL);
-        ERR_CPU = MDD_SIM_MES_CPU(trainSize, testSize, trainLabels, testLabels, train_set, test_set, window_size, n_feat, *(distance_type + i), 0);
-        gettimeofday(&stop_CPU, NULL);
-        time_cpu[i] = timedifference_msec(start_CPU, stop_CPU);
-
         cudaEventCreate(&start_GPU);
         cudaEventCreate(&stop_GPU);
         cudaEventRecord(start_GPU, 0);
-        ERR_GPU = MDD_SIM_MES_GPU(trainSize, testSize, trainLabels, testLabels, train_set, test_set, d_train, d_test, d_Out, h_Out, window_size, n_feat, 512, deviceProp, *(distance_type + i), 0);
+        MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, *(distance_type + i), 0, owp, d_owp, &ind_min_val);
         cudaEventRecord(stop_GPU, 0);
         cudaEventSynchronize(stop_GPU);
         cudaEventElapsedTime(&time_gpu[i], start_GPU, stop_GPU);
         cudaEventDestroy(start_GPU);
         cudaEventDestroy(stop_GPU);
-        // printf("CPU %f ms vs GPU  %f ms\n", time_cpu[i], time_gpu[i]);
       }
     break;
-
-    //benchmark for independent-Similarity Measure Distance among CPU and GPU version
     case 1:
       for (int i = 0; i < 2; ++i)
       {
-        // printf("RUNNING BENCHMARK ON MD_I-%s...\n", *(distance_type + i));
+        cudaEventCreate(&start_GPU);
+        cudaEventCreate(&stop_GPU);
+        cudaEventRecord(start_GPU, 0);
+        MDD_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, *(distance_type + i), 0, owp, d_owp, &ind_min_val);
+        cudaEventRecord(stop_GPU, 0);
+        cudaEventSynchronize(stop_GPU);
+        cudaEventElapsedTime(&time_gpu[i], start_GPU, stop_GPU);
+        cudaEventDestroy(start_GPU);
+        cudaEventDestroy(stop_GPU);
+      }
+    break;
+  }
+
+  *time_gpu_ED = time_gpu[0];
+  *time_gpu_MDTW = time_gpu[1];
+}
+
+//CPU BASED
+void run_benchmark(int trainSize, int testSize, int window_size, int n_feat,  
+  int *trainLabels, int *testLabels, float *train_set, float *test_set, int task, float *time_cpu_ED, float *time_cpu_MDTW){
+
+  int ERR_CPU, ERR_NR_CPU;
+  struct timeval stop_CPU, start_CPU;
+  char *distance_type[] = {"ED","DTW"};
+  float time_cpu[2];
+
+  switch(task){
+
+    //benchmark for Dependent-Similarity Measure Distance
+    case 0:
+      for (int i = 0; i < 2; ++i)
+      {
+        gettimeofday(&start_CPU, NULL);
+        ERR_CPU = MDD_SIM_MES_CPU(trainSize, testSize, trainLabels, testLabels, train_set, test_set, window_size, n_feat, *(distance_type + i), 0);
+        gettimeofday(&stop_CPU, NULL);
+        time_cpu[i] = timedifference_msec(start_CPU, stop_CPU);
+      }
+    break;
+
+    //benchmark for independent-Similarity Measure Distance
+    case 1:
+      for (int i = 0; i < 2; ++i)
+      {
         gettimeofday(&start_CPU, NULL);
         ERR_CPU = MDI_SIM_MES_CPU(trainSize, testSize, trainLabels, testLabels, train_set, test_set, window_size, n_feat, *(distance_type + i), 0);
         gettimeofday(&stop_CPU, NULL);
         time_cpu[i] = timedifference_msec(start_CPU, stop_CPU);
+      }
+    break;
+    //benchmark for Rotation Dependent-Similarity Measure Distance
+    case 3:
+      for (int i = 0; i < 2; ++i)
+      {
+        gettimeofday(&start_CPU, NULL);
+        MDR_SIM_MES_CPU(trainSize, testSize, trainLabels,  testLabels, train_set, test_set, window_size, n_feat, *(distance_type + i), 0, &ERR_CPU, &ERR_NR_CPU);
+        gettimeofday(&stop_CPU, NULL);
+        time_cpu[i] = timedifference_msec(start_CPU, stop_CPU);
+      }
+    break;
+  }
 
+  *time_cpu_ED = time_cpu[0];
+  *time_cpu_MDTW = time_cpu[1];
+}
+
+//GPU BASED
+void run_benchmark(int trainSize, int testSize, int blockSize, int window_size, int n_feat, cudaDeviceProp deviceProp,  
+  int *trainLabels, int *testLabels, float *train_set, float *test_set, float *d_train, float *d_test, float *d_Out, float *h_Out, int task, float *time_gpu_ED, float *time_gpu_MDTW){
+
+  int ERR_GPU,ERR_NR_GPU;
+  cudaEvent_t start_GPU, stop_GPU;
+  char *distance_type[] = {"ED","DTW"};
+  float time_gpu[2];
+
+  switch(task){
+
+    //benchmark for Dependent-Similarity Measure Distance
+    case 0:
+      for (int i = 0; i < 2; ++i)
+      {
+        cudaEventCreate(&start_GPU);
+        cudaEventCreate(&stop_GPU);
+        cudaEventRecord(start_GPU, 0);
+        ERR_GPU = MDD_SIM_MES_GPU(trainSize, testSize, trainLabels, testLabels, train_set, test_set, d_train, d_test, d_Out, h_Out, window_size, n_feat, blockSize, deviceProp, *(distance_type + i), 0);
+        cudaEventRecord(stop_GPU, 0);
+        cudaEventSynchronize(stop_GPU);
+        cudaEventElapsedTime(&time_gpu[i], start_GPU, stop_GPU);
+        cudaEventDestroy(start_GPU);
+        cudaEventDestroy(stop_GPU);
+      }
+    break;
+
+    //benchmark for independent-Similarity Measure Distance
+    case 1:
+      for (int i = 0; i < 2; ++i)
+      {
         cudaEventCreate(&start_GPU);
         cudaEventCreate(&stop_GPU);
         cudaEventRecord(start_GPU, 0);
@@ -247,20 +288,12 @@ void run_benchmark(int trainSize, int testSize, int blockSize, int window_size, 
         cudaEventElapsedTime(&time_gpu[i], start_GPU, stop_GPU);
         cudaEventDestroy(start_GPU);
         cudaEventDestroy(stop_GPU);
-        // printf("CPU %f ms vs GPU  %f ms\n", time_cpu[i], time_gpu[i]);
-        // printf("\n");
       }
     break;
-    //benchmark for Rotation Dependent-Similarity Measure Distance among CPU and GPU version
+    //benchmark for Rotation Dependent-Similarity Measure Distance
     case 3:
       for (int i = 0; i < 2; ++i)
       {
-        // printf("RUNNING BENCHMARK ON MDR-%s...\n", *(distance_type + i));
-        gettimeofday(&start_CPU, NULL);
-        MDR_SIM_MES_CPU(trainSize, testSize, trainLabels,  testLabels, train_set, test_set, window_size, n_feat, *(distance_type + i), 0, &ERR_CPU, &ERR_NR_CPU);
-        gettimeofday(&stop_CPU, NULL);
-        time_cpu[i] = timedifference_msec(start_CPU, stop_CPU);
-
         cudaEventCreate(&start_GPU);
         cudaEventCreate(&stop_GPU);
         cudaEventRecord(start_GPU, 0);
@@ -270,15 +303,10 @@ void run_benchmark(int trainSize, int testSize, int blockSize, int window_size, 
         cudaEventElapsedTime(&time_gpu[i], start_GPU, stop_GPU);
         cudaEventDestroy(start_GPU);
         cudaEventDestroy(stop_GPU);
-        // printf("CPU %f ms vs GPU  %f ms\n", time_cpu[i], time_gpu[i]);
-        // printf("\n");
       }
     break;
   }
-
-  *time_cpu_ED = time_cpu[0];
   *time_gpu_ED = time_gpu[0];
-  *time_cpu_MDTW = time_cpu[1];
   *time_gpu_MDTW = time_gpu[1];
 }
 
@@ -298,7 +326,7 @@ int main(int argc, char **argv) {
   int blockSize = 0;
 
   //SETTING PARAMETERS
-  int start_iter = 7, end_iter = 10;
+  int start_iter = 0, end_iter = 2;
   int i=0, j=0, k=0, l=0, p=0;
 
   //[test size, train size, window size, n_feat] 
@@ -315,8 +343,8 @@ int main(int argc, char **argv) {
      {350, 1300, 400, 1000},
   };
 
-  int n_threads = 10;
-  int arr_block_size_1[10] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 1024};
+  int n_threads = 11;
+  int arr_block_size_1[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
   float *time_cpu_D_ED;
   float *time_gpu_D_ED;
@@ -338,6 +366,20 @@ int main(int argc, char **argv) {
 
   cudaDeviceProp deviceProp = getDevProp(0);
 
+  time_gpu_D_ED = (float *)calloc(n_threads, sizeof(float));
+  time_gpu_D_MDTW = (float *)calloc(n_threads, sizeof(float));
+  time_gpu_I_ED = (float *)calloc(n_threads, sizeof(float));
+  time_gpu_I_MDTW = (float *)calloc(n_threads, sizeof(float));
+  // time_gpu_R_ED = (float *)calloc(n_threads, sizeof(float));
+  // time_gpu_R_MDTW = (float *)calloc(n_threads, sizeof(float));
+
+  time_cpu_D_ED = (float *)malloc(sizeof(float));
+  time_cpu_D_MDTW = (float *)malloc(sizeof(float));
+  time_cpu_I_ED = (float *)malloc(sizeof(float));
+  time_cpu_I_MDTW = (float *)malloc(sizeof(float));
+  // time_cpu_R_ED = (float *)malloc(sizeof(float));
+  // time_cpu_R_MDTW = (float *)malloc(sizeof(float));
+
   //CLASSIFICATION TASK
   for (i = start_iter; i < end_iter; i++) 
   {
@@ -355,33 +397,28 @@ int main(int argc, char **argv) {
         {
           n_feat = grid_params[l][3];
 
-          time_cpu_D_ED = (float *)calloc(n_threads, sizeof(float));
-          time_gpu_D_ED = (float *)calloc(n_threads, sizeof(float));
-          time_cpu_D_MDTW = (float *)calloc(n_threads, sizeof(float));
-          time_gpu_D_MDTW = (float *)calloc(n_threads, sizeof(float));
+          printf("Running CPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]", trainSize, testSize, window_size, n_feat);
+          fflush(stdout);
 
-          time_cpu_I_ED = (float *)calloc(n_threads, sizeof(float));
-          time_gpu_I_ED = (float *)calloc(n_threads, sizeof(float));
-          time_cpu_I_MDTW = (float *)calloc(n_threads, sizeof(float));
-          time_gpu_I_MDTW = (float *)calloc(n_threads, sizeof(float));
+          /* HOST MEMORY ALLOCATION */
+          h_malloc(&train_set, &test_set, &trainLabels, &testLabels, trainSize, testSize, window_size, n_feat, 1);
 
-          // time_cpu_R_ED = (float *)calloc(n_threads, sizeof(float));
-          // time_gpu_R_ED = (float *)scalloc(n_threads, sizeof(float));
-          // time_cpu_R_MDTW = (float *)calloc(n_threads, sizeof(float));
-          // time_gpu_R_MDTW = (float *)calloc(n_threads, sizeof(float));
+          //CPU_D_MDTW
+          run_benchmark(trainSize, testSize, window_size, n_feat,  
+              trainLabels, testLabels, train_set, test_set, 0, time_cpu_D_ED, time_cpu_D_MDTW);
 
-          sprintf(suff_img_name,"%d.%d.%d",i+1,j+1,k+1);
+          //CPU_I_MDTW
+          run_benchmark(trainSize, testSize, window_size, n_feat,  
+              trainLabels, testLabels, train_set, test_set, 1, time_cpu_I_ED, time_cpu_I_MDTW);
 
-          printf("Running benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]...", trainSize, testSize, window_size, n_feat);
+          printf("Running GPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]...", trainSize, testSize, window_size, n_feat);
+          fflush(stdout);
 
           for (p = 0; p < n_threads; p++)
           {
-
             blockSize = arr_block_size_1[p];
             printf("%d.", blockSize);
-
-            /* HOST MEMORY ALLOCATION */
-            h_malloc(&train_set, &test_set, &trainLabels, &testLabels, trainSize, testSize, window_size, n_feat, 1);
+            fflush(stdout);
 
             /* DEVICE MEMORY ALLOCATION */
             unsigned long long int trainBytes;
@@ -401,10 +438,10 @@ int main(int argc, char **argv) {
             /* DEVICE MEMORY ALLOCATION */
 
             run_benchmark(trainSize, testSize, blockSize, window_size, n_feat, deviceProp, 
-              trainLabels, testLabels, train_set, test_set, d_train, d_test, d_Out, h_Out, 0, &time_cpu_D_ED[p], &time_gpu_D_ED[p], &time_cpu_D_MDTW[p], &time_gpu_D_MDTW[p]);
+              trainLabels, testLabels, train_set, test_set, d_train, d_test, d_Out, h_Out, 0, &time_gpu_D_ED[p], &time_gpu_D_MDTW[p]);
 
             run_benchmark(trainSize, testSize, blockSize, window_size, n_feat, deviceProp, 
-              trainLabels, testLabels, train_set, test_set, d_train, d_test, d_Out, h_Out, 1, &time_cpu_I_ED[p], &time_gpu_I_ED[p], &time_cpu_I_MDTW[p], &time_gpu_I_MDTW[p]);
+              trainLabels, testLabels, train_set, test_set, d_train, d_test, d_Out, h_Out, 1, &time_gpu_I_ED[p], &time_gpu_I_MDTW[p]);
 
            // It's pointless to compute the execution time for the rotation invariant version
            // since its purpose is to improve the accuracy result for some scenarios! 
@@ -427,22 +464,31 @@ int main(int argc, char **argv) {
             // run_benchmark(trainSize, testSize, blockSize, window_size, n_feat, deviceProp, 
             //   trainLabels, testLabels, train_set, test_set, d_train, d_test, d_Out, h_Out, 3, &time_cpu_R_ED[p], &time_gpu_R_ED[p], &time_cpu_R_MDTW[p], &time_gpu_R_MDTW[p]);
 
-            h_free(&train_set, &test_set, &trainLabels, &testLabels, h_Out);
-
             cudaFree(d_train);
             cudaFree(d_test);
             cudaFree(d_Out);
           }
           printf("\n");
+          sprintf(suff_img_name,"%d.%d.%d.%d",i+1,j+1,k+1,l+1);
+          printf("%s\n", suff_img_name);
           sprintf(title, "Execution Time on [Tr:%d, Ts:%d, ws:%d, n_feats: %d]", trainSize, testSize, window_size, n_feat);
-          plot(time_cpu_D_MDTW, time_gpu_D_MDTW, time_cpu_I_MDTW, time_gpu_I_MDTW, n_threads, 0.2, title, "res/cls/", suff_img_name);
+
+          plot(time_gpu_D_MDTW, time_gpu_I_MDTW, n_threads, arr_block_size_1, title, "res/cls/", suff_img_name);
+
+          h_free(&train_set, &test_set, &trainLabels, &testLabels, h_Out);
+          // exit(-1);
         }
       }
     }
   }
   free(time_cpu_D_ED);
-  free(time_gpu_D_ED);
+  free(time_cpu_I_ED);
+  free(time_cpu_D_MDTW);
   free(time_cpu_I_MDTW);
+
+  free(time_gpu_D_ED);
+  free(time_gpu_I_ED);
+  free(time_gpu_D_MDTW);
   free(time_gpu_I_MDTW);
 
   printf("DONE BENCHMARK ON CLASSIFICATION\n");
@@ -453,7 +499,7 @@ int main(int argc, char **argv) {
   int nss = 0;
   float *t_series = 0, *q_series = 0, *owp = 0;
 
-  start_iter = 7;
+  start_iter = 0;
   end_iter = 10;
 
   int grid_params_2[10][4] = {  
@@ -469,8 +515,24 @@ int main(int argc, char **argv) {
      {1800, 1000, 1024}
   };
 
-  n_threads = 10;
-  int arr_block_size_2[10] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 1024};
+  n_threads = 11;
+  int arr_block_size_2[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
+
+
+  //this allocation may be avoided
+  time_gpu_D_ED = (float *)calloc(n_threads, sizeof(float));
+  time_gpu_D_MDTW = (float *)calloc(n_threads, sizeof(float));
+  time_gpu_I_ED = (float *)calloc(n_threads, sizeof(float));
+  time_gpu_I_MDTW = (float *)calloc(n_threads, sizeof(float));
+  // time_gpu_R_ED = (float *)calloc(n_threads, sizeof(float));
+  // time_gpu_R_MDTW = (float *)calloc(n_threads, sizeof(float));
+
+  time_cpu_D_ED = (float *)malloc(sizeof(float));
+  time_cpu_D_MDTW = (float *)malloc(sizeof(float));
+  time_cpu_I_ED = (float *)malloc(sizeof(float));
+  time_cpu_I_MDTW = (float *)malloc(sizeof(float));
+  // time_cpu_R_ED = (float *)malloc(sizeof(float));
+  // time_cpu_R_MDTW = (float *)malloc(sizeof(float));
 
   for (i = start_iter; i < end_iter; i++)
   {
@@ -486,32 +548,26 @@ int main(int argc, char **argv) {
       for (k = start_iter; k < end_iter; k++)
       {
         n_feat = grid_params_2[k][2];;
+        nss = t_size - q_size + 1;
 
-        time_cpu_D_ED = (float *)calloc(n_threads, sizeof(float));
-        time_gpu_D_ED = (float *)calloc(n_threads, sizeof(float));
-        time_cpu_D_MDTW = (float *)calloc(n_threads, sizeof(float));
-        time_gpu_D_MDTW = (float *)calloc(n_threads, sizeof(float));
+        printf("Running CPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]", trainSize, testSize, window_size, n_feat);
+        fflush(stdout);
 
-        time_cpu_I_ED = (float *)calloc(n_threads, sizeof(float));
-        time_gpu_I_ED = (float *)calloc(n_threads, sizeof(float));
-        time_cpu_I_MDTW = (float *)calloc(n_threads, sizeof(float));
-        time_gpu_I_MDTW = (float *)calloc(n_threads, sizeof(float));
+        h_malloc(t_size, q_size, n_feat, &t_series, &q_series, &owp);
 
-        sprintf(suff_img_name,"%d.%d.%d",i+1,j+1,k+1);
+        run_benchmark(nss, t_size, q_size, n_feat, t_series, q_series, owp, 0, time_cpu_D_ED, time_cpu_D_MDTW);
+
+        run_benchmark(nss, t_size, q_size, n_feat, t_series, q_series, owp, 1, time_cpu_I_ED, time_cpu_I_MDTW);
 
         printf("Running benchmarks on sub_sequence_search task with: blockSize[%d], t_size[%d], q_size[%d], nss[%d], n_feat[%d]...", blockSize, t_size, q_size, nss, n_feat);
-
+        fflush(stdout);
         for (p = 0; p < n_threads; p++)
         {
-          nss = t_size - q_size + 1;
-
           blockSize = arr_block_size_2[p];
           printf("%d.", blockSize);
-
-          h_malloc(t_size, q_size, n_feat, &t_series, &q_series, &owp);
+          fflush(stdout);
 
           /* *************** DEVICE MEMORY ALLOCATION *************** */
-
           unsigned long long int t_bytes = t_size * n_feat * sizeof(float);
           unsigned long long int q_bytes = q_size * n_feat * sizeof(float);
 
@@ -526,20 +582,21 @@ int main(int argc, char **argv) {
           cudaMemset(d_owp, 0, nss * sizeof(float));
           /* *************** DEVICE MEMORY ALLOCATION *************** */
 
-          run_benchmark(nss, t_size, q_size, blockSize, n_feat, deviceProp, t_series, q_series, d_t_series, d_q_series, d_owp, owp, 0, &time_cpu_D_ED[p], &time_gpu_D_ED[p], &time_cpu_D_MDTW[p], &time_gpu_D_MDTW[p]);
+          run_benchmark(nss, t_size, q_size, blockSize, n_feat, deviceProp, d_t_series, d_q_series, d_owp, owp, 0, &time_gpu_D_ED[p],  &time_gpu_D_MDTW[p]);
 
-          run_benchmark(nss, t_size, q_size, blockSize, n_feat, deviceProp, t_series, q_series, d_t_series, d_q_series, d_owp, owp, 0, &time_cpu_I_ED[p], &time_gpu_I_ED[p], &time_cpu_I_MDTW[p], &time_gpu_I_MDTW[p]);
-
-
-          h_free(&t_series, &q_series, &owp);
+          run_benchmark(nss, t_size, q_size, blockSize, n_feat, deviceProp, d_t_series, d_q_series, d_owp, owp, 1, &time_gpu_I_ED[p], &time_gpu_I_MDTW[p]);
 
           cudaFree(d_t_series);
           cudaFree(d_q_series);
           cudaFree(d_owp);
         }
         printf("\n");
+        sprintf(suff_img_name,"%d.%d.%d",i+1,j+1,k+1);
         sprintf(title, "Execution Time on [t_size:%d, q_size:%d, nss:%d, n_feat: %d]", t_size, q_size, nss, n_feat);
-        plot(time_cpu_D_MDTW, time_gpu_D_MDTW, time_cpu_I_MDTW, time_gpu_I_MDTW, n_threads, 0.3, title, "res/sub_seq/", suff_img_name);
+        plot(time_gpu_D_MDTW, time_gpu_I_MDTW, n_threads, arr_block_size_2, title, "res/sub_seq/", suff_img_name);
+   //   plot(time_gpu_D_MDTW, time_gpu_I_MDTW, n_threads, arr_block_size_1, title, "res/cls/", suff_img_name);
+
+        h_free(&t_series, &q_series, &owp);
       }
     }
   }
