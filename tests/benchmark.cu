@@ -397,7 +397,7 @@ int main(int argc, char **argv) {
         {
           n_feat = grid_params[l][3];
 
-          printf("Running CPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]", trainSize, testSize, window_size, n_feat);
+          printf("Running CPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]\n", trainSize, testSize, window_size, n_feat);
           fflush(stdout);
 
           /* HOST MEMORY ALLOCATION */
@@ -470,7 +470,6 @@ int main(int argc, char **argv) {
           }
           printf("\n");
           sprintf(suff_img_name,"%d.%d.%d.%d",i+1,j+1,k+1,l+1);
-          printf("%s\n", suff_img_name);
           sprintf(title, "Execution Time on [Tr:%d, Ts:%d, ws:%d, n_feats: %d]", trainSize, testSize, window_size, n_feat);
 
           plot(time_gpu_D_MDTW, time_gpu_I_MDTW, n_threads, arr_block_size_1, title, "res/cls/", suff_img_name);
@@ -550,7 +549,7 @@ int main(int argc, char **argv) {
         n_feat = grid_params_2[k][2];;
         nss = t_size - q_size + 1;
 
-        printf("Running CPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]", trainSize, testSize, window_size, n_feat);
+        printf("Running CPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]\n", trainSize, testSize, window_size, n_feat);
         fflush(stdout);
 
         h_malloc(t_size, q_size, n_feat, &t_series, &q_series, &owp);
@@ -559,7 +558,7 @@ int main(int argc, char **argv) {
 
         run_benchmark(nss, t_size, q_size, n_feat, t_series, q_series, owp, 1, time_cpu_I_ED, time_cpu_I_MDTW);
 
-        printf("Running benchmarks on sub_sequence_search task with: blockSize[%d], t_size[%d], q_size[%d], nss[%d], n_feat[%d]...", blockSize, t_size, q_size, nss, n_feat);
+        printf("Running GPU benchmarks on sub_sequence_search task with: blockSize[%d], t_size[%d], q_size[%d], nss[%d], n_feat[%d]...", blockSize, t_size, q_size, nss, n_feat);
         fflush(stdout);
         for (p = 0; p < n_threads; p++)
         {
@@ -594,7 +593,6 @@ int main(int argc, char **argv) {
         sprintf(suff_img_name,"%d.%d.%d",i+1,j+1,k+1);
         sprintf(title, "Execution Time on [t_size:%d, q_size:%d, nss:%d, n_feat: %d]", t_size, q_size, nss, n_feat);
         plot(time_gpu_D_MDTW, time_gpu_I_MDTW, n_threads, arr_block_size_2, title, "res/sub_seq/", suff_img_name);
-   //   plot(time_gpu_D_MDTW, time_gpu_I_MDTW, n_threads, arr_block_size_1, title, "res/cls/", suff_img_name);
 
         h_free(&t_series, &q_series, &owp);
       }
