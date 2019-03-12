@@ -70,7 +70,7 @@ The program can run with the following flag options:
   
   **NOTE:** For more information about the *read mode*, please refer to the section **_Data Format_**.
 - **-f**: It's used to specify the file path of the data (refer to the section **_Data Format_**).
-- **-k**: In the **CLASSIFICATION** task is possible to perform *k-fold cross validation* by specifying the number of folders (e.g., -k 10 0). An additional flag(0-1) is used for performing the shuffling among the folders generated. <br>
+- **-k (optional)**: In the **CLASSIFICATION** task is possible to perform *k-fold cross validation* by specifying the number of folders (e.g., -k 10 0) only when the train and test set are provided. An additional flag(0-1) is used for performing the shuffling among the folders generated. <br>
 **NB:** Setting the flag to `1` does not allow the reproducibility of the results on the same data set among the GPU and CPU versions.
 - **-o**: Depending on the *task* and *read mode*, the following parameters represents:
   * **CLASSIFICATION (read-mode=0 oppure 1):**
