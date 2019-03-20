@@ -549,7 +549,7 @@ int main(int argc, char **argv) {
         n_feat = grid_params_2[k][2];;
         nss = t_size - q_size + 1;
 
-        printf("Running CPU benchmarks on classification task with: trainSize[%d], testSize[%d], window_size[%d], n_feat[%d]\n", trainSize, testSize, window_size, n_feat);
+        printf("Running CPU benchmarks on sub_sequence_search task with: blockSize[%d], t_size[%d], q_size[%d], nss[%d], n_feat[%d]...", blockSize, t_size, q_size, nss, n_feat);
         fflush(stdout);
 
         h_malloc(t_size, q_size, n_feat, &t_series, &q_series, &owp);
