@@ -1014,7 +1014,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
     inputFile[i] = fopen(curr_file, "r");
 
     if ( access(curr_file, F_OK ) == -1 ) {
-      fprintf(stderr, "File reading error!\n");
+      fprintf(stderr, "0.File reading error!\n");
       exit(2);
     }
   }
@@ -1132,7 +1132,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
 
           // reading labels from either train or test set
           if( fscanf(inputFile[ll], "%f", &label) < 1){
-            fprintf(stderr, "File reading error!\n");
+            fprintf(stderr, "1.File reading error!\n");
             exit(2);
           }
 
@@ -1141,7 +1141,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
           for (j = 0; j < window_size; j++) {
 
             if( fscanf(inputFile[ll], "%f", &tmp[j]) < 1){ // fd=0 data descript
-              fprintf(stderr, "File reading error!\n");
+              fprintf(stderr, "2.File reading error!\n");
               exit(2);              
             }
 
@@ -2428,10 +2428,11 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
 
   if (T2 > deviceProp.sharedMemPerBlock) {
 
-    printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
-           "memory: %lu, so it will be allocated into the global "
-           "memory\n",
-           T2, deviceProp.sharedMemPerBlock);
+    if(verbose_mode > 0)
+      printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+             "memory: %lu, so it will be allocated into the global "
+             "memory\n",
+             T2, deviceProp.sharedMemPerBlock);
     gm = 1;
     T2 = 0;
   } else
@@ -2563,10 +2564,11 @@ __host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
 
   if (T2 > deviceProp.sharedMemPerBlock) {
 
-    printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
-           "memory: %lu, so it will be allocated into the global "
-           "memory\n",
-           T2, deviceProp.sharedMemPerBlock);
+    if(verbose_mode > 0)
+      printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+             "memory: %lu, so it will be allocated into the global "
+             "memory\n",
+             T2, deviceProp.sharedMemPerBlock);
     gm = 1;
     T2 = 0;
   } else
@@ -2671,7 +2673,8 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
 
   //block_size < n_feat
   if (dim_row == 0){
-    printf("Warning: The number of threads for each grid is %f! Note: the number of threads for grid has been set at 1 by default to let the execution don't fail. Please increase the number of threads!\n", dim_row);
+    if(verbose_mode > 0)
+      printf("Warning: The number of threads for each grid is %f! Note: the number of threads for grid has been set at 1 by default to let the execution don't fail. Please increase the number of threads!\n", dim_row);
     dim_row = 1;
   }
 
@@ -2687,11 +2690,11 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   int gm = 0;
 
   if (T2 > deviceProp.sharedMemPerBlock) {
-
-    printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
-           "memory: %lu, so it will be allocated into the global "
-           "memory\n",
-           T2, deviceProp.sharedMemPerBlock);
+    if(verbose_mode > 0)
+      printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+             "memory: %lu, so it will be allocated into the global "
+             "memory\n",
+             T2, deviceProp.sharedMemPerBlock);
     gm = 1;
     T2 = 0;
     T2 = (threads.x * threads.y) * sizeof(float);
@@ -2909,11 +2912,11 @@ __host__ void MDR_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int
 
 
   if (T2 > deviceProp.sharedMemPerBlock) {
-
-    printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
-           "memory: %lu, so it will be allocated into the global "
-           "memory\n",
-           T2, deviceProp.sharedMemPerBlock);
+    if(verbose_mode > 0)
+      printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+             "memory: %lu, so it will be allocated into the global "
+             "memory\n",
+             T2, deviceProp.sharedMemPerBlock);
     gm = 1;
     T2 = 0;
   } else

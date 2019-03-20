@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   int read_mode = 0;
   int window_size = 0;
   int dataSize = 0;
-  int train_size, test_size;
+  int trainSize = 0, testSize = 0;
   int blockSize = 0;
   int k_fold = 0;
   int flag_shuffle = 0;
@@ -210,12 +210,12 @@ int main(int argc, char **argv) {
             exit(-1);
           }
 
-          train_size = atoi(argv[i]);
-          test_size = atoi(argv[i + 1]);
+          trainSize = atoi(argv[i]);
+          testSize = atoi(argv[i + 1]);
 
-          data_struct.train_size = train_size;
-          data_struct.test_size = test_size;
-          dataSize = train_size + test_size;
+          data_struct.train_size = trainSize;
+          data_struct.test_size = testSize;
+          dataSize = trainSize + testSize;
           data_struct.tot_size = dataSize;
 
           window_size = atoi(argv[i + 2]);
@@ -343,12 +343,18 @@ int main(int argc, char **argv) {
         2 * dataSize * window_size * n_feat * sizeof(float);
     int *dataLabels = (int *)malloc(dataSize * sizeof(int));
     float *data = (float *)malloc(dataBytes);
-    int trainSize, testSize;
+    // int trainSize, testSize;
     float mean_RIA = 0.0f, mean_RA = 0.0f, mean_ER_RIA = 0.0f,
           mean_ER_RA = 0.0f;
 
+    float exec_time_mean = 0.0f;
+
     printf("Reading data...\n");
     printf("Dataset size: [%d,%d,%d]\n", dataSize, window_size, n_feat);
+    if(k_fold < 1){
+      printf("Test size: [%d,%d,%d]\n", trainSize, window_size, n_feat);
+      printf("Test size:  [%d,%d,%d]\n", testSize, window_size, n_feat);
+    }
     printf("\nClassification w/ %s-%s using " "%s\n\n", strategy, distance_type, compution_type);
 
     readFile(argv, arr_num_file, n_file, read_mode, data, data_struct,
@@ -368,9 +374,6 @@ int main(int argc, char **argv) {
       if (k_fold > 1) { // doing K-fold cross validation
         testSize = countVal(tInd, dataSize, f);
         trainSize = dataSize - testSize;
-      } else {
-        trainSize = data_struct.train_size;
-        testSize = data_struct.test_size;
       }
 
       /* *************** HOST MEMORY ALLOCATION *************** */
@@ -419,11 +422,12 @@ int main(int argc, char **argv) {
 
             if(verbose_mode > 0){
               printf("\n\tExecution time: %f ms\n", elapsed);
-              printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate is %f\n\n", ER_RA*100);
+              printf("\tRegular Accuracy: %f\n", RA);
+              printf("\tError rate: %f\n\n", ER_RA*100);
             }
             mean_RA += RA;
             mean_ER_RA += ER_RA;
+            exec_time_mean += elapsed;
           } break;
 
           case 1: // MD_DTW_I
@@ -440,11 +444,12 @@ int main(int argc, char **argv) {
 
             if(verbose_mode > 0){
               printf("\n\tExecution time: %f ms\n", elapsed);
-              printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate is %f\n\n", ER_RA*100);
+              printf("\tRegular Accuracy: %f\n", RA);
+              printf("\tError rate: %f\n\n", ER_RA*100);
             }
             mean_RA += RA;
             mean_ER_RA += ER_RA;
+            exec_time_mean += elapsed;            
           } break;
 
           case 2: // MD_RDTW_I
@@ -458,23 +463,21 @@ int main(int argc, char **argv) {
             elapsed = timedifference_msec(start_CPU, stop_CPU);
             RIA = (float)(testSize - err) * (100.0 / testSize);
             ER_RIA = (float)(testSize - (testSize - err)) / (testSize);
+            RA = (float)(testSize - errNR) * (100.0 / testSize);
+            ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
 
             if(verbose_mode > 0){
-              printf("\n\tExecution time: %f ms\n", elapsed);
-              printf("\tRotation Invariant Accuracy is %f\n", RIA);
-              printf("\tThe Error rate of RI is %f\n\n", ER_RIA*100);
+              printf("\n\tNRI Execution time: %f ms\n", elapsed);
+              printf("\tNRI Regular Accuracy: %f\n", RA);
+              printf("\tNRI Error rate: %f\n\n", ER_RA*100);
+              printf("\tRI Accuracy: %f\n", RIA);
+              printf("\tRI Error rate: %f\n\n", ER_RIA*100);
             }
             mean_RIA += RIA;
             mean_ER_RIA += ER_RIA;
-
-            RA = (float)(testSize - errNR) * (100.0 / testSize);
-            ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
-            if(verbose_mode > 0){
-              printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate of NR is %f\n\n", ER_RA*100);
-            }
             mean_RA += RA;
-            mean_ER_RA += ER_RA;   
+            mean_ER_RA += ER_RA;
+            exec_time_mean += elapsed;
           } break;
 
           default: printf("Error algorithm choice\n");
@@ -524,11 +527,12 @@ int main(int argc, char **argv) {
 
             if(verbose_mode > 0){
               printf("\n\tExecution time: %f ms\n", time_GPU_MD_DTW_D);
-              printf("\tRegular Accuracy is %f\n", RA);
-              printf("\tThe Error rate is %f\n\n", ER_RA*100);
+              printf("\tRegular Accuracy: %f\n", RA);
+              printf("\tThe Error rate: %f\n\n", ER_RA*100);
             }
             mean_RA += RA;
             mean_ER_RA += ER_RA;
+            exec_time_mean += time_GPU_MD_DTW_D;
           } break;
 
           case 1: // MD_DTW_I
@@ -544,14 +548,18 @@ int main(int argc, char **argv) {
             cudaEventElapsedTime(&time_GPU_MD_DTW_I, start_GPU, stop_GPU);
             cudaEventDestroy(start_GPU);
             cudaEventDestroy(stop_GPU);
-            printf("\n\tExecution time: %f ms\n", time_GPU_MD_DTW_I);
 
             RA = (float)(testSize - err) * (100.0 / testSize);
             ER_RA = (float)(testSize - (testSize - err)) / (testSize);
-            printf("\tRegular Accuracy is %f\n", RA);
-            printf("\tThe Error rate is %f\n\n", ER_RA*100);
+
+            if(verbose_mode > 0){
+              printf("\n\tExecution time: %f ms\n", time_GPU_MD_DTW_I);
+              printf("\tRegular Accuracy: %f\n", RA);
+              printf("\tError rate: %f\n\n", ER_RA*100);
+            }
             mean_RA += RA;
             mean_ER_RA += ER_RA;
+            exec_time_mean += time_GPU_MD_DTW_I;
           } break;
 
           case 2: // MD_RDTW_I
@@ -567,24 +575,26 @@ int main(int argc, char **argv) {
             cudaEventElapsedTime(&time_GPU_rMDTW, start_GPU, stop_GPU);
             cudaEventDestroy(start_GPU);
             cudaEventDestroy(stop_GPU);
-            printf("\n\tExecution time: %f ms\n", time_GPU_rMDTW);
 
             RIA = (float)(testSize - err) * (100.0 / testSize);
             ER_RIA = (float)(testSize - (testSize - err)) / (testSize);
-            printf("\tRotation Invariant Accuracy is %f\n", RIA);
-            printf("\tThe Error rate of RI is %f\n\n", ER_RIA*100);
-            mean_RIA += RIA;
-            mean_ER_RIA += ER_RIA;
-
             RA = (float)(testSize - errNR) * (100.0 / testSize);
             ER_RA = (float)(testSize - (testSize - errNR)) / (testSize);
-            printf("\tRegular Accuracy is %f\n", RA);
-            printf("\tThe Error rate of NR is %f\n\n", ER_RA*100);
+
+            if(verbose_mode > 0){
+              printf("\n\tNRI Execution time: %f ms\n", time_GPU_rMDTW);
+              printf("\tNRI Regular Accuracy: %f\n", RA);
+              printf("\tNRI Error rate: %f\n\n", ER_RA*100);
+              printf("\tRI Accuracy: %f\n", RIA);
+              printf("\tRI Error rate: %f\n\n", ER_RIA*100);
+            }
+            mean_RIA += RIA;
+            mean_ER_RIA += ER_RIA;
             mean_RA += RA;
             mean_ER_RA += ER_RA;
+            exec_time_mean += time_GPU_rMDTW;
+          } break;
 
-            break;
-          }
           default: printf("Error algorithm choice\n");
         }
         cudaFree(d_train);
@@ -598,13 +608,15 @@ int main(int argc, char **argv) {
     if (class_mode < 2) {
       mean_RA /= k_fold;
       mean_ER_RA /= k_fold;
-      printf("Regular Accuracy mean is %f\n", mean_RA);
-      printf("The Error rate mean of NR is %f\n\n", mean_ER_RA*100);
+      printf("\nNRI Regular Accuracy mean: %f\n", mean_RA);
+      printf("NRI Error rate mean: %f\n\n", mean_ER_RA*100);
+      printf("NRI Execution time mean: %f ms\n", exec_time_mean);
     } else {
       mean_RIA /= k_fold;
       mean_ER_RIA /= k_fold;
-      printf("Rotation Invariant Accuracy mean is %f\n", mean_RIA);
-      printf("The Error rate mean of RI is %f\n\n", mean_ER_RIA*100);
+      printf("\nRI Accuracy mean: %f\n", mean_RIA);
+      printf("RI Error rate mean: %f\n\n", mean_ER_RIA*100);
+      printf("RI Execution time mean: %f ms\n", exec_time_mean);
     }
   } else if (strcmp(task, "SUBSEQ_SEARCH") == 0) {
 
@@ -644,7 +656,7 @@ int main(int argc, char **argv) {
 
           min = MDD_SIM_MES_CPU(nss, t_series, q_series, t_size, q_size, n_feat, distance_type, verbose_mode, owp, &ind_min_val);
 
-          printf("\tMin2. index value %d, min2. value: %f\n\n", ind_min_val, min);
+          printf("\tMin. index value %d, min. value: %f\n\n", ind_min_val, min);
           printf("\n\tExecution time: %f ms\n", elapsed);
         } break;
 
@@ -656,7 +668,7 @@ int main(int argc, char **argv) {
 
           gettimeofday(&stop_CPU, NULL);
 
-          printf("\tMin2. index value %d, min2. value: %f\n\n", ind_min_val, min);
+          printf("\tMin. index value %d, min. value: %f\n\n", ind_min_val, min);
           printf("\n\tExecution time: %f ms\n", elapsed);
         } break;
 
