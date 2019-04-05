@@ -21,11 +21,12 @@ bibliography: paper.bib
 ---
 
 # Summary
-Nowadays the alignment of multidimensional sequences is required in many fields such as bio-informatics, image and audio analysis, business, etc. The comparison of time series is involved in several tasks for discovering similarities and patterns in data. To name a few, we cite: 
-1. **Indexing**: the process of identifying the most similar time series in a dataset given a query time series 
-2. **Classification**: the supervised categorization process of data into predefined groups [@wei2006semi]
-3. **Clustering**: the process of partitioning a set of data into a set of meaningful sub-classes [@alon2003discovering]-[@liao2005clustering]
-4. **Anomaly detection**: the identification process of abnormal or unique data items in a dataset given a reference pattern [@chin2005symbolic].
+Nowadays the alignment of multidimensional sequences is required in many fields such as bio-informatics, image and audio analysis, business, etc. The comparison of time series is involved in several tasks for discovering similarities and patterns in data. To name a few, we cite:
+
+1. **Indexing:** the process of identifying the most similar time series in a dataset given a query time series 
+2. **Classification:** the supervised categorization process of data into predefined groups [@wei2006semi]
+3. **Clustering:** the process of partitioning a set of data into a set of meaningful sub-classes [@alon2003discovering]-[@liao2005clustering]
+4. **Anomaly detection:** the identification process of abnormal or unique data items in a dataset given a reference pattern [@chin2005symbolic].
 
 Unfortunately, the above tasks cannot be handled very efficiently by using the traditional Euclidean distance, since it can only aligns a pair of 1D sequence at once, therefore causing each dimension to be compared separately. By definition, the Dynamic Time Warping (DTW) is known as a distance measure used for aligning pairs of monodimensional signals which may vary both in dimension and time, the latter known in the literature as the *time warping problem* (e.g., two equal sentences spoken at different rates). That said, the use of this measure of similarity is not suitable when dealing with signals represented by more than just one single attribute at a time (e.g., set of audio/video features, gesture signals components, etc.).
 
