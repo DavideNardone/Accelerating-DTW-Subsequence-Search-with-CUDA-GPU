@@ -200,7 +200,3 @@ APA
 ## License
 
 [MIT LICENSE](LICENSE)
-
-## Paper
-
-The following software is under review for the [The Journal of Open Source Software](https://joss.theoj.org/papers/0a9f9006cebb80198e0ad5448cc1fc10).
