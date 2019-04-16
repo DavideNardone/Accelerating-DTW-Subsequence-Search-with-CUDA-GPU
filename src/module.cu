@@ -936,7 +936,7 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
     for (i = 0; i < t_size; i++) {
       for (k = 0; k < n_feat; k++) {
         if( fscanf(inputFile[0], "%f", &tmp[k]) < 1 ){
-          fprintf(stderr, "File reading error!\n");
+          fprintf(stderr, "1.File reading error labels when i=%d,k=%d\n",i,k);
           exit(2);
         }
         t_series[(k * t_size) + i] = tmp[k];
@@ -947,7 +947,7 @@ __host__ void readFileSubSeq(char **file_name, int *ind_files, int n_file,
     for (i = 0; i < window_size; i++) {
       for (k = 0; k < n_feat; k++) {
         if( fscanf(inputFile[1], "%f", &tmp[k]) < 1){
-          fprintf(stderr, "File reading error!\n");
+          fprintf(stderr, "1.File reading error values when i=%d,k=%d\n",i,k);
           exit(2);
         }
         q_series[(k * window_size) + i] = tmp[k];
@@ -1014,7 +1014,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
     inputFile[i] = fopen(curr_file, "r");
 
     if ( access(curr_file, F_OK ) == -1 ) {
-      fprintf(stderr, "0.File reading error!\n");
+      fprintf(stderr, "0.File reading error path! The file may not exists.\n");
       exit(2);
     }
   }
@@ -1052,7 +1052,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
     for (i = 0; i < data_struct.tot_size; i++) {
 
       if( fscanf(inputFile[lab_ind], "%f", &label) < 1){
-          fprintf(stderr, "File reading error!\n");
+          fprintf(stderr, "1.File reading error labels when i=%d,k=%d,j=%d\n",i,k,j);
           exit(2);
       }
 
@@ -1061,7 +1061,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
       for (k = 0; k < n_feat; k++) {
         for (j = 0; j < window_size; j++) {
           if( fscanf(inputFile[data_ind], "%f", &tmp) < 1){
-            fprintf(stderr, "File reading error!\n");
+            fprintf(stderr, "2.File reading error values when i=%d,k=%d,j=%d\n",i,k,j);
             exit(2);            
           }
 
@@ -1090,7 +1090,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
       // reading labels
       for (k = 0; k < n_feat; k++)
         if( fscanf(inputFile[k], "%f", &label) < 1){
-          fprintf(stderr, "File reading error!\n");
+          fprintf(stderr, "1.File reading error labels when i=%d,k=%d,j=%d\n",i,k,j);
           exit(2);
         }
 
@@ -1099,7 +1099,7 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
       for (j = 0; j < window_size; j++) {
         for (k = 0; k < n_feat; k++)
           if( fscanf(inputFile[k], "%f", &tmp[k]) < 1){
-            fprintf(stderr, "File reading error!\n");
+            fprintf(stderr, "2.File reading error values when i=%d,k=%d,j=%d\n",i,k,j);
             exit(2);
           }
 
@@ -1126,13 +1126,11 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
 
     for (int ll = 0; ll < n_file; ll++) {
       for (int inn = 0; inn < size_arr[ll]; inn++) {
-
-        // reading data
         for (k = 0; k < n_feat; k++) {
 
           // reading labels from either train or test set
           if( fscanf(inputFile[ll], "%f", &label) < 1){
-            fprintf(stderr, "1.File reading error!\n");
+              fprintf(stderr, "1.File reading error labels on #%d file when inn=%d,k=%d,j=%d\n", ll,inn,k,j);
             exit(2);
           }
 
@@ -1141,10 +1139,9 @@ __host__ void readFile(char **file_name, int *ind_files, int n_file,
           for (j = 0; j < window_size; j++) {
 
             if( fscanf(inputFile[ll], "%f", &tmp[j]) < 1){ // fd=0 data descript
-              fprintf(stderr, "2.File reading error!\n");
+              fprintf(stderr, "2.File reading error values on #%d file when inn=%d,k=%d,j=%d\n", ll,inn,k,j);
               exit(2);              
             }
-
             // MDT_D or MDT_I
             if (class_alg < 2)
               data[(n_feat * i * window_size) + (k * window_size) + j] = tmp[j];
@@ -2108,6 +2105,7 @@ __host__ int foldit (int ws) {
     else if (ws > 2048 and ws <= 4096) return 6;
     else if (ws > 4096 and ws <= 8192) return 7;
     else if (ws > 8192 and ws <= 16384) return 8;
+    else if (ws > 16384 and ws <= 20000) return 9; //The constant memory in CUDA is a dedicated memory space of maximum 65536 bytes, there we cannot allocate more than array[32,768]
     else return 999;   // triggers the default part of the switch
 }
 
@@ -2429,7 +2427,7 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   if (T2 > deviceProp.sharedMemPerBlock) {
 
     if(verbose_mode > 0)
-      printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+      printf("\tWarning: The T2 test timeserie: %f bytes doesn't fit into the shared "
              "memory: %lu, so it will be allocated into the global "
              "memory\n",
              T2, deviceProp.sharedMemPerBlock);
@@ -2491,6 +2489,9 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
         case 8: MD_DTW_D<16384><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
                                                     n_feat, d_Out, 0, gm);
         break;
+        case 9: MD_DTW_D<20000><<<grid, threads, T2>>>(d_train, d_test, trainSize, window_size, 
+                                                    n_feat, d_Out, 0, gm);
+        break;
 
         default: printf("No kernel exists for %d window_size\n", window_size); break;
       }
@@ -2504,6 +2505,9 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
     
     cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
                cudaMemcpyDeviceToHost);
+
+    // printArray(h_Out,trainSize);
+    // exit(-1);
 
     min = min_arr(h_Out, trainSize, minI);
 
@@ -2612,6 +2616,9 @@ __host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
       case 8: MD_DTW_D<16384><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
                                                   q_size, n_feat, d_owp, 1, gm);
       break;
+      case 9: MD_DTW_D<20000><<<grid, threads, T2>>>(d_t_series, d_q_series, t_size,
+                                                  q_size, n_feat, d_owp, 1, gm);
+      break;
     }
   }
   else
@@ -2668,7 +2675,7 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   grid_size = ceil((float)(trainSize * n_feat) / blockSize);
   //the way to compute this measure can be envetually changed
   //according with the logic implemented in the MD_DTW_I function
-  float dim_row = floor((float)blockSize / n_feat); 
+  float dim_row = ceil((float)blockSize / n_feat); 
   float dim_col = n_feat;
 
   //block_size < n_feat
@@ -2748,6 +2755,9 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
         case 8: MD_DTW_I<16384><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
                                                         window_size, n_feat, d_Out, 0, gm);
         break;
+        case 9: MD_DTW_I<32768><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
       }
     }
     else
@@ -2803,7 +2813,7 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
 
   // Setting CUDA variables and structure
   grid_size = ceil((float)(nss * n_feat) / blockSize);
-  float dim_row = floor((float)blockSize / n_feat);
+  float dim_row = ceil((float)blockSize / n_feat);
   float dim_col = n_feat;
 
   // number of blocks (x,y) for a grid
@@ -2852,6 +2862,9 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
                                            t_size, q_size, n_feat, d_owp, 1, gm);
       break;
       case 8: MD_DTW_I<16384><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 9: MD_DTW_I<32768><<<grid, threads, sh_mem>>> (d_t_series, d_q_series,
                                            t_size, q_size, n_feat, d_owp, 1, gm);
       break;
     }
@@ -2972,6 +2985,9 @@ __host__ void MDR_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int
                                                        window_size, n_feat, d_Out, gm);
         break;
         case 8: rMD_DTW_D<16384><<<grid, threads, T2>>>(d_train, d_test, trainSize,
+                                                        window_size, n_feat, d_Out, gm);
+        break;
+        case 9: rMD_DTW_D<32768><<<grid, threads, T2>>>(d_train, d_test, trainSize,
                                                         window_size, n_feat, d_Out, gm);
         break;
       }

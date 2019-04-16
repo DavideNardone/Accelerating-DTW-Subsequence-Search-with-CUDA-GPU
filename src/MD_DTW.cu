@@ -352,8 +352,8 @@ int main(int argc, char **argv) {
     printf("Reading data...\n");
     printf("Dataset size: [%d,%d,%d]\n", dataSize, window_size, n_feat);
     if(k_fold < 1){
-      printf("Test size: [%d,%d,%d]\n", trainSize, window_size, n_feat);
-      printf("Test size:  [%d,%d,%d]\n", testSize, window_size, n_feat);
+        printf("\tTrain set size: [%d,%d,%d]\n", trainSize, window_size, n_feat);
+        printf("\tTest set size: [%d,%d,%d]\n\n", testSize, window_size, n_feat);
     }
     printf("\nClassification w/ %s-%s using " "%s\n\n", strategy, distance_type, compution_type);
 
@@ -400,8 +400,8 @@ int main(int argc, char **argv) {
 
       if(verbose_mode > 0){
         printf("Running %d/%d fold...\n", f+1, k_fold);
-        printf("\tTrain set size: [%d,%d,%d]\n", trainSize, window_size, n_feat);
-        printf("\tTest set size: [%d,%d,%d]\n\n", testSize, window_size, n_feat);
+        printf("\tTrain set size: [%d,%d,%d] = %llu bytes\n", trainSize, window_size, n_feat, trainBytes);
+        printf("\tTest set size: [%d,%d,%d] = %llu bytes\n\n", testSize, window_size, n_feat, testBytes);
       }
 
       if (strcmp(compution_type, "CPU") == 0) {
