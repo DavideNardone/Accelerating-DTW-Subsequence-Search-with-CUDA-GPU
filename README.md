@@ -200,3 +200,7 @@ APA
 ## License
 
 [MIT LICENSE](LICENSE)
+
+# Papers that cite MTSS
+
+The following software is related to a scientific manuscript submitted to an official journal, so i wouldn't recommend you to use it for any plagiarism.
