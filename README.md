@@ -197,10 +197,11 @@ APA
 
 [3] Shokoohi-Yekta, M., Hu, B., Jin, H. et al. Data Min Knowl Disc (2017) 31: 1. https://doi.org/10.1007/s10618-016-0455-0
 
+## Papers that cite MTSS
+
+The following software is related to a scientific manuscript submitted to an official journal, so i wouldn't recommend you to use it for any plagiarism.
+
+
 ## License
 
 [MIT LICENSE](LICENSE)
-
-# Papers that cite MTSS
-
-The following software is related to a scientific manuscript submitted to an official journal, so i wouldn't recommend you to use it for any plagiarism.
