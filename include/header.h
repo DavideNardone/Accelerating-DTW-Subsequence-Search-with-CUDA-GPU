@@ -44,7 +44,7 @@ __host__ void print_help(void);
 __host__ void print_version(void);
 __host__ void infoDev();
 __host__ cudaDeviceProp getDevProp(int);
-__host__ void checkGPU_prop(char *, cudaDeviceProp , const char *, int );
+__host__ void checkGPU_prop(const char *, cudaDeviceProp , const char *, int );
 __host__ void initializeArray(float *, int);
 __host__ void initializeArray(int *, int );
 __host__ void initializeMatrix(float *, int, int);
@@ -77,7 +77,9 @@ __host__ void MDR_SIM_MES_CPU(int , int , int *, int *, float *, float *, int , 
 __host__ float MDD_SIM_MES_GPU(int , int , int *, int *, float *, float *, float *, float *, float *, float *, int , int , int , cudaDeviceProp , char *, int );
 __host__ float MDD_SIM_MES_GPU(int , float *, float *, int , int , int , int , cudaDeviceProp , char *, int , float *, float *, int *);
 __host__ float MDI_SIM_MES_GPU(int , int , int *, int *, float *, float *, float *, float *, float *, float *, int , int , int , cudaDeviceProp , char *, int );
+__host__ float MDI_SIM_MES_GPU_v2(int , int , int *, int *, float *, float *, float *, float *, float *, float *, int , int , int , cudaDeviceProp , char *, int );
 __host__ float MDI_SIM_MES_GPU(int , float *, float *, int , int , int , int , cudaDeviceProp , char *, int , float *, float *, int *);
+__host__ float MDI_SIM_MES_GPU_v2(int , float *, float *, int , int , int , int , cudaDeviceProp , char *, int , float *, float *, int *);
 __host__ void MDR_SIM_MES_GPU(int , int , int *, int *, float *, float *, float *, float *, float *, float *, int , int , int , cudaDeviceProp , char *, int , int *, int *);
 
 #endif

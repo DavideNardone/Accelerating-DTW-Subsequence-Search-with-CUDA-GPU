@@ -2,7 +2,6 @@
 
 using namespace std;
 
-
 /**
  * \brief The function `stdDev` compute the `standard deviation` of a given vector allocated on the CUDA device.
  *
@@ -210,6 +209,196 @@ __global__ void MD_DTW_D(float *S, float *T, int trainSize, int window_size, int
     data_out[idx] = array[window_size - 1][g];
   }
 }
+
+template<int WS>
+__global__ void MD_DTW_I_v2(float *S, float *T, int trainSize, int window_size, int dimensions,
+                         float *data_out, int task, int gm) {
+
+  int idx, offset, offset_x, offset_y, offset_y_glob;
+  int i, j;
+  int k, l, g;
+  float min_nb = 0;
+  float array[WS][2];
+
+  if(gm == 0) { //shared memory solution
+
+    extern __shared__ float sh_mem[];
+    float *T2 = (float *)sh_mem;
+    float *DTW_single_dim =
+      (float *)&sh_mem[dimensions *
+                       window_size]; // offset on the shared memory for the segment T2
+
+    if (task == 0) {
+      // idx = threadIdx.x * dimensions + (blockIdx.y*blockDim.y) + threadIdx.y; //shouldn't take into account the blockIdx.y and blockDim.y
+      idx = threadIdx.x * blockDim.y + threadIdx.y;
+
+      offset_x = blockIdx.x * (window_size*dimensions*blockDim.x) + window_size*dimensions*threadIdx.x;
+      offset_y = blockIdx.y * (window_size*blockDim.y) + window_size*threadIdx.y;
+      offset = offset_x + offset_y;
+
+      if ( (offset_x >= trainSize*window_size*dimensions) || (offset_y >= window_size*dimensions) )
+        return;
+    }
+    else {
+      // idx = threadIdx.x * dimensions + (blockIdx.y*blockDim.y) + threadIdx.y;
+      idx = threadIdx.x * blockDim.y + threadIdx.y;
+
+      offset_x = (blockIdx.x * blockDim.x) + threadIdx.x;
+      offset_y_glob = blockIdx.y * (trainSize*blockDim.y) + trainSize*threadIdx.y;
+      offset = offset_x + offset_y_glob;
+      offset_y = ((threadIdx.x * dimensions + (blockIdx.y*blockDim.y) + threadIdx.y) % dimensions) * window_size;
+
+      if ( (offset_x >= trainSize) || (offset_y_glob >= trainSize*dimensions) ){
+        return;
+      }
+    }
+
+    if (threadIdx.x == 0) {
+      for (i = 0; i < dimensions; i++)
+        for (j = 0; j < window_size; j++)
+          *(T2 + (window_size * i + j)) = T[window_size * i + j];
+    }
+    __syncthreads(); //wait all the others threads
+
+
+    k = 0;
+    l = 1;
+    for (i = 0; i < window_size; i++) {
+      if (i == 0)
+        array[i][k] = pow((S[offset] - T2[offset_y]), 2);
+      else
+        array[i][k] =
+            pow((S[offset] - T2[offset_y + i]), 2) + array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+      i = 0;
+      array[i][k] = pow((S[offset + j] - T2[offset_y + i]), 2) + array[i][l];
+
+      for (i = 1; i < window_size; i++) {
+        double a = array[i - 1][l];
+        double b = array[i][l];
+        double c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        array[i][k] =
+            pow((S[offset + j] - T2[offset_y + i]), 2) + min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+    DTW_single_dim[idx] = array[window_size - 1][g];
+    // printf("offset_x: %d, offset_y: %d, offset: %d, idx_1: %d idx_2: %d, [blockIdx.x: %d, blockIdx.y: %d], [thx.x %d, thx.y %d], val: %5f\n",offset_x, offset_y, offset, (i*dimensions+j), idx, blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y,DTW_single_dim[idx]);
+
+    __syncthreads();
+
+    //threads on the row of each grid.x are charge for summing up the results of each sample
+    if ( (idx % blockDim.y) == 0) {
+
+      if (blockIdx.y < floor((double)dimensions/blockDim.y)){
+        for (k = 0; k < blockDim.y; k++) { //WRONG
+          data_out[(blockIdx.x*blockDim.x) + threadIdx.x] += DTW_single_dim[idx + k];
+          // printf("1.offset_x: %d, offset_y: %d, offset: %d, idx_1: %d idx_2: %d, [blockIdx.x: %d, blockIdx.y: %d], [thx.x %d, thx.y %d], k: %d, val: %5f\n",offset_x, offset_y, offset, (i*dimensions+j), idx, blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y,k,DTW_single_dim[idx + k]);
+        }
+      }
+      else{
+        // printf("2. offset_x: %d, offset_y: %d, offset: %d, idx_1: %d idx_2: %d, [blockIdx.x: %d, blockIdx.y: %d], [thx.x %d, thx.y %d], val: %5f\n",offset_x, offset_y, offset, (i*dimensions+j), idx, blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y,DTW_single_dim[idx]);
+        for (int b = 0; b < dimensions%blockDim.y; b++)
+        {
+        data_out[(blockIdx.x*blockDim.x) + threadIdx.x] += DTW_single_dim[idx+b];
+        }
+      }
+    }
+  }
+  else {
+    extern __shared__ float DTW_single_dim[];
+
+    if (task == 0) {
+      // idx = threadIdx.x * dimensions + (blockIdx.y*blockDim.y) + threadIdx.y; //shouldn't take into account the blockIdx.y and blockDim.y      
+      idx = threadIdx.x * blockDim.y + threadIdx.y;
+
+      offset_x = blockIdx.x * (window_size*dimensions*blockDim.x) + window_size*dimensions*threadIdx.x;
+      offset_y = blockIdx.y * (window_size*blockDim.y) + window_size*threadIdx.y;
+      offset = offset_x + offset_y;
+
+      if ( (offset_x >= trainSize*window_size*dimensions) || (offset_y >= window_size*dimensions) )
+        return;
+    }
+    else {
+      // idx = threadIdx.x * dimensions + (blockIdx.y*blockDim.y) + threadIdx.y;
+      idx = threadIdx.x * blockDim.y + threadIdx.y;
+
+      offset_x = (blockIdx.x * blockDim.x) + threadIdx.x;
+      offset_y_glob = blockIdx.y * (trainSize*blockDim.y) + trainSize*threadIdx.y;
+      offset = offset_x + offset_y_glob;
+      offset_y = ((threadIdx.x * dimensions + (blockIdx.y*blockDim.y) + threadIdx.y) % dimensions) * window_size;
+
+      if ( (offset_x >= trainSize) || (offset_y_glob >= trainSize*dimensions) ){
+        // printf("offset_x: %d, offset_y: %d, offset: %d, idx_1: %d idx_2: %d, [blockIdx.x: %d, blockIdx.y: %d], [thx.x %d, thx.y %d], val: %5f\n",offset_x, offset_y_glob, offset, (i*dimensions+j), idx, blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y,DTW_single_dim[idx]);
+        return;
+      }
+    }
+
+    k = 0;
+    l = 1;
+    for (i = 0; i < window_size; i++) {
+      if (i == 0)
+        array[i][k] = pow((S[offset] - T[offset_y]), 2);
+      else
+        array[i][k] =
+            pow((S[offset] - T[offset_y + i]), 2) + array[i - 1][k];
+    }
+
+    k = 1;
+    l = 0;
+    for (j = 1; j < window_size; j++) {
+      i = 0;
+      array[i][k] = pow((S[offset + j] - T[offset_y + i]), 2) + array[i][l];
+
+      for (i = 1; i < window_size; i++) {
+        double a = array[i - 1][l];
+        double b = array[i][l];
+        double c = array[i - 1][k];
+
+        min_nb = fminf(a, b);
+        min_nb = fminf(c, min_nb);
+
+        array[i][k] =
+            pow((S[offset + j] - T[offset_y + i]), 2) + min_nb;
+      }
+      g = k;
+      k = l;
+      l = g;
+    }
+    DTW_single_dim[idx] = array[window_size - 1][g];
+
+    __syncthreads();
+
+    //threads on the row of each grid.x are charge for summing up the results of each sample
+    if ( (idx % blockDim.y) == 0) {
+
+      if (blockIdx.y < floor((double)dimensions/blockDim.y)){
+        for (k = 0; k < blockDim.y; k++) { //WRONG
+          data_out[(blockIdx.x*blockDim.x) + threadIdx.x] += DTW_single_dim[idx + k];
+          // printf("1.offset_x: %d, offset_y: %d, offset: %d, idx_1: %d idx_2: %d, [blockIdx.x: %d, blockIdx.y: %d], [thx.x %d, thx.y %d], k: %d, val: %5f\n",offset_x, offset_y, offset, (i*dimensions+j), idx, blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y,k,DTW_single_dim[idx + k]);
+        }
+      }
+      else{
+        // printf("2. offset_x: %d, offset_y: %d, offset: %d, idx_1: %d idx_2: %d, [blockIdx.x: %d, blockIdx.y: %d], [thx.x %d, thx.y %d], val: %5f\n",offset_x, offset_y, offset, (i*dimensions+j), idx, blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y,DTW_single_dim[idx]);
+        for (int b = 0; b < dimensions%blockDim.y; b++)
+        {
+        data_out[(blockIdx.x*blockDim.x) + threadIdx.x] += DTW_single_dim[idx+b];
+        }
+      }
+    }
+  }
+}
+
 
 /**
  * \brief The kernel function `MD_ED_I` computes the `Independent Multi Dimensional-Dynamic Time Warping` distance (I-MDDTW).
@@ -1908,14 +2097,14 @@ __host__ cudaDeviceProp getDevProp(int device) {
   * \param *prop_in GPU property to check
   * \param *prop_GPU_in GPU property value to check
  */
-__host__ void checkGPU_prop(char *compution_type, cudaDeviceProp deviceProp, const char *prop_in, int prop_GPU_in){
+__host__ void checkGPU_prop(const char *compution_type, cudaDeviceProp deviceProp, const char *prop_in, int prop_GPU_in){
 
   if (strcmp(compution_type, "GPU") == 0) {
 
     if ( (strcmp(prop_in, "maxThreadsPerBlock") == 0) && (prop_GPU_in < 0 || prop_GPU_in > deviceProp.maxThreadsPerBlock) ) {
 
-      printf(" %d is an irregular #threads for block for the device %s.\n The number of threads "
-         "for block has to be included in [0, %d]\n", prop_GPU_in, deviceProp.name, deviceProp.maxThreadsPerBlock);
+      printf("%d is an irregular #threads for block for the device %s.\n The number of threads "
+         "for block has to be included in [0, %d]. The execution has been halted!\n", prop_GPU_in, deviceProp.name, deviceProp.maxThreadsPerBlock);
       exit(-2);
     }
   }
@@ -2452,6 +2641,8 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
            threads.y);
   }
 
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", grid.x);
+
   for (int k = 0; k < testSize; k++) {
 
     cudaMemset(d_test, 0, n_feat * window_size * sizeof(float));
@@ -2500,6 +2691,8 @@ __host__ float MDD_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
       MD_ED_D <<<grid, threads, T2>>> (d_train, d_test, trainSize, window_size,
                                         n_feat, d_Out, 0, gm);
 
+
+    checkCUDAError("MD_DTW_D");
     // cudaDeviceSynchronize(); // it may be avoided if there's not printf
                              // in the kernel function
     
@@ -2625,6 +2818,8 @@ __host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
     MD_ED_D << <grid, threads, T2>>> (d_t_series, d_q_series, t_size, q_size,
                                       n_feat, d_owp, 1, gm);
 
+  checkCUDAError("MD_DTW_D");
+
   cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
 
   for (int i = 0; i < nss; ++i) {
@@ -2640,6 +2835,134 @@ __host__ float MDD_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
 
   return min;
 }
+
+
+__host__ float MDI_SIM_MES_GPU_v2(int trainSize, int testSize, int *trainLabels, int *testLabels, float *h_train, float *h_test, float *d_train, float *d_test, float *d_Out, float *h_Out, int window_size, int n_feat, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode){
+
+  float grid_size_x, grid_size_y, min = 9999.99;
+  dim3 grid;
+  dim3 threads;
+
+  int *minI = (int *)malloc(sizeof(int));
+  int err = 0;
+
+  grid_size_x = ceil( (float)trainSize / blockSize);
+  grid_size_y = ceil( (float)n_feat / blockSize);
+
+  // number of blocks (x,y) for a grid
+  grid.x = grid_size_x;
+  grid.y = grid_size_y;
+  // number of threads (x,y) for each block
+  threads.x = blockSize;
+  threads.y = blockSize;
+
+  float T2 = ((threads.x * threads.y) + (n_feat * window_size)) *
+             sizeof(float);
+  int gm = 0;
+
+  // when the number of th.y is greater then the number of feature, the kernel tends to compute slower  
+  if(threads.y > n_feat)
+    threads.y = n_feat;
+
+  if (T2 > deviceProp.sharedMemPerBlock) {
+    if(verbose_mode > 0)
+      printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+             "memory: %lu, so it will be allocated into the global "
+             "memory\n",
+             T2, deviceProp.sharedMemPerBlock);
+    gm = 1;
+    T2 = 0;
+    T2 = (threads.x * threads.y) * sizeof(float);
+  } else
+    gm = 0;
+    
+
+  if(verbose_mode > 0){
+    printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
+           threads.x);
+    printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
+           threads.y);
+  }
+
+  //(x,y,z) if x*y*z > 1024, CUDA will throw the error: "invalid configuration argument"
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", threads.x);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", threads.y);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", threads.x*threads.y);
+
+  for (int k = 0; k < testSize; k++) {
+
+    cudaMemset(d_Out, 0, trainSize * sizeof(float));
+
+    cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
+               n_feat * window_size * sizeof(float),
+               cudaMemcpyHostToDevice);
+
+    if (strcmp(distance_type, "DTW") == 0){ // DTW distance
+
+      switch (foldit(window_size)) {
+
+        case 0: MD_DTW_I_v2<64><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 1: MD_DTW_I_v2<128><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 2: MD_DTW_I_v2<256><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 3: MD_DTW_I_v2<512><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 4: MD_DTW_I_v2<1024><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 5: MD_DTW_I_v2<2048><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 6: MD_DTW_I_v2<4096><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 7: MD_DTW_I_v2<8192><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 8: MD_DTW_I_v2<16384><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+        case 9: MD_DTW_I_v2<32768><<<grid, threads, T2>>>(d_train, d_test, trainSize, 
+                                                        window_size, n_feat, d_Out, 0, gm);
+        break;
+      }
+    }
+    else{ //NOT WORKING FOR NOW
+      printf("MED_ED_I version_2 is still not available...\n");
+      exit(-1);
+    }
+
+    checkCUDAError("");
+    cudaDeviceSynchronize();
+    cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
+               cudaMemcpyDeviceToHost);
+
+    // printArray(h_Out, trainSize);
+    min = min_arr(h_Out, trainSize, minI);
+
+    if (trainLabels[*minI] != testLabels[k])
+      err++;
+
+    if (verbose_mode > 0 && verbose_mode < testSize) {
+      if (k % verbose_mode == 0)
+        printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+               trainLabels[*minI], min);
+      else if (k == testSize-1)
+        printf("\t%d\t gt: %d\t\tRI: %d\t%3.6f\n", k, testLabels[k],
+               trainLabels[*minI], min);
+    }
+  }
+  free(minI);
+
+  return err;
+}
+
 
 /**
  * \brief The function `MDI_SIM_MES_GPU` is a wrapper function used for computing the GPU independent multidimensional similary measure for the classification task.
@@ -2692,8 +3015,8 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   threads.x = dim_row;
   threads.y = dim_col;
 
-  float T2 = ((threads.x * threads.y) + (n_feat * window_size)) *
-             sizeof(float);
+  float T2 = ((threads.x * threads.y) + (n_feat * window_size)) * sizeof(float);
+
   int gm = 0;
 
   if (T2 > deviceProp.sharedMemPerBlock) {
@@ -2715,9 +3038,11 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
     printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
            threads.y);
   }
-/*
-  float sh_mem = ((threads.x * threads.y) + (n_feat * window_size)) *
-                 sizeof(float);*/
+
+  //(x,y,z) if x*y*z > 1024, CUDA will throw the error: "invalid configuration argument"
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", dim_row);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", dim_col);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", dim_row*dim_col);
 
   for (int k = 0; k < testSize; k++) {
     cudaMemcpy(d_test, h_test + k * (n_feat * window_size),
@@ -2764,7 +3089,8 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
       MD_ED_I << <grid, threads, T2>>>
           (d_train, d_test, trainSize, window_size, n_feat, d_Out, 0, gm);
 
-    cudaThreadSynchronize();
+    checkCUDAError("");
+    cudaDeviceSynchronize();
     cudaMemcpy(h_Out, d_Out, trainSize * sizeof(float),
                cudaMemcpyDeviceToHost);
 
@@ -2785,6 +3111,119 @@ __host__ float MDI_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, in
   free(minI);
 
   return err;
+}
+
+
+
+__host__ float MDI_SIM_MES_GPU_v2(int nss, float *d_t_series, float *d_q_series, int t_size, int q_size, int n_feat, int blockSize, cudaDeviceProp deviceProp, char *distance_type, int verbose_mode, float *owp, float *d_owp, int *ind_min_val){
+
+  float grid_size_x,grid_size_y, min = 9999.99;
+  dim3 grid;
+  dim3 threads;
+
+  // Setting CUDA variables and structure
+  grid_size_x = ceil((float)nss/blockSize);
+  grid_size_y = ceil((float)n_feat/blockSize);
+
+  // number of blocks (x,y) for a grid
+  grid.x = grid_size_x;
+  grid.y = grid_size_y;
+
+  // number of threads (x,y) for each block
+  threads.x = blockSize;
+  threads.y = blockSize;
+
+  int gm = 0;
+
+  if(verbose_mode > 0){
+    printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
+           threads.x);
+    printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
+           threads.y);
+  }
+
+  //(x,y,z) if x*y*z > 1024, CUDA will throw the error: "invalid configuration argument"
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", threads.x);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", threads.y);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", threads.x*threads.y);
+
+  float T2 = 0;
+
+  // when the number of th.y is greater then the number of feature, the kernel tends to compute slower  
+  if(threads.y > n_feat)
+    threads.y = n_feat;
+
+  T2 = ((threads.x * threads.y) + (n_feat * q_size)) * sizeof(float);
+
+  if (T2 > deviceProp.sharedMemPerBlock) {
+    if(verbose_mode > 0)
+      printf("\tWarning: The T2 test timeserie: %f doesn't fit into the shared "
+             "memory: %lu, so it will be allocated into the global "
+             "memory\n",
+             T2, deviceProp.sharedMemPerBlock);
+    gm = 1;
+    T2 = 0;
+    T2 = (threads.x * threads.y) * sizeof(float);
+  } else
+    gm = 0;
+
+  if (strcmp(distance_type, "DTW") == 0){ // DTW distance
+
+    switch (foldit(q_size)) {
+
+      case 0: MD_DTW_I_v2<64><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 1: MD_DTW_I_v2<128><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 2: MD_DTW_I_v2<256><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 3: MD_DTW_I_v2<512><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 4: MD_DTW_I_v2<1024><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 5: MD_DTW_I_v2<2048><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 6: MD_DTW_I_v2<4096><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 7: MD_DTW_I_v2<8192><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 8: MD_DTW_I_v2<16384><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+      case 9: MD_DTW_I_v2<32768><<<grid, threads, T2>>> (d_t_series, d_q_series,
+                                           t_size, q_size, n_feat, d_owp, 1, gm);
+      break;
+    }
+  }
+  else{ //NOT WORKING FOR NOW
+    printf("MED_ED_I version_2 is still not available...\n");
+    exit(-1);
+  }
+
+  checkCUDAError("MD_DTW_I");
+
+  cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);  
+
+  if (verbose_mode > 0 && verbose_mode < nss) {
+    for (int i = 0; i < nss; ++i) {
+      if (i % verbose_mode == 0)
+        printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+      else if (i == nss)
+        printf("\tCurr val diff. [%d]: %f\n", i, owp[i]);
+    }
+  }
+
+  min = min_arr(owp, nss, ind_min_val);
+
+  return min;
 }
 
 /**
@@ -2831,6 +3270,11 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
   printf("\tGrid_size_y: %d, number_of_threads_y: %d \n\n", grid.y,
          threads.y);
 
+  //(x,y,z) if x*y*z > 1024, CUDA will throw the error: "invalid configuration argument"
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", dim_row);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", dim_col);
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", dim_row*dim_col);
+  
   float sh_mem = ((threads.x * threads.y) + (n_feat * t_size)) * sizeof(float);
 
   if (strcmp(distance_type, "DTW") == 0){ // DTW distance
@@ -2873,7 +3317,9 @@ __host__ float MDI_SIM_MES_GPU(int nss, float *d_t_series, float *d_q_series, in
     MD_ED_I << <grid, threads, sh_mem>>>
         (d_t_series, d_q_series, t_size, q_size, n_feat, d_owp, 1, gm);
 
-  cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);
+  checkCUDAError("MD_DTW_I");
+
+  cudaMemcpy(owp, d_owp, nss * sizeof(float), cudaMemcpyDeviceToHost);  
 
   for (int i = 0; i < nss; ++i) {
     if (verbose_mode > 0 && verbose_mode < nss) {
@@ -2944,6 +3390,9 @@ __host__ void MDR_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int
   threads.x = blockSize;
   threads.y = 1;
 
+  //(x,y,z) if x*y*z > 1024, CUDA will throw the error: "invalid configuration argument"
+  checkGPU_prop("GPU", deviceProp, "maxThreadsPerBlock", threads.x);
+
   if(verbose_mode > 0){
     printf("\tGrid_size_x: %d, number_of_threads_x: %d \n", grid.x,
            threads.x);
@@ -2996,7 +3445,9 @@ __host__ void MDR_SIM_MES_GPU(int trainSize, int testSize, int *trainLabels, int
       rMD_ED_D << <grid, threads, T2>>>
           (d_train, d_test, window_size, n_feat, d_Out, trainSize, gm);
 
-    cudaThreadSynchronize();
+    cudaDeviceSynchronize();
+
+    checkCUDAError("rMD_DTW_D");
 
     cudaMemcpy(h_Out, d_Out, trainSize * window_size * sizeof(float),
                cudaMemcpyDeviceToHost);

@@ -331,6 +331,8 @@ int main(int argc, char **argv) {
   cudaDeviceProp deviceProp = getDevProp(device);
   checkGPU_prop(compution_type, deviceProp, "maxThreadsPerBlock", blockSize);
 
+  // infoDev(); //print devices info
+
   if(verbose_mode == 0){
     printf("\nThe number of iteration is greater than testSize! "
       "Verbose mode will be suppressed for this run\n");
@@ -506,6 +508,21 @@ int main(int argc, char **argv) {
         }
         /* *************** DEVICE MEMORY ALLOCATION *************** */
 
+        // infoDev();
+        // https://gist.github.com/dangkhoasdc/4dfe88ada3b84208e17f488a8a8508db
+
+        // size_t limit = 0;
+
+        // cudaDeviceGetLimit(&limit, cudaLimitStackSize);
+        // printf("cudaLimitStackSize: %u\n", (unsigned)limit);
+        // cudaDeviceGetLimit(&limit, cudaLimitPrintfFifoSize);
+        // printf("cudaLimitPrintfFifoSize: %u\n", (unsigned)limit);
+        // cudaDeviceGetLimit(&limit, cudaLimitMallocHeapSize);
+        // printf("cudaLimitMallocHeapSize: %u\n", (unsigned)limit);
+
+        // limit = 0;
+        // cudaDeviceSetLimit(cudaLimitMallocHeapSize, limit);
+
         switch (class_mode) {
 
           case 0: // MD_DTW_D
@@ -541,7 +558,8 @@ int main(int argc, char **argv) {
             cudaEventCreate(&stop_GPU);
             cudaEventRecord(start_GPU, 0);
 
-            int err = MDI_SIM_MES_GPU(trainSize, testSize, trainLabels, testLabels, h_train, h_test, d_train, d_test, d_Out, h_Out, window_size, n_feat, blockSize, deviceProp, distance_type, verbose_mode);
+            int err = MDI_SIM_MES_GPU_v2(trainSize, testSize, trainLabels, testLabels, h_train, h_test, d_train, d_test, d_Out, h_Out, window_size, n_feat, blockSize, deviceProp, distance_type, verbose_mode);
+            // int err = MDI_SIM_MES_GPU(trainSize, testSize, trainLabels, testLabels, h_train, h_test, d_train, d_test, d_Out, h_Out, window_size, n_feat, blockSize, deviceProp, distance_type, verbose_mode);
 
             cudaEventRecord(stop_GPU, 0);
             cudaEventSynchronize(stop_GPU);
@@ -720,10 +738,10 @@ int main(int argc, char **argv) {
           cudaEventCreate(&stop_GPU);
           cudaEventRecord(start_GPU, 0);
 
-          //TODO: change the order of the parameters: ..... d_q_series, t_size, q_size, n_feat ...
-          min = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, distance_type,  verbose_mode, owp, d_owp, &ind_min_val);
+          // min = MDI_SIM_MES_GPU(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, distance_type,  verbose_mode, owp, d_owp, &ind_min_val);
+          min = MDI_SIM_MES_GPU_v2(nss, d_t_series, d_q_series, t_size, q_size, n_feat, blockSize, deviceProp, distance_type,  verbose_mode, owp, d_owp, &ind_min_val);
 
-          cudaThreadSynchronize();
+          cudaDeviceSynchronize();
           cudaEventRecord(stop_GPU, 0);
           cudaEventSynchronize(stop_GPU);
           cudaEventElapsedTime(&time_GPU_MD_DTW_I, start_GPU, stop_GPU);
