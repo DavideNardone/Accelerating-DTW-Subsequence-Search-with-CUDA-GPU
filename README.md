@@ -174,7 +174,7 @@ In order to validate the software, some _unit tests_ are provided in the `tests`
 
 ## BENCHMARK
 
-In order to compare the time performance between the CPU and GPU implementations when the keys task parameters change, we provided a benchmark test for exploring a range of all combined parameters. The benchmark run may take awhile to get completed, so in case the user is interested in testing only some parameters combination, he/she can modify the file `benchmark.cu` code ad-hoc and the run the executable file:
+In order to compare the time performance between the CPU and GPU implementations when the keys task parameters change, we provided a benchmark test for exploring a range of all combined parameters. The benchmark run may take awhile to get completed, so in case the user is interested in testing only some parameters combination, he/she can modify the file `benchmark.cu` code ad-hoc and then run the executable file:
 
 `/tests/benchmark`
 
